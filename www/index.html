@@ -13,12 +13,51 @@
 </head>
 <body>
 
-<p>This is the initial web content for your project.  Please customize
-this to fit your project.  You don't need to answer all these questions
-or follow this exact format, but we do like to see this kind of
-information before we approve projects for public viewing.
+<h3>Overview</h3>
+
+<p>
+Juxy is a unit testing library for XSLT written in Java. It provides a way to
+start any XSLT transformation from Java within specified context, to obtain
+the result of the transformation (document fragment) and to apply various checks
+on the result.
+
+<p>
+Juxy not only allows you to start transformation, but also provides a way to configure
+transformation context: global variables, parameters, current node and so on.
+The transformation can be started by calling or applying templates.
+For called template you can specify name of the template which will be called as
+well as template parameters which should be passed to the template.
+For applied templates you can specify select expression, mode and template parameters.
+
+<p>
+For now Juxy provides two ways of the result checking:
+<ul>
+    <li>you can evaluate XPath expression over the resulting Node (requires <a href="http://www.jaxen.org/">Jaxen</a> to be added in the classpath)</li>
+    <li>or you can compare resulting fragment with expected XML</li>
+</ul>
+Or you can use <a href="http://xmlunit.sourceforge.net/">XMLUnit</a> for the result checking.
 </p>
 
+<p>Juxy does not use any XSLT processor specific extensions, it should work with all
+TRaX compliant XSLT processors. For now it is known to work with <a href="http://xml.apache.org/xalan-j/">Apache Xalan</a>
+and <a href="http://saxon.sourceforge.net">Saxon</a> (both Saxon 6.5.X and Saxon 8.X are supported). XSLT 2.0
+templates are known to work with Saxon 8.X, although they are not thoroughly tested.
+
+<h3>How it works</h3>
+
+<p>
+Juxy works by dynamically creating XSLT stylesheet. From that stylesheet the tested stylesheet is imported
+via xsl:import instruction, thus all its templates and variables got lower priority. Any variables and
+parameters specified in the transformation context will be placed in the generated stylesheet.
+If current node was specified, then corresponding xsl:for-each is added to that stylesheet.
+</p>
+
+<p>The returned result Node is always DocumentFragment node. It allows to return not well-formed
+documents containing, for example, only text, or more than one root node. This however could
+affect XPath expressions which are used to check the result.
+  
+
+<!--
 <p>Until your project is approved, only you can view it and work on
 it.
 </p>
@@ -40,7 +79,6 @@ project.</li>
 
 <li>You can add a "Highlights:" line to the top of all web pages by adding a file www/project_highlights.html </li>
 </ul>
-
 
 <h3>Mission</h3>
 
@@ -88,6 +126,7 @@ functional areas will depend on what you are trying to do.
 <li>Try to keep this part short.
 </ul>
 
+-->
 
 <h3>Related resources</h3>
 
