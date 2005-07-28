@@ -37,39 +37,48 @@ It relies entirely on TRaX API and should work with any TRaX compliant XSLT proc
 
 <p>It's time now to write test which will assert that we've got the expected result. It could be as simple as this:
 <pre>
-public class AddressTestCase extends JuxyTestCase {
+(1) public class AddressTestCase extends JuxyTestCase {
 
     public void testAddressToString() throws Exception {
-        RunnerContext ctx = newContext("address.xsl");
-        ctx.setDocument("&lt;address>" +
+(2)        RunnerContext ctx = newContext("address.xsl");
+(3)        ctx.setDocument("&lt;address>" +
             "&lt;city>Saint-Petersburg&lt;/city>" +
             "&lt;street>Nevsky pr.&lt;/street>" +
             "&lt;house>24&lt;/house>" +
             "&lt;zip>196254&lt;/zip>" +
             "&lt;/address>");
-        Node result = applyTemplates(xpath("address"));
-        assertEquals("196254, Saint-Petersburg, Nevsky pr., 24", normalizeAll(xpath("text()").toString(result)));
+(4)        Node result = applyTemplates(xpath("address"));
+(5)        assertEquals("196254, Saint-Petersburg, Nevsky pr., 24",
+(6)                normalizeAll(xpath("text()").toString(result)));
     }
 
 }
 </pre>
 
-<p>It is possible to use Juxy without JUnit, however if all that you need is to write JUnit tests it is worth to extend from JuxyTestCase.
+<p>(1):
+It is possible to use Juxy without JUnit, however if all that you need is to write JUnit tests it is worth to extend from JuxyTestCase.
 This class will save you some time.
 
-<p>First of all we need to create new <code>RunnerContext</code> object. This object  will hold the context of the transformation:
+<p>(2):
+First of all we need to create new <code>RunnerContext</code> object. This object  will hold the context of the transformation:
 you can setup there current node, variables, template and stylesheet parameters and so on.
 Method <code>newContext</code> not only creates new instance of <code>RunnerContext</code>, but it also sets it as a current context in the test case,
 so you will not need to pass it to the <code>applyTemplates</code> method.
 
-<p>Then we started applying templates by invoking method <code>applyTemplates</code>. We passed this method one argument: an XPath expression.
+<p>(3):
+We are setting input document into the context. This document will be passed to the input of the transformation, it
+could be any well-formed XML document.
+
+<p>(4):Then we started applying templates by invoking method <code>applyTemplates</code>. We passed this method one argument: an XPath expression.
 This expression will act in the same way as the select attribute of the <code>&lt;xsl:apply-templates/></code> instruction.
 
-<p>We've got the result of the transformation as a DOM Node object. In fact it is a DocumentFragment node, because there are
+<p>(5):
+We've got the result of the transformation as a DOM Node object. In fact it is a DocumentFragment node, because there are
 cases when transformation could return several nodes and they are not necessary will present a well formed document.
 For example, in our case we expect to receive only one TextNode. Then we can assert that result contains expected text.
 
-<p>We are evaluating XPath expression <code>text()</code> to receive text content of the node. Note that we also called <code>normalizeAll</code> method.
+<p>(6):
+We are evaluating XPath expression <code>text()</code> to receive text content of the node. Note that we also called <code>normalizeAll</code> method.
 This method will convert all new line characters into the space char and then collapses sequences of space characters into the one
 space and finally trims string. By doing this we will remove all meaningless spaces from the resulting string.
 
@@ -166,7 +175,7 @@ functional areas will depend on what you are trying to do.
 
 <h3>Related resources</h3>
 
-TODO
+<p>TODO
 
 <!--<ul>
 <li>Link to other stuff that you know about.  It will help you
