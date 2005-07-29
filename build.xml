@@ -1,0 +1,235 @@
+<?xml version='1.0'?>
+<project name="juxy" default="compile" basedir=".">
+
+    <property name="src.dir" location="${basedir}/src"/>
+    <property name="tests.dir" location="${basedir}/tests"/>
+    <property name="classes.dir" location="${basedir}/classes"/>
+    <property name="test.classes.dir" location="${basedir}/test-classes"/>
+    <property name="default.jaxp.services.dir" location="${tests.dir}/META-INF/services"/>
+    <property name="xalan.jaxp.services.dir" location="${tests.dir}/META-INF/services-xalan"/>
+    <property name="jaxp.services.dir" location="${test.classes.dir}/META-INF/services"/>
+    <property name="lib.dir" location="${basedir}/lib"/>
+    <property name="tools.dir" location="${basedir}/tools"/>
+    <property name="depcache.dir" location="${basedir}/depcache"/>
+    <property name="build.dir" location="${basedir}/build"/>
+
+    <!-- JCoverage properties -->
+    <property name="instr.classes.dir" location="${basedir}/instr-classes"/>
+    <property name="coverage.report.dir" location="${basedir}/cvgreport"/>
+
+    <property name="metrics.file" location="${basedir}/metrics.txt"/>
+
+    <path id="compile.classpath">
+        <pathelement path="${classes.dir}"/>
+        <fileset dir="${lib.dir}" >
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${tools.dir}/junit.jar"/>
+    </path>
+
+    <path id="test.classpath">
+        <pathelement path="${classes.dir}"/>
+        <pathelement path="${test.classes.dir}"/>
+        <fileset dir="${lib.dir}" >
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${tools.dir}/junit.jar"/>
+    </path>
+
+    <path id="instr.classpath">
+        <pathelement path="${classes.dir}"/>
+    </path>
+
+    <path id="run-instr-tests.classpath">
+        <pathelement location="${instr.classes.dir}/classes"/>
+        <pathelement location="${test.classes.dir}"/>
+        <fileset dir="${lib.dir}" >
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${tools.dir}/junit.jar"/>
+        <path refid="emma.lib"/>
+    </path>
+
+    <target name="init">
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${test.classes.dir}"/>
+        <mkdir dir="${test.classes.dir}/META-INF"/>
+    </target>
+
+    <target name="clean" description="Cleans up all compiled classes">
+        <delete dir="${classes.dir}" failonerror="false" />
+        <delete dir="${depcache.dir}" failonerror="false"/>
+        <delete dir="${instr.classes.dir}" failonerror="false"/>
+        <delete dir="${test.classes.dir}" failonerror="false"/>
+    </target>
+
+    <target name="compile-src" depends="init">
+        <depend srcdir="${src.dir}" destdir="${classes.dir}" cache="${depcache.dir}" closure="no"/>
+
+        <javac  srcdir="${src.dir}" destdir="${classes.dir}"
+                includes="org/**"
+                classpathref="compile.classpath"
+                debug="true"
+                source="1.4"
+          />
+    </target>
+
+    <target name="compile-tests" depends="compile-src">
+        <depend srcdir="${tests.dir}" destdir="${test.classes.dir}" cache="${depcache.dir}" closure="no"/>
+
+        <javac  srcdir="${tests.dir}" destdir="${test.classes.dir}"
+                includes="org/**"
+                classpathref="compile.classpath"
+                debug="true"
+                source="1.4"
+        />
+
+        <antcall target="refresh-jaxp-services"/>
+    </target>
+
+    <target name="refresh-jaxp-services">
+        <delete dir="${jaxp.services.dir}" failonerror="false" />
+        <mkdir dir="${jaxp.services.dir}"/>
+        <copy todir="${jaxp.services.dir}">
+            <fileset dir="${default.jaxp.services.dir}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compile" depends="init, compile-src, compile-tests" >
+        <copy todir="${classes.dir}" file="simplelog.properties"/>
+    </target>
+
+    <target name="remake" depends="clean, test-all" description="Remakes all source codes and runs all tests"/>
+
+    <target name="test-all" depends="compile" description="Runs all tests under the Xalan and Saxon engines" >
+        <!-- run unit tests with default xslt engine (saxon) -->
+        <antcall target="ut"/>
+        <!-- run unit tests with xalan -->
+        <copy todir="${jaxp.services.dir}">
+            <fileset dir="${xalan.jaxp.services.dir}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+        <antcall target="ut"/>
+    </target>
+
+    <target name="ut" description="Runs unit tests" >
+        <junit printsummary="yes" haltonfailure="yes" fork="yes" showoutput="yes">
+            <jvmarg line="-ea"/>
+            <classpath refid="test.classpath" />
+            <formatter type="brief" usefile="false"/>
+            <batchtest fork="yes">
+                <fileset dir="${tests.dir}">
+                    <include name="org/**/UTest*.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="build" depends="test-all" description="Creates juxt.zip file" >
+        <mkdir dir="${build.dir}"/>
+
+        <antcall target="doc">
+            <param name="doc.dir" location="${build.dir}/doc"/>
+        </antcall>
+
+        <jar destfile="${build.dir}/juxy.jar" basedir="${classes.dir}" >
+            <exclude name="simplelog.properties"/>
+        </jar>
+
+        <zip file="juxy.zip">
+            <fileset dir="${build.dir}">
+                <include name="**/*"/>
+            </fileset>
+        </zip>
+    </target>
+
+    <target name="doc" depends="init" description="Creates javadoc, specify -Ddoc.dir for javadoc directory" if="doc.dir">
+        <mkdir dir="${doc.dir}"/>
+
+        <property file="${basedir}/api-files.properties"/>
+
+        <javadoc sourcefiles="${api-files}"
+                    destdir="${doc.dir}"
+                    packagenames="org.tigris.juxy.*"
+                    windowtitle="Juxy - Java Unit testing library for XSLT"
+                    package="true" >
+            <classpath refid="compile.classpath" />
+        </javadoc>
+    </target>
+
+
+    <!-- ================================================== -->
+    <!-- generates project metrics                          -->
+    <!-- ================================================== -->
+    <target name="metrics" description="generates metrics for the project">
+
+        <taskdef name="javancss" classname="javancss.JavancssAntTask">
+            <classpath>
+                 <pathelement location="${tools.dir}/javancss/javancss.jar"/>
+                 <pathelement location="${tools.dir}/javancss/ccl.jar"/>
+                 <pathelement location="${tools.dir}/javancss/jhbasic.jar"/>
+            </classpath>
+        </taskdef>
+
+       <javancss srcdir="${src.dir}" includes="**/*.java/"
+                generateReport="true"
+                outputfile="${metrics.file}"
+                format="plain"/>
+    </target>
+
+
+    <path id="emma.lib" >
+        <pathelement location="${tools.dir}/emma.jar" />
+        <pathelement location="${tools.dir}/emma_ant.jar" />
+    </path>
+
+    <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
+
+    <target name="init-coverage">
+        <mkdir dir="${coverage.report.dir}"/>
+        <mkdir dir="${instr.classes.dir}"/>
+    </target>
+
+    <target name="coverage-ut">
+        <antcall target="refresh-jaxp-services"/>
+        <junit fork="yes" haltonfailure="no">
+            <formatter type="brief" usefile="false"/>
+            <classpath refid="run-instr-tests.classpath"/>
+            <batchtest fork="yes">
+                <fileset dir="${tests.dir}">
+                    <include name="org/**/UTest*.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="coverage-report">
+        <emma enabled="true">
+            <report sourcepath="${src.dir}" >
+                <infileset dir="${basedir}" includes="*.em, *.ec" />
+                <txt outfile="${coverage.report.dir}/coverage.txt" />
+                <html outfile="${coverage.report.dir}/coverage.html" />
+            </report>
+        </emma>
+    </target>
+
+    <target name="coverage-instr">
+        <emma enabled="true">
+            <instr instrpathref="instr.classpath"
+                    destdir="${instr.classes.dir}"
+                    merge="no"
+                    mode="fullcopy"/>
+        </emma>
+    </target>
+
+    <target name="coverage" depends="init-coverage" description="Measures tests coverage">
+        <antcall target="compile-tests"/>
+        <antcall target="coverage-instr"/>
+        <antcall target="coverage-ut"/>
+        <antcall target="coverage-report"/>
+    </target>
+
+</project>
