@@ -128,18 +128,25 @@
         </junit>
     </target>
 
-    <target name="build" depends="test-all" description="Creates juxt.zip file" >
+    <target name="build" description="Creates Juxy build, usage: ant build -Dversion=0.5">
+        <fail unless="version">Version property must be specified: ant build -Dversion=...</fail> 
+
         <mkdir dir="${build.dir}"/>
+
+        <antcall target="test-all"/>
 
         <antcall target="doc">
             <param name="doc.dir" location="${build.dir}/doc"/>
         </antcall>
 
         <jar destfile="${build.dir}/juxy.jar" basedir="${classes.dir}" >
+            <manifest>
+                <attribute name="Version" value="${version}"/>
+            </manifest>
             <exclude name="simplelog.properties"/>
         </jar>
 
-        <zip file="juxy.zip">
+        <zip file="juxy-${version}.zip">
             <fileset dir="${build.dir}">
                 <include name="**/*"/>
             </fileset>
