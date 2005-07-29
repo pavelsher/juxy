@@ -19,7 +19,7 @@ public class UTestRunnerNamespaces extends TestCase
 
     public void testGlobalVariables() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/namespaces/variable.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/namespaces/variable.xsl");
         ctx.setDocument("<source/>");
         ctx.registerNamespace("ns1", "http://ns1.net");
         ctx.setGlobalVariableValue("ns1:var", "avalue");
@@ -32,7 +32,7 @@ public class UTestRunnerNamespaces extends TestCase
 
     public void testGlobalParams() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/namespaces/param.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/namespaces/param.xsl");
         ctx.setDocument("<source/>");
         ctx.registerNamespace("ns1", "http://ns1.net");
         ctx.setGlobalParamValue("ns1:par", "avalue");
@@ -45,7 +45,7 @@ public class UTestRunnerNamespaces extends TestCase
 
     public void testInvokeParams() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/namespaces/invoke.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/namespaces/invoke.xsl");
         ctx.setDocument("<source/>");
         ctx.registerNamespace("ns1", "http://ns1.net");
         ctx.setTemplateParamValue("ns1:par", "avalue");
@@ -58,7 +58,7 @@ public class UTestRunnerNamespaces extends TestCase
 
     public void testTemplates() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/namespaces/templates.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/namespaces/templates.xsl");
         ctx.setDocument("<source/>");
         ctx.registerNamespace("ns1", "http://ns1.net");
 

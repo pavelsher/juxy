@@ -11,13 +11,13 @@ import java.io.FileNotFoundException;
  * <br>
  * An example of Runner usage:<br>
  * <pre>
- * RunnerContext ctx = Runner.newRunnerContext(new File("mystylesheet.xsl"));
+ * RunnerContext ctx = Runner.newRunnerContext("mystylesheet.xsl");
  * ctx.setDocument("&lt;source/>");
  * Node result = runner.callTemplate(ctx, "templatename");
  * </pre>
  * From this point you can check the result document.
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @author Pavel Sher
  */
 public interface Runner

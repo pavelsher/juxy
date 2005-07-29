@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * This runner uses only standard features. It does not use any xslt engine - specific extensions.
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @author Pavel Sher
  */
 class RunnerImpl implements Runner
@@ -57,7 +57,7 @@ class RunnerImpl implements Runner
         return templates.newTransformer();
     }
 
-    public RunnerContext newInvokationContext(String stylesheetPath) throws FileNotFoundException
+    public RunnerContext newRunnerContext(String stylesheetPath) throws FileNotFoundException
     {
         File stylesheetFile = new File(stylesheetPath);
         if (!stylesheetFile.isFile())

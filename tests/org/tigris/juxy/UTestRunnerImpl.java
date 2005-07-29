@@ -22,7 +22,7 @@ public class UTestRunnerImpl extends TestCase
     {
         try
         {
-            runner.newInvokationContext("afile");
+            runner.newRunnerContext("afile");
             fail("An exception expected");
         }
         catch (FileNotFoundException e) {}
@@ -63,7 +63,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testCallTemplateWithNullName() throws FileNotFoundException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/fake.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/fake.xsl");
         ctx.setDocument("<page/>");
         try
         {
@@ -75,7 +75,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testCallTemplateWithoutSourceDoc() throws FileNotFoundException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/fake.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/fake.xsl");
         try
         {
             runner.callTemplate(ctx, "aname");
@@ -86,7 +86,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testApplyTemplateWithoutSourceDoc() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/fake.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/fake.xsl");
         try
         {
             runner.applyTemplates(ctx);
@@ -112,7 +112,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testCallNamedTemplate() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/name-tpl.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/name-tpl.xsl");
         ctx.setDocument("<source/>");
         Node result = runner.callTemplate(ctx, "getText");
         assertNotNull(result);
@@ -122,7 +122,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testCallNamedTemplateWithGlobalParams() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/name-tpl.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/name-tpl.xsl");
         ctx.setDocument("<source/>");
 
         Node result = runner.callTemplate(ctx, "getGlobalParamValue");
@@ -139,7 +139,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testCallNamedTemplateWithGlobalParamsAndExtObject() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/extfunc.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/extfunc.xsl");
         ctx.setDocument("<source/>");
 
         ctx.setGlobalParamValue("tz", TimeZone.getDefault());
@@ -151,7 +151,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testCallNamedTemplateWithInvokeParam() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/name-tpl.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/name-tpl.xsl");
         ctx.setDocument("<source/>");
 
         ctx.setTemplateParamValue("invparam1", "1");
@@ -170,7 +170,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testGlobalVariablesDefaultValues() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/variables.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/variables.xsl");
         ctx.setDocument("<source/>");
 
         Node result = runner.callTemplate(ctx, "getVarWithStringValue");
@@ -193,7 +193,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testGlobalVariablesRedefined() throws FileNotFoundException, SAXException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/variables.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/variables.xsl");
         ctx.setDocument("<source><subElem/></source>");
 
         ctx.setGlobalVariableValue("varWithString", (String)null);
@@ -225,7 +225,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testRelativeImportWorks() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/relative-import.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/relative-import.xsl");
         ctx.setDocument("<source/>");
 
         Node result = runner.applyTemplates(ctx);
@@ -236,7 +236,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testRelativeIncludeWorks() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/relative-include.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/relative-include.xsl");
         ctx.setDocument("<source/>");
 
         Node result = runner.applyTemplates(ctx);
@@ -247,7 +247,7 @@ public class UTestRunnerImpl extends TestCase
 
     public void testRelativeDocumentFunctionWorks() throws FileNotFoundException, XPathExpressionException, TransformerException
     {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/document-func.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/document-func.xsl");
         ctx.setDocument("<source/>");
 
         Node result = runner.callTemplate(ctx, "copyDoc");
@@ -257,7 +257,7 @@ public class UTestRunnerImpl extends TestCase
     }
 
     public void testTextOnlyOutput() throws FileNotFoundException, TransformerException, XPathExpressionException {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/not-xml-output.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/not-xml-output.xsl");
         ctx.setDocument("<source/>");
 
         Node result = runner.callTemplate(ctx, "textOnly");
@@ -265,7 +265,7 @@ public class UTestRunnerImpl extends TestCase
     }
 
     public void testMoreThanOneRootElement() throws FileNotFoundException, TransformerException, XPathExpressionException {
-        RunnerContext ctx = runner.newInvokationContext("tests/xml/not-xml-output.xsl");
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/not-xml-output.xsl");
         ctx.setDocument("<source/>");
 
         Node result = runner.callTemplate(ctx, "moreThanOneRoot");
