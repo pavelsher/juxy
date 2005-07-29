@@ -11,24 +11,24 @@ import java.io.FileNotFoundException;
  * <br>
  * An example of Runner usage:<br>
  * <pre>
- * InvokationContext ctx = Runner.newInvokationContext(new File("mystylesheet.xsl"));
+ * RunnerContext ctx = Runner.newRunnerContext(new File("mystylesheet.xsl"));
  * ctx.setDocument("&lt;source/>");
  * Node result = runner.callTemplate(ctx, "templatename");
  * </pre>
  * From this point you can check the result document.
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @author Pavel Sher
  */
 public interface Runner
 {
     /**
-     * Creates new InvokationContext object. InvokationContext used for setup of invoked template context.
+     * Creates new RunnerContext object. RunnerContext used for setup of invoked template context.
      * @param stylesheetPath - path to the stylesheet
-     * @return new InvokationContext object
+     * @return new RunnerContext object
      * @throws FileNotFoundException - in case where stylesheetFile does not exists
      */
-    RunnerContext newInvokationContext(String stylesheetPath) throws FileNotFoundException;
+    RunnerContext newRunnerContext(String stylesheetPath) throws FileNotFoundException;
 
     /**
      * Calls specified template by its name. This is equivalent to xslt construction:

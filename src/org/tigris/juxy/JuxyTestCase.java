@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import java.io.FileNotFoundException;
 
 /**
- * $Id: JuxyTestCase.java,v 1.1 2005-07-29 17:43:43 pavelsher Exp $
+ * $Id: JuxyTestCase.java,v 1.2 2005-07-29 18:01:14 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -24,30 +24,53 @@ public abstract class JuxyTestCase extends TestCase {
      * @throws FileNotFoundException
      */
     public RunnerContext newContext(String xslFile) throws Exception {
-        context = getRunner().newInvokationContext(xslFile);
+        context = getRunner().newRunnerContext(xslFile);
         return context;
     }
 
+    /**
+     * Creates new XPathExpr object.
+     * @param xpathExpr an XPath expression
+     * @return new XPathExpr object
+     * @throws Exception
+     */
     public XPathExpr xpath(String xpathExpr) throws Exception {
         return new XPathExpr(xpathExpr);
     }
 
+    /**
+     * For method description see {@link Runner#applyTemplates(RunnerContext)}
+     */
     public Node applyTemplates() throws Exception {
         return getRunner().applyTemplates(getContext());
     }
 
+    /**
+     * For method description see {@link Runner#applyTemplates(RunnerContext, org.tigris.juxy.xpath.XPathExpr)}
+     */
     public Node applyTemplates(XPathExpr selectNodeXpath) throws Exception {
         return getRunner().applyTemplates(getContext(), selectNodeXpath);
     }
 
+    /**
+     * For method description see {@link Runner#applyTemplates(RunnerContext, org.tigris.juxy.xpath.XPathExpr, String)}
+     */
     public Node applyTemplates(XPathExpr selectNodeXpath, String mode) throws Exception {
         return getRunner().applyTemplates(getContext(), selectNodeXpath, mode);
     }
 
+    /**
+     * For method description see {@link Runner#callTemplate(RunnerContext, String)}
+     */
     public Node callTemplate(String name) throws Exception {
         return getRunner().callTemplate(getContext(), name);
     }
 
+    /**
+     * Asserts that two documents are equal. Meaningless spaces will be ignored during this assertion.
+     * @param expectedDocument XML document which is expected
+     * @param actual document root node of actual transformation result
+     */
     public static void assertXMLEquals(String expectedDocument, Node actual) throws Exception {
         XMLComparator.assertEquals(expectedDocument, actual);
     }

@@ -12,9 +12,9 @@ import java.util.Collection;
 import org.tigris.juxy.util.ArgumentAssert;
 
 /**
- * A simple xpath evaluator. You can evaluate xpath expression to string, int, double, boolean, nodeset or node.
+ * Simple xpath expressions evaluator. You can evaluate xpath expression to string, int, double, boolean, nodeset or node.
  *
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @author Pavel Sher
  */
 public class XPathExpr
