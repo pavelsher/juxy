@@ -97,16 +97,26 @@ If current node was specified then <code>&lt;xsl:for-each/></code> instruction w
 
 <p>Because Juxy does not use any XSLT processor specific features it should work with any XSLT processor supporting TRaX API.
 For now it is known to work with <a href="http://xml.apache.org/xalan-j/">Apache Xalan</a> and
-<a href="http://saxon.sourceforge.net">Saxon</a> (both Saxon 6.5.X and Saxon 8.X are supported).
+<a href="http://saxon.sourceforge.net/">Saxon</a> (both Saxon 6.5.X and Saxon 8.X are supported).
 XSLT 2.0 templates are known to work with Saxon 8.X, although they are not thoroughly tested.
 
 <h3>DOWNLOAD</h3>
+
+<h4>DOWNLOAD PACKAGE</h4>
 
 <p>Juxy is available for download from <a href="http://juxy.tigris.org/servlets/ProjectDocumentList?folderID=5095&expandFolder=5095&folderID=0">releases folder</a>.
 Current version is 0.5, released on July 30, 2005.
 
 <p>For now only binary package of Juxy is available. If you need to get sources, then
 you should checkout them from CVS, see how to do this <a href="http://juxy.tigris.org/servlets/ProjectSource">here</a>.
+
+<h4>SOFTWARE REQUIREMENTS</h4>
+
+<p>Juxy requires Java 1.4, JAXP compliant XML parser with TreeWalker support (Xerces 2.6 will be ok),
+TRaX compliant XSLT transformer (<a href="http://xml.apache.org/xalan-j/">Apache Xalan</a> or
+<a href="http://saxon.sourceforge.net/">Saxon (both 6.5.X and 8.X should work)</a>)
+and <a href="http://jaxen.org/">Jaxen</a> for XPath expressions evaluation.
+
 
 <!--
 <p>Until your project is approved, only you can view it and work on
