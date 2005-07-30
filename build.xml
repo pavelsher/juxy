@@ -97,9 +97,7 @@
         </copy>
     </target>
 
-    <target name="compile" depends="init, compile-src, compile-tests" >
-        <copy todir="${classes.dir}" file="simplelog.properties"/>
-    </target>
+    <target name="compile" depends="init, compile-src, compile-tests" />
 
     <target name="remake" depends="clean, test-all" description="Remakes all source codes and runs all tests"/>
 
