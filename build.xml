@@ -131,17 +131,16 @@
 
         <mkdir dir="${build.dir}"/>
 
-<!--        <antcall target="test-all"/>-->
-
         <antcall target="doc">
             <param name="doc.dir" location="${build.dir}/doc"/>
         </antcall>
+
+        <copy todir="${build.dir}" file="${basedir}/License.txt"/>  
 
         <jar destfile="${build.dir}/juxy.jar" basedir="${classes.dir}" >
             <manifest>
                 <attribute name="Version" value="${version}"/>
             </manifest>
-            <exclude name="simplelog.properties"/>
         </jar>
 
         <zip file="juxy-${version}.zip">
