@@ -7,22 +7,30 @@ import org.w3c.dom.traversal.TreeWalker;
 import org.xml.sax.SAXException;
 
 /**
- * $Id: XMLComparator.java,v 1.1 2005-07-29 17:43:43 pavelsher Exp $
+ * $Id: XMLComparator.java,v 1.2 2005-07-30 10:51:42 pavelsher Exp $
  *
  * @author Pavel Sher
  */
 public class XMLComparator {
     public static void assertEquals(String expected, Node actual) throws DocumentsAssertionError, SAXException {
+        if (expected == null)
+            throw new IllegalArgumentException("Expected document argument must not be null");
+
+        if (actual == null)
+            throw new IllegalArgumentException("Actual Node argument must not be null");
+
         Document expectedDoc = DOMUtil.parse(expected);
         TreeWalker expTw = ((DocumentTraversal)expectedDoc).createTreeWalker(expectedDoc, NodeFilter.SHOW_ALL, new ComparatorNodeFilter(), true);
         Document actualDoc = actual.getNodeType() == Node.DOCUMENT_NODE ? (Document)actual : actual.getOwnerDocument();
         TreeWalker actualTw = ((DocumentTraversal)actualDoc).createTreeWalker(actualDoc, NodeFilter.SHOW_ALL,  new ComparatorNodeFilter(), true);
         expTw.setCurrentNode(expectedDoc);
         actualTw.setCurrentNode(actual);
+        skipNodes(expTw);
+        skipNodes(actualTw);
+        Node enode = expTw.getCurrentNode();
+        Node anode = actualTw.getCurrentNode();
 
         while(true) {
-            Node enode = expTw.nextNode();
-            Node anode = actualTw.nextNode();
             if (enode == null && anode == null) return;
             if (enode == null || anode == null)
                 throw new DocumentsAssertionError(expTw, actualTw);
@@ -57,6 +65,18 @@ public class XMLComparator {
                     checkStringsEqual(edt.getPublicId(), adt.getPublicId(), expTw, actualTw);
                     break;
             }
+
+            enode = expTw.nextNode();
+            anode = actualTw.nextNode();
+        }
+    }
+
+    private static void skipNodes(TreeWalker tw) {
+        Node currentNode = tw.getCurrentNode();
+        switch (currentNode.getNodeType()) {
+            case Node.DOCUMENT_NODE:
+            case Node.DOCUMENT_FRAGMENT_NODE:
+                tw.nextNode();
         }
     }
 

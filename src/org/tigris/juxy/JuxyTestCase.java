@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import java.io.FileNotFoundException;
 
 /**
- * $Id: JuxyTestCase.java,v 1.2 2005-07-29 18:01:14 pavelsher Exp $
+ * $Id: JuxyTestCase.java,v 1.3 2005-07-30 10:51:42 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -25,6 +25,16 @@ public abstract class JuxyTestCase extends TestCase {
      */
     public RunnerContext newContext(String xslFile) throws Exception {
         context = getRunner().newRunnerContext(xslFile);
+        return context;
+    }
+
+    /**
+     * Returns current RunnerContext object.
+     * @return current RunnerContext object
+     */
+    public RunnerContext context() {
+        if (context == null)
+            throw new IllegalStateException("Call newContext() method first");
         return context;
     }
 

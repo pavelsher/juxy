@@ -129,11 +129,11 @@
     </target>
 
     <target name="build" description="Creates Juxy build, usage: ant build -Dversion=0.5">
-        <fail unless="version">Version property must be specified: ant build -Dversion=...</fail> 
+        <property file="${basedir}/build.properties"/>
 
         <mkdir dir="${build.dir}"/>
 
-        <antcall target="test-all"/>
+<!--        <antcall target="test-all"/>-->
 
         <antcall target="doc">
             <param name="doc.dir" location="${build.dir}/doc"/>

@@ -10,43 +10,61 @@ import java.util.Arrays;
 import junit.framework.AssertionFailedError;
 
 /**
- * $Id: DocumentsAssertionError.java,v 1.1 2005-07-29 17:43:43 pavelsher Exp $
+ * $Id: DocumentsAssertionError.java,v 1.2 2005-07-30 10:51:42 pavelsher Exp $
  *
  * @author Pavel Sher
  */
 public class DocumentsAssertionError extends AssertionFailedError {
     private TreeWalker etw;
     private TreeWalker atw;
+    private String message;
 
     public DocumentsAssertionError(TreeWalker etw, TreeWalker atw) {
         this.etw = etw;
         this.atw = atw;
+        init();
     }
 
-    public String getMessage() {
+    private void init() {
         StringBuffer buf = new StringBuffer(100);
         buf.append("Documents differ, expected document:");
         appendDocument(buf, etw);
         buf.append("\nActual document:");
         appendDocument(buf, atw);
-        return buf.toString();
+        message = buf.toString();
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     private void appendDocument(StringBuffer buf, TreeWalker tw) {
-        Node parent = tw.parentNode();
-        if (parent == null) {
-            buf.append("\n");
-            return;
-        }
+        Node startFrom = tw.getCurrentNode();
+        if (hasParentElement(startFrom))
+            startFrom = tw.parentNode();
+        
+        if (startFrom.getOwnerDocument() == null)
+            startFrom = tw.nextNode();
 
-        if (parent.getOwnerDocument() == null) parent = tw.nextNode();
+        String delimiter = null;
+        if (hasParentElement(startFrom))
+            delimiter = "...";
 
-        String fragdelim = parent.getNodeType() != Node.DOCUMENT_TYPE_NODE
-                && parent != parent.getOwnerDocument().getDocumentElement() ? "\n...\n" : "\n";
-
-        buf.append(fragdelim);
+        appendDelimiter(buf, delimiter);
         serialize(buf, tw, 0);
-        buf.append(fragdelim);
+        appendDelimiter(buf, delimiter);
+    }
+
+    private boolean hasParentElement(Node startFrom)
+    {
+        return startFrom.getParentNode() != null && startFrom.getParentNode().getNodeType() == Node.ELEMENT_NODE;
+    }
+
+    private void appendDelimiter(StringBuffer buf, String delimiter) {
+        if (delimiter != null) {
+            appendNewLine(buf);
+            buf.append(delimiter).append('\n');
+        }
     }
 
     private void serialize(StringBuffer buf, TreeWalker tw, int level) {
@@ -54,15 +72,11 @@ public class DocumentsAssertionError extends AssertionFailedError {
         Arrays.fill(prefixChars, ' ');
 
         Node currentNode = tw.getCurrentNode();
-        if (currentNode != null) {
+        while (currentNode != null) {
             switch(currentNode.getNodeType()) {
-                case Node.DOCUMENT_FRAGMENT_NODE:
-                    tw.nextNode();
-                    break;
                 case Node.ELEMENT_NODE:
-                    appendNewLineIfNeeded(buf);
-                    buf.append(prefixChars);
-                    buf.append("<").append(currentNode.getNodeName());
+                    appendNewLine(buf);
+                    appendPrefix(buf, prefixChars).append("<").append(currentNode.getNodeName());
                     NamedNodeMap attrs = currentNode.getAttributes();
                     for (int i=0; i<attrs.getLength(); i++) {
                         Node attr = attrs.item(i);
@@ -81,25 +95,25 @@ public class DocumentsAssertionError extends AssertionFailedError {
                         buf.append("/>");
                     }
                     else {
-                        buf.append(">\n");
+                        buf.append(">");
                         serialize(buf, tw, level + 1);
-                        appendNewLineIfNeeded(buf);
-                        buf.append(prefixChars).append("</").append(currentNode.getNodeName()).append(">");
+                        appendPrefix(buf, prefixChars).append("</").append(currentNode.getNodeName()).append(">\n");
                     }
+                    tw.setCurrentNode(currentNode);
                     break;
                 case Node.TEXT_NODE:
                     String val = currentNode.getNodeValue().trim();
                     if (val.length() > 0)
-                        buf.append(prefixChars).append(StringUtil.escapeXMLText(val));
+                        buf.append(StringUtil.escapeXMLText(val));
                     break;
                 case Node.COMMENT_NODE:
-                    buf.append(prefixChars).append("<!--").append(currentNode.getNodeValue()).append("-->");
+                    appendPrefix(buf, prefixChars).append("<!--").append(currentNode.getNodeValue()).append("-->");
                     break;
                 case Node.PROCESSING_INSTRUCTION_NODE:
-                    buf.append(prefixChars).append("<?").append(currentNode.getNodeName()).append(' ').append(currentNode.getNodeValue()).append("?>");
+                    appendPrefix(buf, prefixChars).append("<?").append(currentNode.getNodeName()).append(' ').append(currentNode.getNodeValue()).append("?>");
                     break;
                 case Node.CDATA_SECTION_NODE:
-                    buf.append(prefixChars).append("<![CDATA[").append(currentNode.getNodeValue()).append("]]>");
+                    appendPrefix(buf, prefixChars).append("<![CDATA[").append(currentNode.getNodeValue()).append("]]>");
                     break;
                 case Node.DOCUMENT_TYPE_NODE:
                     DocumentType dt = (DocumentType) currentNode;
@@ -117,17 +131,9 @@ public class DocumentsAssertionError extends AssertionFailedError {
                     }
                     buf.append(">");
                     break;
-                case Node.ENTITY_NODE:
-                case Node.ENTITY_REFERENCE_NODE:
-                case Node.NOTATION_NODE:
-                    // parsed entities will be automatically expanded,
-                    // notations are not supported
-                    break;
             }
 
-            Node sibling = tw.nextSibling();
-            if (sibling != null)
-                serialize(buf, tw, level);
+            currentNode = tw.nextSibling();
         }
     }
 
@@ -135,7 +141,20 @@ public class DocumentsAssertionError extends AssertionFailedError {
         return StringUtil.escapeQuoteCharacter(StringUtil.escapeXMLText(attr.getNodeValue()));
     }
 
-    private void appendNewLineIfNeeded(StringBuffer buf) {
-        if (buf.charAt(buf.length() - 1) != '\n') buf.append('\n');
+    private StringBuffer appendNewLine(StringBuffer buf) {
+        if (!endsWithNewLine(buf))
+            buf.append('\n');
+        return buf;
+    }
+
+    private boolean endsWithNewLine(StringBuffer buf)
+    {
+        return buf.charAt(buf.length() - 1) == '\n';
+    }
+
+    private StringBuffer appendPrefix(StringBuffer buf, char[] prefix) {
+        if (endsWithNewLine(buf))
+            buf.append(prefix);
+        return buf;
     }
 }
