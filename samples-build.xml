@@ -1,0 +1,52 @@
+<?xml version='1.0'?>
+<project name="juxy-samples" default="run-samples" basedir=".">
+
+    <property name="src.dir" location="${basedir}/samples"/>
+    <property name="classes.dir" location="${basedir}/classes"/>
+    <property name="depcache.dir" location="${basedir}/depcache"/>
+    <property name="lib.dir" location="${basedir}/lib"/>
+
+    <path id="compile.classpath">
+        <pathelement path="${classes.dir}"/>
+        <fileset dir="${lib.dir}" >
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="init">
+        <mkdir dir="${classes.dir}"/>
+    </target>
+
+    <target name="clean" description="Cleans up all compiled classes">
+        <delete dir="${classes.dir}" failonerror="false" />
+    </target>
+
+    <target name="compile" depends="init">
+        <depend srcdir="${src.dir}" destdir="${classes.dir}" cache="${depcache.dir}" closure="no"/>
+
+        <javac  srcdir="${src.dir}" destdir="${classes.dir}"
+                includes="*"
+                classpathref="compile.classpath"
+                debug="true"
+                source="1.4"
+          />
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}">
+                <include name="META-INF/**"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="run-samples" depends="compile" description="Runs all samples" >
+        <junit printsummary="yes" haltonfailure="yes" fork="yes" showoutput="yes">
+            <classpath refid="compile.classpath" />
+            <formatter type="brief" usefile="false"/>
+            <batchtest fork="yes">
+                <fileset dir="${src.dir}">
+                    <include name="*.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+</project>

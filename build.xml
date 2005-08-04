@@ -130,14 +130,27 @@
         <property file="${basedir}/build.properties"/>
 
         <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.dir}/lib"/>
 
         <antcall target="doc">
             <param name="doc.dir" location="${build.dir}/doc"/>
         </antcall>
 
-        <copy todir="${build.dir}" file="${basedir}/License.txt"/>  
+        <copy file="${basedir}/samples-build.xml" tofile="${build.dir}/build.xml" />
+        <copy todir="${build.dir}/lib">
+            <fileset dir="${lib.dir}">
+                <include name="*.jar"/>
+                <exclude name="saxon*.jar"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.dir}">
+            <fileset dir="${basedir}">
+                <include name="samples/**"/>
+                <include name="License.txt"/>
+            </fileset>
+        </copy>
 
-        <jar destfile="${build.dir}/juxy.jar" basedir="${classes.dir}" >
+        <jar destfile="${build.dir}/lib/juxy.jar" basedir="${classes.dir}" >
             <manifest>
                 <attribute name="Version" value="${version}"/>
             </manifest>

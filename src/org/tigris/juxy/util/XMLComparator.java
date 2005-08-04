@@ -6,8 +6,10 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.TreeWalker;
 import org.xml.sax.SAXException;
 
+import java.util.*;
+
 /**
- * $Id: XMLComparator.java,v 1.2 2005-07-30 10:51:42 pavelsher Exp $
+ * $Id: XMLComparator.java,v 1.3 2005-08-04 19:51:48 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -84,26 +86,38 @@ public class XMLComparator {
         NamedNodeMap expattrs = enode.getAttributes();
         NamedNodeMap actattrs = anode.getAttributes();
 
-        int skipped = 0;
-        for (int i=0; i<expattrs.getLength(); i++) {
-            Node expected = expattrs.item(i);
-            // here we will skip attribute defining namespace of the element
-            // because expected and actual elements namespaces are compared explicitly
-            // moreover sometimes attribute defining namespace is not within returned NamedNodeMap
-            if (!("xmlns".equals(expected.getPrefix()) && expected.getLocalName().equals(enode.getPrefix()))) {
-                Node actual = actattrs.getNamedItem(expected.getNodeName());
-                if (actual == null) {
-                    throw new DocumentsAssertionError(expTw, actualTw);
-                }
-                checkNodeNamespaces(expected, actual, expTw, actualTw);
-                checkNodeValues(expected, actual, expTw, actualTw);
-            } else {
-                skipped = 1;
-            }
-        }
+        Map efiltered = filterAttributes(expattrs);
+        Map afiltered = filterAttributes(actattrs);
 
-        if (expattrs.getLength() - skipped - actattrs.getLength() != 0)
+        if (efiltered.size() != afiltered.size())
             throw new DocumentsAssertionError(expTw, actualTw);
+
+        Iterator attrsIt = efiltered.entrySet().iterator();
+        while (attrsIt.hasNext()) {
+            Map.Entry aentry = (Map.Entry)attrsIt.next();
+            String attrName = (String) aentry.getKey();
+            Node attr = (Node) aentry.getValue();
+            Node actual = (Node) afiltered.get(attrName);
+            if (actual == null)
+                throw new DocumentsAssertionError(expTw, actualTw);
+
+            checkNodeNamespaces(attr, actual, expTw, actualTw);
+            checkNodeValues(attr, actual, expTw, actualTw);
+        }
+    }
+
+    /**
+     * Removes all xmlns attributes
+     * @return
+     */
+    private static Map filterAttributes(NamedNodeMap attrs) {
+        Map filtered = new HashMap();
+        for (int i=0; i<attrs.getLength(); i++) {
+            Node attr = attrs.item(i);
+            if (!attr.getNodeName().startsWith("xmlns"))
+                filtered.put(attr.getNodeName(), attr);
+        }
+        return filtered;
     }
 
     private static void checkNodeNamespaces(Node enode, Node anode, TreeWalker expTw, TreeWalker actualTw) {
@@ -111,7 +125,10 @@ public class XMLComparator {
     }
 
     private static void checkNodeNames(Node enode, Node anode, TreeWalker expTw, TreeWalker actualTw) {
-        if (!enode.getNodeName().equals(anode.getNodeName()))
+        String enodeName = enode.getLocalName() == null ? enode.getNodeName() : enode.getLocalName();
+        String anodeName = anode.getLocalName() == null ? anode.getNodeName() : anode.getLocalName();
+
+        if (!enodeName.equals(anodeName))
             throw new DocumentsAssertionError(expTw, actualTw);
     }
 

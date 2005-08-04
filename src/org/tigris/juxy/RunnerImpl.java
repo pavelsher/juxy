@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * This runner uses only standard features. It does not use any xslt engine - specific extensions.
  *
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @author Pavel Sher
  */
 class RunnerImpl implements Runner
@@ -54,6 +54,8 @@ class RunnerImpl implements Runner
     private Transformer getTransformer() throws TransformerConfigurationException
     {
         Templates templates = templatesBuilder.build();
+        if (templates == null)
+            throw new RuntimeException("Failed to create transformer");
         return templates.newTransformer();
     }
 
@@ -131,6 +133,7 @@ class RunnerImpl implements Runner
             document.appendChild(parentNode);
             DOMResult result = new DOMResult(parentNode);
             transformer.transform(sourceDoc, result);
+            parentNode.normalize(); // to put all Text nodes together
             DOMUtil.logDocument("Transformation result:", parentNode);
 
             return parentNode;
