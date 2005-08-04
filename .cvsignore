@@ -1,0 +1,5 @@
+build
+depcache
+docs
+*.zip
+coverage.*

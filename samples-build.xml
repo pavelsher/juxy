@@ -7,10 +7,14 @@
     <property name="lib.dir" location="${basedir}/lib"/>
 
     <path id="compile.classpath">
-        <pathelement path="${classes.dir}"/>
         <fileset dir="${lib.dir}" >
             <include name="*.jar"/>
         </fileset>
+    </path>
+
+    <path id="run.classpath">
+        <path refid="compile.classpath"/>
+        <pathelement path="${classes.dir}"/>
     </path>
 
     <target name="init">
@@ -39,7 +43,7 @@
 
     <target name="run-samples" depends="compile" description="Runs all samples" >
         <junit printsummary="yes" haltonfailure="yes" fork="yes" showoutput="yes">
-            <classpath refid="compile.classpath" />
+            <classpath refid="run.classpath" />
             <formatter type="brief" usefile="false"/>
             <batchtest fork="yes">
                 <fileset dir="${src.dir}">

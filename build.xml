@@ -61,6 +61,7 @@
         <delete dir="${depcache.dir}" failonerror="false"/>
         <delete dir="${instr.classes.dir}" failonerror="false"/>
         <delete dir="${test.classes.dir}" failonerror="false"/>
+        <delete dir="${build.dir}" failonerror="false"/>
     </target>
 
     <target name="compile-src" depends="init">
@@ -126,7 +127,7 @@
         </junit>
     </target>
 
-    <target name="build" depends="clean" description="Creates Juxy build">
+    <target name="build" depends="clean, test-all" description="Creates Juxy build">
         <property file="${basedir}/build.properties"/>
 
         <mkdir dir="${build.dir}"/>
