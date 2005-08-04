@@ -126,7 +126,7 @@
         </junit>
     </target>
 
-    <target name="build" description="Creates Juxy build, usage: ant build -Dversion=0.5">
+    <target name="build" depends="clean" description="Creates Juxy build">
         <property file="${basedir}/build.properties"/>
 
         <mkdir dir="${build.dir}"/>
