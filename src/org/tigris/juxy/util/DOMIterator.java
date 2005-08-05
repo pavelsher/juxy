@@ -5,8 +5,8 @@ import org.w3c.dom.Node;
 import java.util.Iterator;
 
 /**
- * $Id: DOMIterator.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
- *
+ * $Id: DOMIterator.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * <p/>
  * Class represents iterator over DOM. This iterator iterates DOM elements in
  * order of their appearing in the document: it first processess all child elements
  * down to the DOM tree, then following sibling nodes on each level.

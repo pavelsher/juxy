@@ -4,8 +4,8 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
- * $Id: VariableValueContainer.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
- *
+ * $Id: VariableValueContainer.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * <p/>
  * @author Pavel Sher
  */
 class VariableValueContainer

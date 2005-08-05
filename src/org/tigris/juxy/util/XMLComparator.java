@@ -9,8 +9,8 @@ import org.xml.sax.SAXException;
 import java.util.*;
 
 /**
- * $Id: XMLComparator.java,v 1.3 2005-08-04 19:51:48 pavelsher Exp $
- *
+ * $Id: XMLComparator.java,v 1.4 2005-08-05 08:38:29 pavelsher Exp $
+ * <p/>
  * @author Pavel Sher
  */
 public class XMLComparator {

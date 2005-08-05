@@ -7,8 +7,8 @@ import javax.xml.transform.TransformerException;
 import java.io.FileNotFoundException;
 
 /**
- * $Id: Runner.java,v 1.4 2005-08-05 08:31:11 pavelsher Exp $
- *
+ * $Id: Runner.java,v 1.5 2005-08-05 08:38:29 pavelsher Exp $
+ * <p/>
  * Interface represents Runner. Runner instance can be obtained from the RunnerFactory.
  * <br>
  * An example of Runner usage:<br>

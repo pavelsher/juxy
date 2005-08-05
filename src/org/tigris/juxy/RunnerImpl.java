@@ -20,8 +20,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.4 2005-08-05 08:31:11 pavelsher Exp $
- *
+ * $Id: RunnerImpl.java,v 1.5 2005-08-05 08:38:29 pavelsher Exp $
+ * <p/>
  * This runner uses only standard features. It does not use any xslt engine - specific extensions.
  *
  * @author Pavel Sher

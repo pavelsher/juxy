@@ -12,8 +12,8 @@ import java.util.Collection;
 import org.tigris.juxy.util.ArgumentAssert;
 
 /**
- * $Id: XPathExpr.java,v 1.3 2005-08-05 08:31:11 pavelsher Exp $
- * 
+ * $Id: XPathExpr.java,v 1.4 2005-08-05 08:38:29 pavelsher Exp $
+ * <p/>
  * Simple XPath expressions evaluator. You can evaluate XPath expression to string, int, double, boolean, nodeset or node.
  *
  * @author Pavel Sher

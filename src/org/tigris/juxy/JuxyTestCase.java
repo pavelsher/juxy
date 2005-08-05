@@ -9,8 +9,8 @@ import org.w3c.dom.Node;
 import java.io.FileNotFoundException;
 
 /**
- * $Id: JuxyTestCase.java,v 1.4 2005-08-05 08:31:11 pavelsher Exp $
- *
+ * $Id: JuxyTestCase.java,v 1.5 2005-08-05 08:38:29 pavelsher Exp $
+ * <p/>
  * @author Pavel Sher
  */
 public abstract class JuxyTestCase extends TestCase {

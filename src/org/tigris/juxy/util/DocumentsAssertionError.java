@@ -10,8 +10,8 @@ import java.util.Arrays;
 import junit.framework.AssertionFailedError;
 
 /**
- * $Id: DocumentsAssertionError.java,v 1.3 2005-08-05 08:31:11 pavelsher Exp $
- *
+ * $Id: DocumentsAssertionError.java,v 1.4 2005-08-05 08:38:29 pavelsher Exp $
+ * <p/>
  * @author Pavel Sher
  */
 public class DocumentsAssertionError extends AssertionFailedError {
