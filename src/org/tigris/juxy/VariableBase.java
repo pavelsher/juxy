@@ -5,8 +5,8 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
+ * $Id: VariableBase.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
  *
- * @version $Revision: 1.1 $
  * @author Pavel Sher
  */
 public class VariableBase

@@ -4,7 +4,8 @@ import org.w3c.dom.Document;
 import org.tigris.juxy.xpath.XPathExpr;
 
 /**
- * @version $Revision: 1.1 $
+ * $Id: GlobalVariable.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
+ *
  * @author Pavel Sher
  */
 public class GlobalVariable extends VariableBase

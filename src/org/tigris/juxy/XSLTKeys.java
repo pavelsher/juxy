@@ -1,8 +1,13 @@
 package org.tigris.juxy;
 
+/**
+ * $Id: XSLTKeys.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
+ *
+ * @author Pavel Sher
+ */
 public interface XSLTKeys
 {
-    final static String xslt10Namespace = "http://www.w3.org/1999/XSL/Transform";
+    final static String XSLT_NS = "http://www.w3.org/1999/XSL/Transform";
 
     final static String TEMPLATE_ELEMENT    = "template";
     final static String FOR_EACH_ELEMENT    = "for-each";

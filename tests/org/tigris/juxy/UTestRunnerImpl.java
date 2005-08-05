@@ -1,6 +1,7 @@
 package org.tigris.juxy;
 
 import org.tigris.juxy.util.DOMUtil;
+import org.tigris.juxy.util.XMLComparator;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathExpressionException;
 import junit.framework.TestCase;
@@ -270,6 +271,14 @@ public class UTestRunnerImpl extends TestCase
 
         Node result = runner.callTemplate(ctx, "moreThanOneRoot");
         assertEquals(2, new XPathExpr("count(root)").toInt(result));
+    }
+
+    public void testMatchRootNode() throws Exception {
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/match-root.xsl");
+        ctx.setDocument("<doc/>");
+
+        Node result = runner.applyTemplates(ctx, new XPathExpr("/"));
+        XMLComparator.assertEquals("<root>matched</root>", result);
     }
 
     private Runner runner = null;

@@ -5,9 +5,6 @@
     <property name="tests.dir" location="${basedir}/tests"/>
     <property name="classes.dir" location="${basedir}/classes"/>
     <property name="test.classes.dir" location="${basedir}/test-classes"/>
-    <property name="default.jaxp.services.dir" location="${tests.dir}/META-INF/services"/>
-    <property name="xalan.jaxp.services.dir" location="${tests.dir}/META-INF/services-xalan"/>
-    <property name="jaxp.services.dir" location="${test.classes.dir}/META-INF/services"/>
     <property name="lib.dir" location="${basedir}/lib"/>
     <property name="tools.dir" location="${basedir}/tools"/>
     <property name="depcache.dir" location="${basedir}/depcache"/>
@@ -84,50 +81,52 @@
                 debug="true"
                 source="1.4"
         />
-
-        <antcall target="refresh-jaxp-services"/>
-    </target>
-
-    <target name="refresh-jaxp-services">
-        <delete dir="${jaxp.services.dir}" failonerror="false" />
-        <mkdir dir="${jaxp.services.dir}"/>
-        <copy todir="${jaxp.services.dir}">
-            <fileset dir="${default.jaxp.services.dir}">
-                <include name="**/*"/>
-            </fileset>
-        </copy>
     </target>
 
     <target name="compile" depends="init, compile-src, compile-tests" />
 
     <target name="remake" depends="clean, test-all" description="Remakes all source codes and runs all tests"/>
 
+    <fileset id="all.tests" dir="${tests.dir}">
+        <include name="org/**/UTest*.java" />
+    </fileset>
+
+    <fileset id="all.tests.except.xslt20" dir="${tests.dir}">
+        <include name="org/**/UTest*.java" />
+        <exclude name="org/**/UTest*20.java" />
+    </fileset>
+
     <target name="test-all" depends="compile" description="Runs all tests under the Xalan and Saxon engines" >
-        <!-- run unit tests with default xslt engine (saxon) -->
-        <antcall target="ut"/>
         <!-- run unit tests with xalan -->
-        <copy todir="${jaxp.services.dir}">
-            <fileset dir="${xalan.jaxp.services.dir}">
-                <include name="**/*"/>
-            </fileset>
-        </copy>
-        <antcall target="ut"/>
+        <antcall target="ut">
+            <param name="files" value="all.tests.except.xslt20"/>
+            <param name="transformerFactory" value="org.apache.xalan.processor.TransformerFactoryImpl"/>
+            <param name="classpath" value="test.classpath"/>
+        </antcall>
+        <!-- run unit tests with default xslt engine (saxon) -->
+        <antcall target="ut">
+            <param name="files" value="all.tests"/>
+            <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
+            <param name="classpath" value="test.classpath"/>
+        </antcall>
     </target>
 
-    <target name="ut" description="Runs unit tests" >
-        <junit printsummary="yes" haltonfailure="yes" fork="yes" showoutput="yes">
-            <jvmarg line="-ea"/>
-            <classpath refid="test.classpath" />
-            <formatter type="brief" usefile="false"/>
-            <batchtest fork="yes">
-                <fileset dir="${tests.dir}">
-                    <include name="org/**/UTest*.java" />
-                </fileset>
+    <target name="verify-samples" description="Runs samples" >
+        <ant dir="${basedir}" antfile="samples-build.xml" target="run-samples" inheritall="false" inheritrefs="false" />
+    </target>
+
+    <target name="ut">
+        <junit printsummary="yes" haltonfailure="yes" fork="no" showoutput="yes" reloading="false" >
+            <jvmarg line="-ea -Djavax.xml.transform.TransformerFactory=${transformerFactory}"/>
+            <classpath refid="${classpath}" />
+            <formatter type="plain" usefile="false"/>
+            <batchtest fork="no">
+                <fileset refid="${files}"/>
             </batchtest>
         </junit>
     </target>
 
-    <target name="build" depends="clean, test-all" description="Creates Juxy build">
+    <target name="build" depends="clean, test-all, verify-samples" description="Creates Juxy build">
         <property file="${basedir}/build.properties"/>
 
         <mkdir dir="${build.dir}"/>
@@ -151,7 +150,7 @@
             </fileset>
         </copy>
 
-        <jar destfile="${build.dir}/lib/juxy.jar" basedir="${classes.dir}" >
+        <jar destfile="${build.dir}/lib/juxy.jar" basedir="${classes.dir}" includes="org/**" >
             <manifest>
                 <attribute name="Version" value="${version}"/>
             </manifest>
@@ -212,16 +211,11 @@
     </target>
 
     <target name="coverage-ut">
-        <antcall target="refresh-jaxp-services"/>
-        <junit fork="yes" haltonfailure="no">
-            <formatter type="brief" usefile="false"/>
-            <classpath refid="run-instr-tests.classpath"/>
-            <batchtest fork="yes">
-                <fileset dir="${tests.dir}">
-                    <include name="org/**/UTest*.java" />
-                </fileset>
-            </batchtest>
-        </junit>
+        <antcall target="ut">
+            <param name="files" value="all.tests"/>
+            <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
+            <param name="classpath" value="run-instr-tests.classpath"/>
+        </antcall>
     </target>
 
     <target name="coverage-report">

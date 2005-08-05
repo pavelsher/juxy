@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import java.io.FileNotFoundException;
 
 /**
- * $Id: JuxyTestCase.java,v 1.3 2005-07-30 10:51:42 pavelsher Exp $
+ * $Id: JuxyTestCase.java,v 1.4 2005-08-05 08:31:11 pavelsher Exp $
  *
  * @author Pavel Sher
  */

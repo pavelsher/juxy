@@ -12,9 +12,10 @@ import java.util.Collection;
 import org.tigris.juxy.util.ArgumentAssert;
 
 /**
- * Simple xpath expressions evaluator. You can evaluate xpath expression to string, int, double, boolean, nodeset or node.
+ * $Id: XPathExpr.java,v 1.3 2005-08-05 08:31:11 pavelsher Exp $
+ * 
+ * Simple XPath expressions evaluator. You can evaluate XPath expression to string, int, double, boolean, nodeset or node.
  *
- * @version $Revision: 1.2 $
  * @author Pavel Sher
  */
 public class XPathExpr
@@ -23,10 +24,10 @@ public class XPathExpr
     private final DOMXPath xpath;
 
     /**
-     * Constructs new xpath expression. Can throw XPathExpressionException exception if an expression syntax incorrect
+     * Constructs new XPath expression. Can throw XPathExpressionException exception if an expression syntax incorrect
      * or other errors occured.
-     * @param expression - a string representation of xpath expression
-     * @throws XPathExpressionException - thrown if an expression syntax incorrect
+     * @param expression an XPath expression
+     * @throws XPathExpressionException thrown if an expression syntax is incorrect
      * or other errors occured.
      */
     public XPathExpr(final String expression) throws XPathExpressionException
@@ -50,11 +51,11 @@ public class XPathExpr
     }
 
     /**
-     * Registers new namespace in xpath expression context. The function returns the same XPathExpr object.
-     * @param prefix - namespace prefix
-     * @param uri - namespace uri
+     * Registers new namespace in XPath expression context. The function returns the same XPathExpr object.
+     * @param prefix namespace prefix
+     * @param uri namespace uri
      * @return XPathExpr object
-     * @throws XPathExpressionException - thrown if an error occurs
+     * @throws XPathExpressionException thrown if an error occured
      */
     public XPathExpr addNamespace(String prefix, String uri) throws XPathExpressionException
     {
@@ -75,10 +76,10 @@ public class XPathExpr
     }
 
     /**
-     * Evaluates expression and returns boolean result.
-     * @param node - the node on which evaluation is performed.
-     * @return boolean result of xpath expression
-     * @throws XPathExpressionException - thrown if error occurs during xpath evaluation
+     * Evaluates expression and converts result to boolean.
+     * @param node the node on which evaluation is performed.
+     * @return boolean result of XPath expression
+     * @throws XPathExpressionException thrown if error occured during XPath evaluation
      */
     public boolean toBoolean(Node node) throws XPathExpressionException
     {
@@ -94,10 +95,10 @@ public class XPathExpr
     }
 
     /**
-     * Evaluates expression and returns string result.
-     * @param node - the node on which evaluation is performed
-     * @return string result of xpath expression
-     * @throws XPathExpressionException - thrown if error occurs during xpath evaluation
+     * Evaluates expression and converts result to string.
+     * @param node the node on which evaluation is performed
+     * @return string result of XPath expression
+     * @throws XPathExpressionException thrown if error occured during XPath evaluation
      */
     public String toString(Node node) throws XPathExpressionException
     {
@@ -113,10 +114,10 @@ public class XPathExpr
     }
 
     /**
-     * Evaluates expression and returns int result.
-     * @param node - the node on which evaluation is performed
-     * @return int result of xpath expression
-     * @throws XPathExpressionException - thrown if error occurs during xpath evaluation
+     * Evaluates expression and converts result to int.
+     * @param node the node on which evaluation is performed
+     * @return int result of XPath expression
+     * @throws XPathExpressionException thrown if error occured during XPath evaluation
      */
     public int toInt(Node node) throws XPathExpressionException
     {
@@ -133,10 +134,10 @@ public class XPathExpr
     }
 
     /**
-     * Evaluates expression and returns double result.
-     * @param node - the node on which evaluation is performed
-     * @return double result of xpath expression
-     * @throws XPathExpressionException - thrown if error occurs during xpath evaluation
+     * Evaluates expression and converts result to double.
+     * @param node the node on which evaluation is performed
+     * @return double result of XPath expression
+     * @throws XPathExpressionException thrown if error occured during XPath evaluation
      */
     public double toDouble(Node node) throws XPathExpressionException
     {
@@ -153,10 +154,10 @@ public class XPathExpr
     }
 
     /**
-     * Evaluates expression and returns a set of nodes as a result.
-     * @param node - the node on which evaluation is performed
-     * @return a collection of nodes - result of xpath expression
-     * @throws XPathExpressionException - thrown if error occurs during xpath evaluation
+     * Evaluates expression and conveerts result to a set of nodes.
+     * @param node the node on which evaluation is performed
+     * @return a collection of nodes
+     * @throws XPathExpressionException thrown if error occurs during XPath evaluation
      */
     public Collection toNodeSet(Node node) throws XPathExpressionException
     {
@@ -172,10 +173,10 @@ public class XPathExpr
     }
 
     /**
-     * Evaluates expression and returns node as a result.
-     * @param node - the node on which evaluation is performed
-     * @return a node - result of xpath expression
-     * @throws XPathExpressionException - thrown if error occurs during xpath evaluation
+     * Evaluates expression and returns node as its result.
+     * @param node the node on which evaluation is performed
+     * @return a node
+     * @throws XPathExpressionException thrown if error occurs during XPath evaluation
      */
     public Node toNode(Node node) throws XPathExpressionException
     {
@@ -191,9 +192,9 @@ public class XPathExpr
     }
 
     /**
-     * Returns normalized xpath expression as string. An expression might not be equal to the initial
-     * expression specified in constructor.
-     * @return xpath expression as string
+     * Returns normalized XPath expression as string. An expression might not be equal to the initial
+     * expression specified in the constructor.
+     * @return XPath expression as string
      */
     public String getExpression()
     {

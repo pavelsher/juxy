@@ -1,9 +1,10 @@
 package org.tigris.juxy.util;
 
 /**
+ * $Id: StringUtil.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
+ *
  * Various utility methods.
  *
- * @version $Revision: 1.1 $
  * @author Pavel Sher
  */
 public class StringUtil

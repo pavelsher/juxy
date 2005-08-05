@@ -8,9 +8,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Generic interface used for Templates object building.
+ * $Id: TemplatesBuilder.java,v 1.2 2005-08-05 08:31:10 pavelsher Exp $
  *
- * @version $Revision: 1.1 $
  * @author Pavel Sher
  */
 public interface TemplatesBuilder

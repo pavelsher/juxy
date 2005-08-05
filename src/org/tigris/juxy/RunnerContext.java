@@ -4,11 +4,12 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
- * The class represents generic interface for runner context. Concrete objects are obtained from Runner.<br>
- * Runner context used to store all information required by runner to start xsl transformation:
+ * $Id: RunnerContext.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
+ *
+ * The class represents Runner Context. Instance of the Context can be obtained from Runner.<br>
+ * Runner Context is used to setup all the information which is required to start xsl transformation:
  * xsl file, parameters, variables and so on.
  *
- * @version $Revision: 1.1 $
  * @author Pavel Sher
  */
 public interface RunnerContext

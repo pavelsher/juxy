@@ -1,29 +1,31 @@
 package org.tigris.juxy.builder;
 
-import org.tigris.juxy.GlobalVariable;
-import org.tigris.juxy.InvokeParam;
-import org.tigris.juxy.VariableBase;
-import org.tigris.juxy.XSLTKeys;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.tigris.juxy.*;
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathExpressionException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * $Id: TemplatesBuilderImpl.java,v 1.2 2005-08-05 08:31:10 pavelsher Exp $
  *
- * @version $Revision: 1.1 $
  * @author Pavel Sher
  */
 public class TemplatesBuilderImpl implements TemplatesBuilder
@@ -39,6 +41,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
     private TransformerFactory transformerFactory = null;
     private static final Log logger = LogFactory.getLog(TemplatesBuilderImpl.class);
+    private SAXParserFactory parserFactory;
 
     public TemplatesBuilderImpl(TransformerFactory trFactory)
     {
@@ -55,6 +58,9 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         {
             logger.error("Internal error occured", e);
         }
+
+        this.parserFactory = SAXParserFactory.newInstance();
+        parserFactory.setNamespaceAware(true);
     }
 
     public void setImportSystemId(String systemId)
@@ -126,7 +132,8 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         if (newTemplatesRequired)
         {
             checkBuildConfiguration();
-            Element rootEl = createSkeleton();
+            String version = getImportedStylesheetVersion();
+            Element rootEl = createSkeleton(version);
             createGlobalVariables(rootEl);
             createInvokationStatement(rootEl);
             updateCurrentTemplates(rootEl.getOwnerDocument());
@@ -136,6 +143,25 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         newTemplatesRequired = false;
 
         return currentTemplates;
+    }
+
+    private String getImportedStylesheetVersion() {
+        assert importSystemId != null;
+
+        XSLVersionRetriever handler = new XSLVersionRetriever();
+        try {
+            SAXParser parser = parserFactory.newSAXParser();
+            parser.parse(importSystemId, handler);
+        } catch (SAXException e) {
+            if (!XSLVersionRetriever.STOP_MESSAGE.equals(e.getMessage()))
+                throw new JuxyRuntimeException("XML parse error", e);
+        } catch (IOException e) {
+            throw new JuxyRuntimeException("Input / output error on attempt to read from stylesheet: " + importSystemId, e);
+        } catch (ParserConfigurationException e) {
+            throw new JuxyRuntimeException("Failed to create SAX parser", e);
+        }
+
+        return handler.getVersion();
     }
 
     Document getCurrentStylesheetDoc()
@@ -176,7 +202,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
     private void createNamedTemplateCall(Element stylesheetEl)
     {
-        Element callTemplateEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.xslt10Namespace, "xsl:call-template");
+        Element callTemplateEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:call-template");
         callTemplateEl.setAttribute("name", invokationStatementInfo.getTemplateName());
         createCallingStatementParent(stylesheetEl).appendChild(callTemplateEl);
         createInvokationParams(callTemplateEl, invokationStatementInfo.getTemplateInvokeParams());
@@ -187,7 +213,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         if ( !rootNode.equals(invokationStatementInfo.getTemplateSelectXPath()) ||
                 invokationStatementInfo.getTemplateMode() != null )
         {
-            Element applyTemplatesEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.xslt10Namespace, "xsl:apply-templates");
+            Element applyTemplatesEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:apply-templates");
             if (invokationStatementInfo.getTemplateSelectXPath() != null)
                 applyTemplatesEl.setAttribute("select", invokationStatementInfo.getTemplateSelectXPath().getExpression());
             if (invokationStatementInfo.getTemplateMode() != null)
@@ -205,7 +231,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         if (currentNode == null || rootNode.equals(currentNode))
             return rootTemplateEl;
 
-        Element targetEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.xslt10Namespace, "xsl:for-each");
+        Element targetEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:for-each");
         targetEl.setAttribute("select", currentNode.getExpression());
         rootTemplateEl.appendChild(targetEl);
 
@@ -214,7 +240,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
     private Element createRootTemplate(Element stylesheetEl)
     {
-        Element templateEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.xslt10Namespace, "xsl:template");
+        Element templateEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:template");
         stylesheetEl.appendChild(templateEl);
         templateEl.setAttribute("match", "/");
 
@@ -230,7 +256,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         while (it.hasNext())
         {
             InvokeParam param = (InvokeParam)it.next();
-            Element paramEl = invokeEl.getOwnerDocument().createElementNS(XSLTKeys.xslt10Namespace, "xsl:with-param");
+            Element paramEl = invokeEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:with-param");
             invokeEl.appendChild(paramEl);
 
             setVariableContentAndAttributes(param, paramEl);
@@ -246,7 +272,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         while(varIt.hasNext())
         {
             GlobalVariable var = (GlobalVariable)varIt.next();
-            Element variableEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.xslt10Namespace, "xsl:variable");
+            Element variableEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:variable");
             stylesheetEl.appendChild(variableEl);
 
             setVariableContentAndAttributes(var, variableEl);
@@ -267,13 +293,15 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
             variableEl.setAttribute("select", "/.."); // set empty node set as param value
     }
 
-    private Element createSkeleton()
-    {
+    private Element createSkeleton(String version) throws TransformerConfigurationException {
+        if (version == null)
+            throw new TransformerConfigurationException("Failed to obtain imported stylesheet version");
+
         Document stylesheetDoc;
         stylesheetDoc = DOMUtil.newDocument();
 
-        Element stylesheetEl = stylesheetDoc.createElementNS(XSLTKeys.xslt10Namespace, "xsl:stylesheet");
-        stylesheetEl.setAttribute("version", "1.0");
+        Element stylesheetEl = stylesheetDoc.createElementNS(XSLTKeys.XSLT_NS, "xsl:stylesheet");
+        stylesheetEl.setAttribute("version", version);
         stylesheetDoc.appendChild(stylesheetEl);
 
         registerNamespaces(stylesheetEl);
@@ -297,7 +325,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
     private void createImport(Element stylesheetEl)
     {
-        Element importEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.xslt10Namespace, "xsl:import");
+        Element importEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:import");
         stylesheetEl.appendChild(importEl);
 
         importEl.setAttribute("href", importSystemId);

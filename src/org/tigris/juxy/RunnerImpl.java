@@ -20,9 +20,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * $Id: RunnerImpl.java,v 1.4 2005-08-05 08:31:11 pavelsher Exp $
+ *
  * This runner uses only standard features. It does not use any xslt engine - specific extensions.
  *
- * @version $Revision: 1.3 $
  * @author Pavel Sher
  */
 class RunnerImpl implements Runner
@@ -41,9 +42,9 @@ class RunnerImpl implements Runner
     private void checkEnvironment()
     {
         if (!trFactory.getFeature(SAXSource.FEATURE))
-            throw new RuntimeException("The specified transformer factory does not support SAXSource");
+            throw new JuxyRuntimeException("The specified transformer factory does not support SAXSource");
         if (!trFactory.getFeature(DOMResult.FEATURE))
-            throw new RuntimeException("The specified transformer factory does not support DOMResult");
+            throw new JuxyRuntimeException("The specified transformer factory does not support DOMResult");
     }
 
     private void createTransformerFactory()
@@ -55,7 +56,7 @@ class RunnerImpl implements Runner
     {
         Templates templates = templatesBuilder.build();
         if (templates == null)
-            throw new RuntimeException("Failed to create transformer");
+            throw new JuxyRuntimeException("Failed to create transformer, check Juxy logs for the exact error.");
         return templates.newTransformer();
     }
 
@@ -133,7 +134,7 @@ class RunnerImpl implements Runner
             document.appendChild(parentNode);
             DOMResult result = new DOMResult(parentNode);
             transformer.transform(sourceDoc, result);
-            parentNode.normalize(); // to put all Text nodes together
+            parentNode.normalize();
             DOMUtil.logDocument("Transformation result:", parentNode);
 
             return parentNode;

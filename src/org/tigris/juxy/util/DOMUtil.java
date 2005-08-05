@@ -18,9 +18,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ * $Id: DOMUtil.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
+ *
  * Contains utility methods easing DOM creation and transformation.
  *
- * @version $Revision: 1.1 $
  * @author Pavel Sher
  */
 public class DOMUtil

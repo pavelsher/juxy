@@ -5,12 +5,13 @@ import org.w3c.dom.Node;
 import java.util.Iterator;
 
 /**
+ * $Id: DOMIterator.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
+ *
  * Class represents iterator over DOM. This iterator iterates DOM elements in
  * order of their appearing in the document: it first processess all child elements
  * down to the DOM tree, then following sibling nodes on each level.
  * I.e. iterator corresponds to <code>//</code> XPath expression.
  *
- * @version $Revision: 1.1 $
  * @author Pavel Sher
  */
 public class DOMIterator implements Iterator

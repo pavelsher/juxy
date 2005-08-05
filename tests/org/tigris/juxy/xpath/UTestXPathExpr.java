@@ -35,7 +35,7 @@ public class UTestXPathExpr extends TestCase
 
     public void testAddNamespace() throws XPathExpressionException
     {
-        new XPathExpr("/xsl:template[ax:root]").addNamespace("xsl", XSLTKeys.xslt10Namespace)
+        new XPathExpr("/xsl:template[ax:root]").addNamespace("xsl", XSLTKeys.XSLT_NS)
                                            .addNamespace("ss", "http://juxy.tigris.org");
     }
 

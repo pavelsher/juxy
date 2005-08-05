@@ -7,7 +7,9 @@ import javax.xml.transform.TransformerException;
 import java.io.FileNotFoundException;
 
 /**
- * Interface represents Runner. The Runner instance can be obtained from RunnerFactory.
+ * $Id: Runner.java,v 1.4 2005-08-05 08:31:11 pavelsher Exp $
+ *
+ * Interface represents Runner. Runner instance can be obtained from the RunnerFactory.
  * <br>
  * An example of Runner usage:<br>
  * <pre>
@@ -15,9 +17,8 @@ import java.io.FileNotFoundException;
  * ctx.setDocument("&lt;source/>");
  * Node result = runner.callTemplate(ctx, "templatename");
  * </pre>
- * From this point you can check the result document.
+ * From this point the result can be verified.
  *
- * @version $Revision: 1.3 $
  * @author Pavel Sher
  */
 public interface Runner

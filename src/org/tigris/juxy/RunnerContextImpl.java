@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * $Id: RunnerContextImpl.java,v 1.2 2005-08-05 08:31:11 pavelsher Exp $
  *
- * @version $Revision: 1.1 $
  * @author Pavel Sher
  */
 class RunnerContextImpl implements RunnerContext
