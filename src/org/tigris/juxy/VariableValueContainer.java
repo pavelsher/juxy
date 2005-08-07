@@ -4,7 +4,7 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
- * $Id: VariableValueContainer.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: VariableValueContainer.java,v 1.4 2005-08-07 17:29:55 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -24,9 +24,9 @@ class VariableValueContainer
         this.variableContent = variableContent;
     }
 
-    VariableValueContainer(XPathExpr selectXpathExpr)
+    VariableValueContainer(XPathExpr xpath)
     {
-        this.selectXpathExpr = selectXpathExpr;
+        this.selectXpathExpr = xpath;
     }
 
     public String getStringValue()

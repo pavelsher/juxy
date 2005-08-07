@@ -5,7 +5,7 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
- * $Id: VariableBase.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: VariableBase.java,v 1.4 2005-08-07 17:29:55 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -16,23 +16,23 @@ public class VariableBase
 
     VariableBase(String qname, String value)
     {
-        ArgumentAssert.notEmpty(qname, "The qname must not be empty");
+        ArgumentAssert.notEmpty(qname, "Name must not be empty");
 
         this.qname = qname.trim();
         this.value = new VariableValueContainer(value);
     }
 
-    VariableBase(String qname, XPathExpr selectXpathExpr)
+    VariableBase(String qname, XPathExpr xpath)
     {
-        ArgumentAssert.notEmpty(qname, "The qname must not be empty");
+        ArgumentAssert.notEmpty(qname, "Name must not be empty");
 
         this.qname = qname.trim();
-        this.value = new VariableValueContainer(selectXpathExpr);
+        this.value = new VariableValueContainer(xpath);
     }
 
     VariableBase(String qname, Document content)
     {
-        ArgumentAssert.notEmpty(qname, "The qname must not be empty");
+        ArgumentAssert.notEmpty(qname, "Name must not be empty");
 
         this.qname = qname.trim();
         this.value = new VariableValueContainer(content);

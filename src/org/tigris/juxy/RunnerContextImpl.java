@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * $Id: RunnerContextImpl.java,v 1.4 2005-08-07 16:43:16 pavelsher Exp $
+ * $Id: RunnerContextImpl.java,v 1.5 2005-08-07 17:29:55 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -96,9 +96,9 @@ class RunnerContextImpl implements RunnerContext
         globalVariables.put(varName, new GlobalVariable(varName, varValue));
     }
 
-    public void setGlobalVariableValue(String varName, XPathExpr selectXpathExpr)
+    public void setGlobalVariableValue(String varName, XPathExpr xpath)
     {
-        globalVariables.put(varName, new GlobalVariable(varName, selectXpathExpr));
+        globalVariables.put(varName, new GlobalVariable(varName, xpath));
     }
 
     public void setGlobalVariableValue(String varName, Document varContent)
@@ -116,9 +116,9 @@ class RunnerContextImpl implements RunnerContext
         this.templateParams.put(paramName, new InvokeParam(paramName, paramValue));
     }
 
-    public void setTemplateParamValue(String paramName, XPathExpr selectXpathExpr)
+    public void setTemplateParamValue(String paramName, XPathExpr xpath)
     {
-        this.templateParams.put(paramName, new InvokeParam(paramName, selectXpathExpr));
+        this.templateParams.put(paramName, new InvokeParam(paramName, xpath));
     }
 
     public void setTemplateParamValue(String paramName, Document paramContent)

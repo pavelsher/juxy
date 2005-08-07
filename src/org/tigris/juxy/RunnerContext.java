@@ -4,7 +4,7 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
- * $Id: RunnerContext.java,v 1.4 2005-08-07 16:43:16 pavelsher Exp $
+ * $Id: RunnerContext.java,v 1.5 2005-08-07 17:29:55 pavelsher Exp $
  * <p/>
  * The class represents Runner Context. Instance of the Context can be obtained from Runner.<br>
  * Runner Context is used to setup all the information which is required to start xsl transformation:
@@ -74,9 +74,9 @@ public interface RunnerContext
      * Note: second setting of global variable with the same name replaces previous value with new one.
      * @param qname global variable fully qualified name. If qname contains namespace prefix, you
      * should register variable namespace with registerNamespace method.
-     * @param selectXpathExpr - the global variable xpath expression
+     * @param xpath the global variable xpath expression
      */
-    void setGlobalVariableValue(String qname, XPathExpr selectXpathExpr);
+    void setGlobalVariableValue(String qname, XPathExpr xpath);
 
     /**
      * Sets content for global variable. This is equivalent to xslt construction:
@@ -118,9 +118,9 @@ public interface RunnerContext
      * Note: second setting of template parameter with the same name replaces previous value with new one.
      * @param qname parameter fully qualified name. If qname contains namespace prefix, you
      * should register parameter namespace with registerNamespace method.
-     * @param selectXpathExpr parameter xpath expression
+     * @param xpath parameter xpath expression
      */
-    void setTemplateParamValue(String qname, XPathExpr selectXpathExpr);
+    void setTemplateParamValue(String qname, XPathExpr xpath);
 
     /**
      * Sets content for template parameter. This is equivalent to xslt construction:

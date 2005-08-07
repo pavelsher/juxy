@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.6 2005-08-07 16:43:16 pavelsher Exp $
+ * $Id: RunnerImpl.java,v 1.7 2005-08-07 17:29:55 pavelsher Exp $
  * <p/>
  * This runner uses only standard features. It does not use any xslt engine - specific extensions.
  *
@@ -129,33 +129,27 @@ class RunnerImpl implements Runner
     }
 
     private Node transformSource(Source sourceDoc, RunnerContextImpl ctx) throws TransformerException {
-        try
+        Transformer transformer = getTransformer();
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        if (ctx.getGlobalParams() != null)
         {
-            Transformer transformer = getTransformer();
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            if (ctx.getGlobalParams() != null)
+            Map namespaces = ctx.getNamespaces();
+            Iterator it = ctx.getGlobalParams().iterator();
+            while(it.hasNext())
             {
-                Map namespaces = ctx.getNamespaces();
-                Iterator it = ctx.getGlobalParams().iterator();
-                while(it.hasNext())
-                {
-                    GlobalParam param = (GlobalParam)it.next();
-                    transformer.setParameter(param.getTransformerQName(namespaces), param.getValue());
-                }
+                GlobalParam param = (GlobalParam)it.next();
+                transformer.setParameter(param.getTransformerQName(namespaces), param.getValue());
             }
-
-            // we want to use Xerces DOM instead of XSLT engine internal realization
-            Document document = DOMUtil.newDocument();
-            DocumentFragment parentNode = document.createDocumentFragment();
-            document.appendChild(parentNode);
-            DOMResult result = new DOMResult(parentNode);
-            transformer.transform(sourceDoc, result);
-            parentNode.normalize();
-            DOMUtil.logDocument("Transformation result:", parentNode);
-
-            return parentNode;
-        } catch (TransformerException ex) {
-            throw ex;
         }
+
+        Document document = DOMUtil.newDocument();
+        DocumentFragment parentNode = document.createDocumentFragment();
+        document.appendChild(parentNode);
+        DOMResult result = new DOMResult(parentNode);
+        transformer.transform(sourceDoc, result);
+        parentNode.normalize();
+        DOMUtil.logDocument("Transformation result:", parentNode);
+
+        return parentNode;
     }
 }

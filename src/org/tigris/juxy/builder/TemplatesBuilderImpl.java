@@ -10,27 +10,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.dom.DOMSource;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.4 2005-08-07 16:43:15 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.5 2005-08-07 17:29:55 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -79,11 +77,11 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
     {
         assert systemId != null && systemId.length() > 0;
         if (resolver == null)
-            resolver = new FileResolver();
+            resolver = new FileURIResolver();
 
         Source src = null;
         try {
-            src = resolver.resolve(systemId, null);
+            src = resolver.resolve(systemId, "");
             if (src == null)
                 throw new JuxyRuntimeException("Failed to resolve system id: " + systemId);
         } catch (TransformerException e) {
@@ -514,24 +512,6 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
             return true;
 
         return false; // TODO
-    }
-
-    class FileResolver implements URIResolver {
-        public Source resolve(String href, String base) throws TransformerException {
-            if (base == null || "".equals(base))
-                return new StreamSource(href);
-
-            try {
-                URI fileURI = new URI(base).resolve(href);
-                File file = new File(fileURI);
-                if (file.exists())
-                    return new StreamSource(file);
-            } catch (URISyntaxException e) {
-                throw new TransformerException("Failed to resolve system id: " + href, e);
-            }
-
-            return null;
-        }
     }
 
     private XPathExpr rootNode = null;

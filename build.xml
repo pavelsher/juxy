@@ -59,6 +59,8 @@
         <delete dir="${instr.classes.dir}" failonerror="false"/>
         <delete dir="${test.classes.dir}" failonerror="false"/>
         <delete dir="${build.dir}" failonerror="false"/>
+        <delete file="coverage.ec"/>
+        <delete file="coverage.em"/>
     </target>
 
     <target name="compile-src" depends="init">
