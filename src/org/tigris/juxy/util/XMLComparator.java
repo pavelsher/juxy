@@ -9,17 +9,14 @@ import org.xml.sax.SAXException;
 import java.util.*;
 
 /**
- * $Id: XMLComparator.java,v 1.4 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: XMLComparator.java,v 1.5 2005-08-07 16:43:15 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
 public class XMLComparator {
     public static void assertEquals(String expected, Node actual) throws DocumentsAssertionError, SAXException {
-        if (expected == null)
-            throw new IllegalArgumentException("Expected document argument must not be null");
-
-        if (actual == null)
-            throw new IllegalArgumentException("Actual Node argument must not be null");
+        ArgumentAssert.notNull(expected, "Expected document must not be null");
+        ArgumentAssert.notNull(actual, "Actual document must not be null");
 
         Document expectedDoc = DOMUtil.parse(expected);
         TreeWalker expTw = ((DocumentTraversal)expectedDoc).createTreeWalker(expectedDoc, NodeFilter.SHOW_ALL, new ComparatorNodeFilter(), true);

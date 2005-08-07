@@ -19,16 +19,6 @@ public class UTestRunnerImpl extends TestCase
         runner = RunnerFactory.newRunner();
     }
 
-    public void testFileNotExists()
-    {
-        try
-        {
-            runner.newRunnerContext("afile");
-            fail("An exception expected");
-        }
-        catch (FileNotFoundException e) {}
-    }
-
     public void testCallTemplateWithNullContext() throws TransformerException {
         try
         {

@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * $Id: DOMUtil.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: DOMUtil.java,v 1.4 2005-08-07 16:43:15 pavelsher Exp $
  * <p/>
  * Contains utility methods easing DOM creation and transformation.
  *
@@ -77,7 +77,7 @@ public class DOMUtil
     }
 
     /**
-     * Logs document with specified title.
+     * Logs document with specified title if current logging level is DEBUG.
      * @param title title of the document, used to identify document printed in log
      * @param root root node of the document or document itself
      */

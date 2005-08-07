@@ -1,18 +1,15 @@
 package org.tigris.juxy.xpath;
 
-import org.jaxen.dom.DOMXPath;
 import org.jaxen.JaxenException;
 import org.jaxen.XPathSyntaxException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.jaxen.dom.DOMXPath;
+import org.tigris.juxy.util.ArgumentAssert;
 import org.w3c.dom.Node;
 
 import java.util.Collection;
 
-import org.tigris.juxy.util.ArgumentAssert;
-
 /**
- * $Id: XPathExpr.java,v 1.4 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: XPathExpr.java,v 1.5 2005-08-07 16:43:15 pavelsher Exp $
  * <p/>
  * Simple XPath expressions evaluator. You can evaluate XPath expression to string, int, double, boolean, nodeset or node.
  *
@@ -20,7 +17,6 @@ import org.tigris.juxy.util.ArgumentAssert;
  */
 public class XPathExpr
 {
-    private static final Log logger = LogFactory.getLog(XPathExpr.class);
     private final DOMXPath xpath;
 
     /**
@@ -40,13 +36,11 @@ public class XPathExpr
         }
         catch (XPathSyntaxException e)
         {
-            logger.error("Error in specified expression syntax: " + e.getMultilineMessage());
-            throw new XPathExpressionException(e);
+            throw new XPathExpressionException("The specified XPath expression is invalid", e);
         }
         catch (JaxenException e)
         {
-            logger.error("Error in specified expression occured");
-            throw new XPathExpressionException(e);
+            throw new XPathExpressionException("Error occured during creation of XPath expression", e);
         }
     }
 
@@ -68,8 +62,7 @@ public class XPathExpr
         }
         catch (JaxenException e)
         {
-            logger.error("Error occurs during namespace registraion");
-            throw new XPathExpressionException(e);
+            throw new XPathExpressionException("Error occured during namespace registraion", e);
         }
 
         return this;
@@ -90,7 +83,7 @@ public class XPathExpr
         }
         catch (JaxenException e)
         {
-            throw new XPathExpressionException(e);
+            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
         }
     }
 
@@ -109,7 +102,7 @@ public class XPathExpr
         }
         catch (JaxenException e)
         {
-            throw new XPathExpressionException(e);
+            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
         }
     }
 
@@ -129,7 +122,7 @@ public class XPathExpr
         }
         catch (JaxenException e)
         {
-            throw new XPathExpressionException(e);
+            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
         }
     }
 
@@ -149,7 +142,7 @@ public class XPathExpr
         }
         catch (JaxenException e)
         {
-            throw new XPathExpressionException(e);
+            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
         }
     }
 
@@ -168,7 +161,7 @@ public class XPathExpr
         }
         catch (JaxenException e)
         {
-            throw new XPathExpressionException(e);
+            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
         }
     }
 
@@ -187,7 +180,7 @@ public class XPathExpr
         }
         catch (JaxenException e)
         {
-            throw new XPathExpressionException(e);
+            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
         }
     }
 

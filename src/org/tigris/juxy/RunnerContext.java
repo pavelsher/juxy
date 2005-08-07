@@ -4,7 +4,7 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
- * $Id: RunnerContext.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: RunnerContext.java,v 1.4 2005-08-07 16:43:16 pavelsher Exp $
  * <p/>
  * The class represents Runner Context. Instance of the Context can be obtained from Runner.<br>
  * Runner Context is used to setup all the information which is required to start xsl transformation:
@@ -35,9 +35,9 @@ public interface RunnerContext
 
     /**
      * Sets xpath expression used for selection of current node.
-     * @param selectXpathExpr an expression used for selection of current node.
+     * @param xpathExpr an expression used for selection of current node.
      */
-    void setCurrentNode(XPathExpr selectXpathExpr);
+    void setCurrentNode(XPathExpr xpathExpr);
 
     /**
      * Sets global parameter value in context.

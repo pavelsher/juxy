@@ -8,29 +8,41 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xml.sax.InputSource;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Templates;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.dom.DOMSource;
 import java.io.IOException;
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.4 2005-08-07 16:43:15 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
 public class TemplatesBuilderImpl implements TemplatesBuilder
 {
-    private String importSystemId = null;
+    private final static String DEFAULT_VERSION = "1.0";
+
+    private String importSystemId;
+    private String resolvedSystemId;
+    private URIResolver resolver;
+    private Source stylesheetSource;
+
     private Collection globalVariables = null;
     private Map namespaces = new HashMap();
     private XPathExpr currentNode;
@@ -56,18 +68,34 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         }
         catch (XPathExpressionException e)
         {
-            logger.error("Internal error occured", e);
+            throw new JuxyRuntimeException("Failed to create XPathExpr object for '/'", e);
         }
 
         this.parserFactory = SAXParserFactory.newInstance();
         parserFactory.setNamespaceAware(true);
     }
 
-    public void setImportSystemId(String systemId)
+    public void setImportSystemId(String systemId, URIResolver resolver)
     {
-        checkNotEmpty(systemId, "system id");
-        updateNewTemplateFlag(!systemId.equals(importSystemId));
+        assert systemId != null && systemId.length() > 0;
+        if (resolver == null)
+            resolver = new FileResolver();
+
+        Source src = null;
+        try {
+            src = resolver.resolve(systemId, null);
+            if (src == null)
+                throw new JuxyRuntimeException("Failed to resolve system id: " + systemId);
+        } catch (TransformerException e) {
+            throw new JuxyRuntimeException("Failed to resolve system id: " + systemId, e);
+        }
+
+        updateNewTemplateFlag(!src.getSystemId().equals(resolvedSystemId));
+
+        this.stylesheetSource = src;
+        this.resolvedSystemId = src.getSystemId();
         this.importSystemId = systemId;
+        this.resolver = resolver;
     }
 
     public void setGlobalVariables(Collection variables)
@@ -88,7 +116,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
     public void setInvokationStatementInfo(String name, Collection invokeParams)
     {
-        checkNotEmpty(name, "name");
+        assert name != null;
 
         InvokationStatementInfo newInvokationStatementInfo = new InvokationStatementInfo(name, invokeParams);
         updateNewTemplateFlag(
@@ -127,7 +155,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         this.namespaces.putAll(namespaces);
     }
 
-    public Templates build() throws TransformerConfigurationException
+    public Templates build()
     {
         if (newTemplatesRequired)
         {
@@ -146,22 +174,70 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
     }
 
     private String getImportedStylesheetVersion() {
-        assert importSystemId != null;
+        assert resolvedSystemId != null;
+        assert stylesheetSource != null;
 
-        XSLVersionRetriever handler = new XSLVersionRetriever();
-        try {
-            SAXParser parser = parserFactory.newSAXParser();
-            parser.parse(importSystemId, handler);
-        } catch (SAXException e) {
-            if (!XSLVersionRetriever.STOP_MESSAGE.equals(e.getMessage()))
-                throw new JuxyRuntimeException("XML parse error", e);
-        } catch (IOException e) {
-            throw new JuxyRuntimeException("Input / output error on attempt to read from stylesheet: " + importSystemId, e);
-        } catch (ParserConfigurationException e) {
-            throw new JuxyRuntimeException("Failed to create SAX parser", e);
+        String version = null;
+        if (!(stylesheetSource instanceof DOMSource)) {
+            XSLVersionRetriever handler = new XSLVersionRetriever();
+            try {
+                SAXParser parser = parserFactory.newSAXParser();
+                InputSource is = toInputSource(stylesheetSource);
+                parser.parse(is, handler);
+            } catch (SAXException e) {
+                if (!XSLVersionRetriever.STOP_MESSAGE.equals(e.getMessage()))
+                    throw new JuxyRuntimeException("XML parse error", e);
+            } catch (IOException e) {
+                throw new JuxyRuntimeException("Input / output error on attempt to read from stylesheet: " + importSystemId, e);
+            } catch (ParserConfigurationException e) {
+                throw new JuxyRuntimeException("Failed to create SAX parser", e);
+            }
+
+            version = handler.getVersion();
+        } else {
+            // obtain xsl version from DOM
+            DOMSource ds = (DOMSource)stylesheetSource;
+            Node node = ds.getNode();
+            if (node == null)
+                throw new JuxyRuntimeException("DOMSource Node is null for system id: " + importSystemId);
+            Document doc = node.getOwnerDocument();
+            if (doc == null && node.getNodeType() == Node.DOCUMENT_NODE)
+                doc = (Document) node;
+            if (doc == null)
+                throw new JuxyRuntimeException("Failed to obtain Document from the DOMSource Node for system id: " + importSystemId);
+            NodeList nodes = (NodeList) doc.getElementsByTagNameNS(XSLTKeys.XSLT_NS, "stylesheet");
+            if (nodes.getLength() == 0)
+                logger.warn("Element xsl:stylesheet was not found in the system id: " + importSystemId);
+            else {
+                Element stylesheetEl = (Element) nodes.item(0);
+                version = stylesheetEl.getAttribute("version");
+            }
         }
 
-        return handler.getVersion();
+        if (version == null) {
+            logger.warn("Unable to obtain stylesheet version for system id: " + importSystemId + ", version " + DEFAULT_VERSION + " will be used");
+            return DEFAULT_VERSION;
+        }
+
+        logger.info("Imported stylesheet has version: " + version);
+        return version;
+    }
+
+    private InputSource toInputSource(Source source) {
+        if (source instanceof StreamSource) {
+            InputSource is = new InputSource(source.getSystemId());
+            StreamSource streamSource = (StreamSource)source;
+            is.setByteStream(streamSource.getInputStream());
+            is.setPublicId(streamSource.getPublicId());
+            return is;
+        }
+
+        if (source instanceof SAXSource) {
+            SAXSource saxSource = (SAXSource) source;
+            return saxSource.getInputSource();
+        }
+
+        return null;
     }
 
     Document getCurrentStylesheetDoc()
@@ -171,22 +247,30 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
     private void checkBuildConfiguration()
     {
-        if (importSystemId == null)
-            throw new IllegalStateException("Call setImportSystemId() first");
+        if (importSystemId == null || resolvedSystemId == null)
+            throw new IllegalStateException("System id not specified");
     }
 
-    private void updateCurrentTemplates(Document stylesheet) throws TransformerConfigurationException {
+    private void updateCurrentTemplates(Document stylesheet) {
+        assert resolver != null;
+
         try
         {
-            currentTemplates = transformerFactory.newTemplates(new DOMSource(stylesheet.getDocumentElement()));
+            transformerFactory.setURIResolver(resolver);
+            DOMSource source = new DOMSource(stylesheet.getDocumentElement());
+            // Setting system id to be in the current directory (we are using some file for that,
+            // but it does not matter whether this file exists or not).
+            // This system id is required to be able to resolve paths to
+            // imported and included stylesheets
+            source.setSystemId(new File("generated-stylesheet.xsl").getAbsoluteFile().toURI().toString());
+            currentTemplates = transformerFactory.newTemplates(source);
         }
         catch(TransformerConfigurationException ex)
         {
-            logger.error("Internal error occured", ex);
-            throw ex;
+            throw new JuxyRuntimeException("Failed to create Templates object", ex);
         }
 
-        DOMUtil.logDocument("Updated stylesheet", stylesheet);
+        DOMUtil.logDocument("Generated stylesheet", stylesheet);
     }
 
     private void createInvokationStatement(Element stylesheetEl)
@@ -293,9 +377,8 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
             variableEl.setAttribute("select", "/.."); // set empty node set as param value
     }
 
-    private Element createSkeleton(String version) throws TransformerConfigurationException {
-        if (version == null)
-            throw new TransformerConfigurationException("Failed to obtain imported stylesheet version");
+    private Element createSkeleton(String version) {
+        assert version != null;
 
         Document stylesheetDoc;
         stylesheetDoc = DOMUtil.newDocument();
@@ -329,12 +412,6 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         stylesheetEl.appendChild(importEl);
 
         importEl.setAttribute("href", importSystemId);
-    }
-
-    private void checkNotEmpty(String value, String valueName)
-    {
-        if (value == null || value.trim().length() == 0)
-            throw new IllegalArgumentException("The " + valueName + " must not be empty");
     }
 
     private void updateNewTemplateFlag(boolean needNew)
@@ -437,6 +514,24 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
             return true;
 
         return false; // TODO
+    }
+
+    class FileResolver implements URIResolver {
+        public Source resolve(String href, String base) throws TransformerException {
+            if (base == null || "".equals(base))
+                return new StreamSource(href);
+
+            try {
+                URI fileURI = new URI(base).resolve(href);
+                File file = new File(fileURI);
+                if (file.exists())
+                    return new StreamSource(file);
+            } catch (URISyntaxException e) {
+                throw new TransformerException("Failed to resolve system id: " + href, e);
+            }
+
+            return null;
+        }
     }
 
     private XPathExpr rootNode = null;

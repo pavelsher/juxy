@@ -22,20 +22,6 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
     {
         try
         {
-            builder.setImportSystemId(null);
-            fail("An exception expected");
-        }
-        catch(IllegalArgumentException ex) {};
-
-        try
-        {
-            builder.setInvokationStatementInfo(null, null);
-            fail("An exception expected");
-        }
-        catch(IllegalArgumentException ex) {};
-
-        try
-        {
             builder.build();
             fail("An exception expected");
         }
@@ -44,17 +30,17 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsSame_SystemId() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
         assertSame(orig, builder.build());
 
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         assertSame(orig, builder.build());
     }
 
     public void testTemplatesIsSame_GlVars() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
         builder.setGlobalVariables(Collections.EMPTY_SET);
@@ -63,7 +49,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsSame_CurNode() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
         builder.setCurrentNode(null);
@@ -78,7 +64,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsSame_NamedInvStatement() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
         builder.setInvokationStatementInfo("aname", null);
@@ -90,7 +76,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsSame_AppliedInvStatement() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
         builder.setInvokationStatementInfo(new XPathExpr("root"), "amode", null);
@@ -102,16 +88,16 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsNotSame_SystemId() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/name-tpl.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/name-tpl.xsl"), null);
         assertNotSame(orig, builder.build());
     }
 
     public void testTemplatesIsNotSame_GlVars() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
         List glvars = new ArrayList();
@@ -126,7 +112,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsNotSame_CurNode() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
         builder.setCurrentNode(new XPathExpr("fff"));
@@ -143,7 +129,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsNotSame_NamedInvStatement() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
         builder.setInvokationStatementInfo("aname", null);
@@ -167,7 +153,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsNotSame_AppliedInvStatement() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
         builder.setInvokationStatementInfo(null, null, null);
@@ -203,7 +189,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testSkeleton() throws TransformerException, MalformedURLException, XPathExpressionException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         builder.build();
 
         assertNotNull( new XPathExpr("/xsl:stylesheet")
@@ -221,7 +207,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
     {
         List glvars = new ArrayList();
 
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
         glvars.add(new GlobalVariable("aname1", "avalue"));
         builder.setGlobalVariables(glvars);
@@ -264,7 +250,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testNamedInvStatement() throws TransformerException, MalformedURLException, XPathExpressionException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
         builder.setInvokationStatementInfo("aname", null);
         builder.build();
@@ -288,7 +274,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testNamedInvStatementWithCurNode() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         builder.setInvokationStatementInfo("aname", null);
         XPathExpr xp = new XPathExpr("zzz");
         builder.setCurrentNode(xp);
@@ -309,7 +295,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testAppliedInvStatement() throws TransformerException, MalformedURLException, XPathExpressionException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
         builder.setInvokationStatementInfo(null, null, null);
         builder.build();
@@ -333,7 +319,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testAppliedInvStatementWithSelect() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
         XPathExpr xp = new XPathExpr("aselect");
         builder.setInvokationStatementInfo(xp, null, null);
@@ -350,7 +336,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testAppliedInvStatementWithMode() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
         XPathExpr xp = new XPathExpr("aselect");
         builder.setInvokationStatementInfo(xp, "amode", null);
@@ -367,7 +353,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testAppliedInvStatementWithCurNode() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
         XPathExpr xp1 = new XPathExpr("aselect");
         builder.setInvokationStatementInfo(xp1, "amode", null);
@@ -391,7 +377,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testAppliedInvStatementWithRootSelect() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         builder.setInvokationStatementInfo(new XPathExpr("/"), "amode", null);
         builder.build();
 
@@ -426,7 +412,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
 
     public void testInvStatement_WithParams() throws TransformerException, MalformedURLException, SAXException, XPathExpressionException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
         List params = new ArrayList();
         XPathExpr xp = new XPathExpr("//elem");

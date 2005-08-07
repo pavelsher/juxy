@@ -5,22 +5,18 @@ import org.tigris.juxy.builder.TemplatesBuilderImpl;
 import org.tigris.juxy.util.ArgumentAssert;
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.xpath.XPathExpr;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Node;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Node;
 
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.5 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: RunnerImpl.java,v 1.6 2005-08-07 16:43:16 pavelsher Exp $
  * <p/>
  * This runner uses only standard features. It does not use any xslt engine - specific extensions.
  *
@@ -30,7 +26,6 @@ class RunnerImpl implements Runner
 {
     private static TransformerFactory trFactory = null;
     private TemplatesBuilder templatesBuilder = null;
-    private static final Log logger = LogFactory.getLog(RunnerImpl.class);
 
     protected RunnerImpl()
     {
@@ -56,20 +51,28 @@ class RunnerImpl implements Runner
     {
         Templates templates = templatesBuilder.build();
         if (templates == null)
-            throw new JuxyRuntimeException("Failed to create transformer, check Juxy logs for the exact error.");
+            throw new JuxyRuntimeException("Failed to create transformer, check Juxy logs for details");
         return templates.newTransformer();
     }
 
-    public RunnerContext newRunnerContext(String stylesheetPath) throws FileNotFoundException
+    public RunnerContext newRunnerContext(String systemId)
     {
-        File stylesheetFile = new File(stylesheetPath);
-        if (!stylesheetFile.isFile())
-            throw new FileNotFoundException("Stylesheet file not found: " + stylesheetFile.getAbsolutePath());
+        ArgumentAssert.notEmpty(systemId, "System id must not be empty");
 
-        return new RunnerContextImpl(stylesheetFile.toURI().toString());
+        return new RunnerContextImpl(systemId);
+    }
+
+    public RunnerContext newRunnerContext(String systemId, URIResolver resolver) {
+        ArgumentAssert.notEmpty(systemId, "System id must not be empty");
+        ArgumentAssert.notNull(resolver, "Resolver must not be null");
+
+        return new RunnerContextImpl(systemId, resolver);
     }
 
     public Node callTemplate(RunnerContext ctx, String name) throws TransformerException {
+        ArgumentAssert.notNull(ctx, "RunnerContext must not be null");
+        ArgumentAssert.notEmpty(name, "Template name must not be empty");
+
         RunnerContextImpl sctx = getContext(ctx);
 
         setupTemplatesBuilder(sctx);
@@ -79,14 +82,27 @@ class RunnerImpl implements Runner
     }
 
     public Node applyTemplates(RunnerContext ctx) throws TransformerException {
-        return applyTemplates(ctx, null, null);
+        ArgumentAssert.notNull(ctx, "RunnerContext must not be null");
+
+        return internalApplyTemplates(ctx, null, null);
     }
 
     public Node applyTemplates(RunnerContext ctx, XPathExpr selectXpathExpr) throws TransformerException {
-        return applyTemplates(ctx, selectXpathExpr, null);
+        ArgumentAssert.notNull(ctx, "RunnerContext must not be null");
+        ArgumentAssert.notNull(selectXpathExpr, "XPath expression must not be null");
+
+        return internalApplyTemplates(ctx, selectXpathExpr, null);
     }
 
     public Node applyTemplates(RunnerContext ctx, XPathExpr selectXpathExpr, String mode) throws TransformerException {
+        ArgumentAssert.notNull(ctx, "RunnerContext must not be null");
+        ArgumentAssert.notNull(selectXpathExpr, "XPath expression must not be null");
+        ArgumentAssert.notEmpty(mode, "Mode must not be empty");
+
+        return internalApplyTemplates(ctx, selectXpathExpr, mode);
+    }
+
+    private Node internalApplyTemplates(RunnerContext ctx, XPathExpr selectXpathExpr, String mode) throws TransformerException {
         RunnerContextImpl sctx = getContext(ctx);
 
         setupTemplatesBuilder(sctx);
@@ -106,7 +122,7 @@ class RunnerImpl implements Runner
 
     private void setupTemplatesBuilder(RunnerContextImpl ctx)
     {
-        templatesBuilder.setImportSystemId(ctx.getStylesheetSystemId());
+        templatesBuilder.setImportSystemId(ctx.getSystemId(), ctx.getResolver());
         templatesBuilder.setCurrentNode(ctx.getCurrentNodeSelector());
         templatesBuilder.setGlobalVariables(ctx.getGlobalVariables());
         templatesBuilder.setNamespaces(ctx.getNamespaces());
@@ -138,15 +154,7 @@ class RunnerImpl implements Runner
             DOMUtil.logDocument("Transformation result:", parentNode);
 
             return parentNode;
-        }
-        catch (TransformerConfigurationException ex)
-        {
-            logger.error("Internal error occured", ex);
-            throw ex;
-        }
-        catch (TransformerException ex)
-        {
-            logger.error("Error occured during template invokation", ex);
+        } catch (TransformerException ex) {
             throw ex;
         }
     }

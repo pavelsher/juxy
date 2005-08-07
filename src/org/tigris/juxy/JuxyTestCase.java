@@ -1,15 +1,16 @@
 package org.tigris.juxy;
 
-import org.tigris.juxy.util.XMLComparator;
-import org.tigris.juxy.util.StringUtil;
-import org.tigris.juxy.xpath.XPathExpr;
 import junit.framework.TestCase;
+import org.tigris.juxy.util.StringUtil;
+import org.tigris.juxy.util.XMLComparator;
+import org.tigris.juxy.util.ArgumentAssert;
+import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Node;
 
-import java.io.FileNotFoundException;
+import javax.xml.transform.URIResolver;
 
 /**
- * $Id: JuxyTestCase.java,v 1.5 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: JuxyTestCase.java,v 1.6 2005-08-07 16:43:16 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -18,13 +19,24 @@ public abstract class JuxyTestCase extends TestCase {
     private RunnerContext context;
 
     /**
-     * Creates new RunnerContext from the specified xsl file
-     * @param xslFile
-     * @return new InvokationContext
-     * @throws FileNotFoundException
+     * Creates new RunnerContext from the specified system id
+     * @param systemId stylesheet system id
+     * @return new RunnerContext
      */
-    public RunnerContext newContext(String xslFile) throws Exception {
-        context = getRunner().newRunnerContext(xslFile);
+    public RunnerContext newContext(String systemId) {
+        context = getRunner().newRunnerContext(systemId);
+        return context;
+    }
+
+    /**
+     * Creates new RunnerContext from the system id. Uses specified
+     * resolver to resolve system id.
+     * @param systemId stylesheet system id
+     * @param resolver URIResolver to use for system id resolution during transformation
+     * @return new RunnerContext
+     */
+    public RunnerContext newContext(String systemId, URIResolver resolver) {
+        context = getRunner().newRunnerContext(systemId, resolver);
         return context;
     }
 
@@ -36,6 +48,15 @@ public abstract class JuxyTestCase extends TestCase {
         if (context == null)
             throw new IllegalStateException("Call newContext() method first");
         return context;
+    }
+
+    /**
+     * Sets RunnerContext object to use as the current context.
+     * @param context
+     */
+    public void setContext(RunnerContext context) {
+        ArgumentAssert.notNull(context, "Context must not be null");
+        this.context = context;
     }
 
     /**
@@ -58,15 +79,15 @@ public abstract class JuxyTestCase extends TestCase {
     /**
      * For method description see {@link Runner#applyTemplates(RunnerContext, org.tigris.juxy.xpath.XPathExpr)}
      */
-    public Node applyTemplates(XPathExpr selectNodeXpath) throws Exception {
-        return getRunner().applyTemplates(getContext(), selectNodeXpath);
+    public Node applyTemplates(XPathExpr xpath) throws Exception {
+        return getRunner().applyTemplates(getContext(), xpath);
     }
 
     /**
      * For method description see {@link Runner#applyTemplates(RunnerContext, org.tigris.juxy.xpath.XPathExpr, String)}
      */
-    public Node applyTemplates(XPathExpr selectNodeXpath, String mode) throws Exception {
-        return getRunner().applyTemplates(getContext(), selectNodeXpath, mode);
+    public Node applyTemplates(XPathExpr xpath, String mode) throws Exception {
+        return getRunner().applyTemplates(getContext(), xpath, mode);
     }
 
     /**

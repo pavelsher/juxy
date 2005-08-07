@@ -4,10 +4,10 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.TransformerException;
-import java.io.FileNotFoundException;
+import javax.xml.transform.URIResolver;
 
 /**
- * $Id: Runner.java,v 1.5 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: Runner.java,v 1.6 2005-08-07 16:43:16 pavelsher Exp $
  * <p/>
  * Interface represents Runner. Runner instance can be obtained from the RunnerFactory.
  * <br>
@@ -24,12 +24,21 @@ import java.io.FileNotFoundException;
 public interface Runner
 {
     /**
-     * Creates new RunnerContext object. RunnerContext used for setup of invoked template context.
-     * @param stylesheetPath - path to the stylesheet
+     * Creates new RunnerContext object. RunnerContext is used for setup of the context
+     * in which the called template will be running.
+     * @param systemId system id of the stylesheet
      * @return new RunnerContext object
-     * @throws FileNotFoundException - in case where stylesheetFile does not exists
      */
-    RunnerContext newRunnerContext(String stylesheetPath) throws FileNotFoundException;
+    RunnerContext newRunnerContext(String systemId);
+
+    /**
+     * Creates new RunnerContext object. RunnerContext is used for setup of the context
+     * in which the called template will be running.
+     * @param systemId system id of the stylesheet
+     * @param resolver URIResolver to use for system id resolution during transformation
+     * @return new RunnerContext object
+     */
+    RunnerContext newRunnerContext(String systemId, URIResolver resolver);
 
     /**
      * Calls specified template by its name. This is equivalent to xslt construction:
@@ -52,7 +61,7 @@ public interface Runner
      * &lt;/xsl:apply-templates>
      * </pre>
      * @param ctx the context in which applied template should work
-     * @return result Node of type DOCUMENT_FRAGMENT, containing the results of the transformation
+     * @return result Node of type {@link org.w3c.dom.DocumentFragment}, containing the results of the transformation
      */
     Node applyTemplates(RunnerContext ctx) throws TransformerException;
 
@@ -65,10 +74,10 @@ public interface Runner
      * &lt;/xsl:apply-templates>
      * </pre>
      * @param ctx the context in which applied template should work
-     * @param selectXpathExpr the XPath expression used in select attribute
-     * @return result Node of type DOCUMENT_FRAGMENT, containing the results of the transformation
+     * @param xpath the XPath expression to use as the select attribute value
+     * @return result Node of type {@link org.w3c.dom.DocumentFragment}, containing the results of the transformation
      */
-    Node applyTemplates(RunnerContext ctx, XPathExpr selectXpathExpr) throws TransformerException;
+    Node applyTemplates(RunnerContext ctx, XPathExpr xpath) throws TransformerException;
 
     /**
      * Applies templates matching specified xpath expression and mode starting from specified context.
@@ -79,9 +88,9 @@ public interface Runner
      * &lt;/xsl:apply-templates>
      * </pre>
      * @param ctx the context in which applied template should work
-     * @param selectXpathExpr the value of select attribute
+     * @param xpath the XPath expression to use as the select attribute value
      * @param mode the value of mode attribute
-     * @return result Node of type DOCUMENT_FRAGMENT, containing the results of the transformation
+     * @return result Node of type {@link org.w3c.dom.DocumentFragment}, containing the results of the transformation
      */
-    Node applyTemplates(RunnerContext ctx, XPathExpr selectXpathExpr, String mode) throws TransformerException;
+    Node applyTemplates(RunnerContext ctx, XPathExpr xpath, String mode) throws TransformerException;
 }

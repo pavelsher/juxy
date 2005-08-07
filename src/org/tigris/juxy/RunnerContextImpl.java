@@ -6,6 +6,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import javax.xml.transform.Source;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXSource;
 import java.io.ByteArrayInputStream;
 import java.util.Collection;
@@ -13,13 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * $Id: RunnerContextImpl.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: RunnerContextImpl.java,v 1.4 2005-08-07 16:43:16 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
 class RunnerContextImpl implements RunnerContext
 {
-    private String stylesheetSystemId = null;
+    private String systemId = null;
+    private URIResolver resolver = null;
     private Source sourceDocument = null;
     private String sourceDocumentContent = null;
     private XPathExpr currentNodeSelector = null;
@@ -28,9 +30,26 @@ class RunnerContextImpl implements RunnerContext
     private Map templateParams = null;
     private Map namespaces = null;
 
-    protected RunnerContextImpl(String stylesheetSystemId)
+    protected RunnerContextImpl(String systemId)
     {
-        this.stylesheetSystemId = stylesheetSystemId;
+        ArgumentAssert.notEmpty(systemId, "System id must not be empty");
+
+        this.systemId = systemId;
+
+        globalParams = new HashMap();
+        globalVariables = new HashMap();
+        templateParams = new HashMap();
+        namespaces = new HashMap();
+    }
+
+    protected RunnerContextImpl(String systemId, URIResolver resolver)
+    {
+        ArgumentAssert.notEmpty(systemId, "System id must not be empty");
+        ArgumentAssert.notNull(resolver, "URIResolver must not be null");
+
+        this.systemId = systemId;
+        this.resolver = resolver;
+
         globalParams = new HashMap();
         globalVariables = new HashMap();
         templateParams = new HashMap();
@@ -55,9 +74,11 @@ class RunnerContextImpl implements RunnerContext
         namespaces.clear();
     }
 
-    public void setCurrentNode(XPathExpr selectXpathExpr)
+    public void setCurrentNode(XPathExpr xpathExpr)
     {
-        currentNodeSelector = selectXpathExpr;
+        ArgumentAssert.notNull(xpathExpr, "XPath expression must not be null");
+
+        currentNodeSelector = xpathExpr;
     }
 
     public void setGlobalParamValue(String name, Object value)
@@ -110,9 +131,9 @@ class RunnerContextImpl implements RunnerContext
         templateParams.clear();
     }
 
-    protected String getStylesheetSystemId()
+    protected String getSystemId()
     {
-        return stylesheetSystemId;
+        return systemId;
     }
 
     protected Source getSourceDocument()
@@ -148,10 +169,14 @@ class RunnerContextImpl implements RunnerContext
         return templateParams.values();
     }
 
+    protected URIResolver getResolver() {
+        return resolver;
+    }
+
     void checkComplete()
     {
         if (sourceDocument == null && sourceDocumentContent == null)
-            throw new IllegalStateException("The source document must not be empty, call setDocument() first");
+            throw new IllegalStateException("The source document must not be empty, call setDocument() method first");
     }
 
     public SAXSource toSAXSource(String documentContent)

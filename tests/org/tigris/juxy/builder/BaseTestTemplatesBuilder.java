@@ -3,7 +3,6 @@ package org.tigris.juxy.builder;
 import junit.framework.TestCase;
 
 import javax.xml.transform.TransformerFactory;
-import java.net.MalformedURLException;
 import java.io.File;
 
 public abstract class BaseTestTemplatesBuilder extends TestCase
@@ -16,8 +15,8 @@ public abstract class BaseTestTemplatesBuilder extends TestCase
         builder = new TemplatesBuilderImpl(trFactory);
     }
 
-    protected String getTestingXsltSystemId(String filePath) throws MalformedURLException
+    protected String getTestingXsltSystemId(String filePath)
     {
-        return new File(filePath).toURL().toString();
+        return new File(filePath).toURI().toString();
     }
 }

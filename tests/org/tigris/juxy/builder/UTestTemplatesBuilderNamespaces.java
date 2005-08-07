@@ -16,7 +16,7 @@ public class UTestTemplatesBuilderNamespaces extends BaseTestTemplatesBuilder
 {
     public void testTemplatesIsSameNamespacesEmpty() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
         builder.setNamespaces(null);
@@ -28,7 +28,7 @@ public class UTestTemplatesBuilderNamespaces extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsSameNamespacesNotEmpty() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Map namespaces = new HashMap();
         namespaces.put("http://ns1.net", "ns1");
         namespaces.put("http://ns2.net", "ns2");
@@ -41,7 +41,7 @@ public class UTestTemplatesBuilderNamespaces extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsNotSameNamespacesEmpty() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Map namespaces = new HashMap();
         namespaces.put("http://ns1.net", "ns1");
         namespaces.put("http://ns2.net", "ns2");
@@ -54,7 +54,7 @@ public class UTestTemplatesBuilderNamespaces extends BaseTestTemplatesBuilder
 
     public void testTemplatesIsNotSameNamespacesNotEmpty() throws MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Map namespacesOrig = new HashMap();
         namespacesOrig.put("http://ns1.net", "ns1");
         namespacesOrig.put("http://ns2.net", "ns2");
@@ -72,7 +72,7 @@ public class UTestTemplatesBuilderNamespaces extends BaseTestTemplatesBuilder
     public void testNamespaces_DOM() throws MalformedURLException, XPathExpressionException, TransformerException, SAXException
     {
         String testingXsltSystemId = getTestingXsltSystemId("tests/xml/fake.xsl");
-        builder.setImportSystemId(testingXsltSystemId);
+        builder.setImportSystemId(testingXsltSystemId, null);
         Map namespaces = new HashMap();
         namespaces.put("http://ns1.net", "ns1");
         namespaces.put("http://ns2.net", "ns2");
@@ -93,7 +93,7 @@ public class UTestTemplatesBuilderNamespaces extends BaseTestTemplatesBuilder
     public void testMoreNamespaces_DOM() throws MalformedURLException, XPathExpressionException, TransformerException, SAXException
     {
         String testingXsltSystemId = getTestingXsltSystemId("tests/xml/fake.xsl");
-        builder.setImportSystemId(testingXsltSystemId);
+        builder.setImportSystemId(testingXsltSystemId, null);
         Map namespaces = new HashMap();
         namespaces.put("http://ns1.net", "ns1");
         namespaces.put("http://ns2.net", "ns2");
@@ -117,7 +117,7 @@ public class UTestTemplatesBuilderNamespaces extends BaseTestTemplatesBuilder
     public void testLessNamespaces_DOM() throws MalformedURLException, XPathExpressionException, TransformerException, SAXException
     {
         String testingXsltSystemId = getTestingXsltSystemId("tests/xml/fake.xsl");
-        builder.setImportSystemId(testingXsltSystemId);
+        builder.setImportSystemId(testingXsltSystemId, null);
         Map namespaces = new HashMap();
         namespaces.put("http://ns1.net", "ns1");
         namespaces.put("http://ns2.net", "ns2");
@@ -142,7 +142,7 @@ public class UTestTemplatesBuilderNamespaces extends BaseTestTemplatesBuilder
 
     public void testPrefixInGlobalVarName() throws FileNotFoundException, XPathExpressionException, MalformedURLException, TransformerConfigurationException
     {
-        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"));
+        builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
         List vars = new ArrayList();
         vars.add( new GlobalVariable("ss:aname", "avalue") );
