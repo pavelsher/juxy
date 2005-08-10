@@ -6,6 +6,7 @@ import org.w3c.dom.Node;
 
 import javax.xml.transform.TransformerException;
 import java.io.FileNotFoundException;
+import java.io.File;
 import java.util.TimeZone;
 
 public class UTestRunnerImpl extends JuxyTestCase
@@ -265,6 +266,14 @@ public class UTestRunnerImpl extends JuxyTestCase
 
         Node result = runner.applyTemplates(ctx, xpath("/"));
         XMLComparator.assertEquals("<root>matched</root>", result);
+    }
+
+    public void testFileInputDocument() throws Exception {
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/templates.xsl");
+        ctx.setDocument(new File("tests/xml/document.xml"));
+
+        Node result = runner.callTemplate(ctx, "getRoot");
+        XMLComparator.assertEquals("<result><document/></result>", result);
     }
 
     private Runner runner = null;

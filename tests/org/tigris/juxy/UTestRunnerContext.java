@@ -4,12 +4,15 @@ import junit.framework.TestCase;
 
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
 
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.xpath.XPathFactory;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.xml.sax.SAXException;
 import org.w3c.dom.Document;
+
+import java.io.File;
 
 public class UTestRunnerContext extends TestCase
 {
@@ -40,6 +43,9 @@ public class UTestRunnerContext extends TestCase
 
         ctx.setDocument(DOMUtil.parse("<root/>"));
         assertTrue(ctx.getSourceDocument() instanceof DOMSource);
+
+        ctx.setDocument(new File("xml/document.xml"));
+        assertTrue(ctx.getSourceDocument() instanceof StreamSource);
     }
 
     public void testSetCurrentNode() {

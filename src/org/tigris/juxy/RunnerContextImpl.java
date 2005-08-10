@@ -7,15 +7,17 @@ import org.xml.sax.InputSource;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.URIResolver;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * $Id: RunnerContextImpl.java,v 1.6 2005-08-10 08:57:18 pavelsher Exp $
+ * $Id: RunnerContextImpl.java,v 1.7 2005-08-10 18:42:15 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -65,6 +67,11 @@ class RunnerContextImpl implements RunnerContext
     public void setDocument(Document document) {
         ArgumentAssert.notNull(document, "Input document must not be null");
         sourceDocument = new SourceDocument(document);
+    }
+
+    public void setDocument(File file) {
+        ArgumentAssert.notNull(file, "File must not be null");
+        sourceDocument = new SourceDocument(file);
     }
 
     public void registerNamespace(String prefix, String uri)
@@ -184,6 +191,7 @@ class RunnerContextImpl implements RunnerContext
     class SourceDocument {
         private String content;
         private Document document;
+        private File fileDocument;
 
         public SourceDocument(String content) {
             assert content != null;
@@ -195,11 +203,19 @@ class RunnerContextImpl implements RunnerContext
             this.document = document;
         }
 
+        public SourceDocument(File file) {
+            assert file != null;
+            this.fileDocument = file;
+        }
+
         public Source toSource() {
             if (content != null)
                 return toSAXSource(content);
 
-            return new DOMSource(document);
+            if (document != null)
+                return new DOMSource(document);
+
+            return new StreamSource(fileDocument);
         }
 
         private SAXSource toSAXSource(String documentContent)

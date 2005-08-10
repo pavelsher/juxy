@@ -3,8 +3,10 @@ package org.tigris.juxy;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
+import java.io.File;
+
 /**
- * $Id: RunnerContext.java,v 1.6 2005-08-10 08:57:18 pavelsher Exp $
+ * $Id: RunnerContext.java,v 1.7 2005-08-10 18:42:15 pavelsher Exp $
  * <p/>
  * The class represents Runner Context. Instance of the Context can be obtained from Runner.<br>
  * Runner Context is used to setup all the information which is required to start xsl transformation:
@@ -25,6 +27,12 @@ public interface RunnerContext
      * @param document input document
      */
     void setDocument(Document document);
+
+    /**
+     * Sets file as input document in the context
+     * @param file input document xml file
+     */
+    void setDocument(File file);
 
     /**
      * Method registers uri and prefix in the context.
