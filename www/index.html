@@ -108,10 +108,11 @@ thus all its templates and variables automatically got lower priority, so we can
 <p>Any variables and parameters specified in the transformation context will be placed in the generated stylesheet. If current node
 was specified, then corresponding <code>&lt;xsl:for-each/></code> is added to that stylesheet.
 
-<p>Thus when call or apply templates method invoked, Juxy generates new XSLT stylesheet (it will be generated as DOM Document),
+<p>Thus when call or apply templates method is invoked, Juxy generates new XSLT stylesheet (it will be generated as DOM Document),
 places there specified variables and parameters, and inserts template matching root node (<code>"/"</code>).
 In this template the required <code>&lt;xsl:call-template/></code> or <code>&lt;xsl:apply-templates/></code> instructions are placed.
-If current node was specified then <code>&lt;xsl:for-each/></code> instruction will be added as their parent.
+If current node was specified then <code>&lt;xsl:for-each/></code> instruction will be added as their parent. To avoid
+endless loop Juxy will not insert apply-templates instruction if current node was set to "/".
 
 <p>Because Juxy does not use any XSLT processor specific features it should work with any XSLT processor supporting TRaX API.
 For now it is known to work with <a href="http://xml.apache.org/xalan-j/">Apache Xalan</a> and
