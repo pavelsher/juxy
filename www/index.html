@@ -5,6 +5,21 @@
 @import "http://www.tigris.org/branding/css/tigris.css"; 
 @import "http://www.tigris.org/branding/css/inst.css"; 
 /*  ]]> */
+
+ .reservedword {
+    font-weight: normal;
+    color: #0000b0;
+ }
+
+ .string {
+    font-weight: normal;
+    color: green;
+ }
+
+ .codepoint {
+    color: #909090;
+    font-size: 8pt;
+ }
  </style>
   <link rel="stylesheet" type="text/css" href="http://www.tigris.org/branding/css/print.css" media="print" />
 <script src="http://www.tigris.org/branding/scripts/tigris.js" type="text/javascript">
@@ -24,32 +39,32 @@ It relies entirely on TRaX API and should work with any TRaX compliant XSLT proc
 <h3>AN EXAMPLE</h3>
 
 <p>Suppose you have an XSLT stylesheet taking the following address and transforming it to some string:
-<pre>
-&lt;address>
+<pre><span class="string">&lt;address>
     &lt;city>Saint-Petersburg&lt;/city>
     &lt;street>Nevsky pr.&lt;/street>
     &lt;house>24&lt;/house>
     &lt;zip>196254&lt;/zip>
-&lt;/address>
+&lt;/address></span>
 </pre>
 
-<p>The result should be: <code>196254, Saint-Petersburg, Nevsky pr., 24</code>
+<p>The result should be: <code><span class="string">196254, Saint-Petersburg, Nevsky pr., 24</span></code>
 
 <p>It's time now to write test which will assert that we've got the expected result. It could be as simple as this:
 <pre>
-(1) public class AddressTestCase extends JuxyTestCase {
+<span class="codepoint">(1)</span> <span class="reservedword">public class</span> AddressTestCase <span class="reservedword">extends</span> JuxyTestCase {
 
-    public void testAddressToString() throws Exception {
-(2)        RunnerContext ctx = newContext("address.xsl");
-(3)        ctx.setDocument("&lt;address>" +
-            "&lt;city>Saint-Petersburg&lt;/city>" +
-            "&lt;street>Nevsky pr.&lt;/street>" +
-            "&lt;house>24&lt;/house>" +
-            "&lt;zip>196254&lt;/zip>" +
-            "&lt;/address>");
-(4)        Node result = applyTemplates(xpath("address"));
-(5)        assertEquals("196254, Saint-Petersburg, Nevsky pr., 24",
-(6)                normalizeAll(xpath("text()").toString(result)));
+    <span class="reservedword">public void</span> testAddressToString() <span class="reservedword">throws</span> Exception {
+<span class="codepoint">(2)</span>        RunnerContext ctx = newContext(<span class="string">"address.xsl"</span>);
+<span class="codepoint">(3)</span>        ctx.setDocument("" +
+                <span class="string">"&lt;address>"</span> +
+                <span class="string">"  &lt;city>Saint-Petersburg&lt;/city>"</span> +
+                <span class="string">"  &lt;street>Nevsky pr.&lt;/street>"</span> +
+                <span class="string">"  &lt;house>24&lt;/house>"</span> +
+                <span class="string">"  &lt;zip>196254&lt;/zip>"</span> +
+                <span class="string">"&lt;/address>"</span>);
+<span class="codepoint">(4)</span>        Node result = applyTemplates(xpath(<span class="string">"address"</span>));
+<span class="codepoint">(5)</span>        assertEquals(<span class="string">"196254, Saint-Petersburg, Nevsky pr., 24"</span>,
+<span class="codepoint">(6)</span>                normalizeAll(xpath(<span class="string">"text()"</span>).toString(result)));
     }
 
 }
