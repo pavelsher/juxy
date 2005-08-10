@@ -2,7 +2,7 @@ package org.tigris.juxy;
 
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
-import org.tigris.juxy.xpath.XPathExpr;
+import org.tigris.juxy.xpath.JaxenXPathExpr;
 
 public class UTestVariableBase extends TestCase
 {
@@ -30,7 +30,7 @@ public class UTestVariableBase extends TestCase
         VariableBase v = new VariableBase("  zzz", "aa");
         assertEquals("zzz", v.getQname());
 
-        v = new VariableBase("  zzz", (XPathExpr)null);
+        v = new VariableBase("  zzz", (JaxenXPathExpr)null);
         assertEquals("zzz", v.getQname());
 
         v = new VariableBase("  zzz", (Document)null);

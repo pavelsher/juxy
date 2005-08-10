@@ -4,7 +4,7 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
- * $Id: VariableValueContainer.java,v 1.4 2005-08-07 17:29:55 pavelsher Exp $
+ * $Id: VariableValueContainer.java,v 1.5 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -56,5 +56,26 @@ class VariableValueContainer
 
     public boolean isXPathValue() {
         return selectXpathExpr != null;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VariableValueContainer)) return false;
+
+        final VariableValueContainer variableValueContainer = (VariableValueContainer) o;
+
+        if (selectXpathExpr != null ? !selectXpathExpr.equals(variableValueContainer.selectXpathExpr) : variableValueContainer.selectXpathExpr != null) return false;
+        if (stringValue != null ? !stringValue.equals(variableValueContainer.stringValue) : variableValueContainer.stringValue != null) return false;
+        if (variableContent != null ? !variableContent.equals(variableValueContainer.variableContent) : variableValueContainer.variableContent != null) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        result = (stringValue != null ? stringValue.hashCode() : 0);
+        result = 29 * result + (selectXpathExpr != null ? selectXpathExpr.hashCode() : 0);
+        result = 29 * result + (variableContent != null ? variableContent.hashCode() : 0);
+        return result;
     }
 }

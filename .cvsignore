@@ -1,5 +1,6 @@
 build
 depcache
 docs
+cvgreport
 *.zip
 coverage.*

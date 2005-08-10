@@ -1,16 +1,15 @@
 package org.tigris.juxy.util;
 
-import org.w3c.dom.traversal.TreeWalker;
-import org.w3c.dom.Node;
-import org.w3c.dom.NamedNodeMap;
+import junit.framework.AssertionFailedError;
 import org.w3c.dom.DocumentType;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.traversal.TreeWalker;
 
 import java.util.Arrays;
 
-import junit.framework.AssertionFailedError;
-
 /**
- * $Id: DocumentsAssertionError.java,v 1.4 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: DocumentsAssertionError.java,v 1.5 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -27,9 +26,9 @@ public class DocumentsAssertionError extends AssertionFailedError {
 
     private void init() {
         StringBuffer buf = new StringBuffer(100);
-        buf.append("Documents differ, expected document:");
+        buf.append("Documents differ, expected document:\n");
         appendDocument(buf, etw);
-        buf.append("\nActual document:");
+        buf.append("\nActual document:\n");
         appendDocument(buf, atw);
         message = buf.toString();
     }
@@ -82,17 +81,20 @@ public class DocumentsAssertionError extends AssertionFailedError {
                         Node attr = attrs.item(i);
                         // we will skip here xmlns attribute defining namespace of currentNode element
                         // and write it later
-                        if ("xmlns".equals(attr.getPrefix()) && attr.getLocalName().equals(currentNode.getPrefix())) continue;
+                        if (attr.getNodeName().startsWith("xmlns") && attr.getNodeValue().equals(currentNode.getNamespaceURI())) continue;
                         buf.append(" ").append(attr.getNodeName()).append("=\"").append(getAttributeValue(attr)).append("\"");
                     }
 
-                    if (currentNode.getPrefix() != null) {
-                        buf.append(" xmlns:").append(currentNode.getPrefix()).append("=\"").append(currentNode.getNamespaceURI()).append("\"");
+                    if (currentNode.getNamespaceURI() != null) {
+                        buf.append(" xmlns");
+                        if (currentNode.getPrefix() != null)
+                            buf.append(':').append(currentNode.getPrefix());
+                        buf.append("=\"").append(currentNode.getNamespaceURI()).append("\"");
                     }
 
                     Node child = tw.firstChild();
                     if (child == null) {
-                        buf.append("/>");
+                        buf.append("/>\n");
                     }
                     else {
                         buf.append(">");

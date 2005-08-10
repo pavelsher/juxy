@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Iterator;
 
 /**
- * $Id: GlobalParam.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: GlobalParam.java,v 1.4 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -61,6 +61,25 @@ public class GlobalParam
         }
 
         return localName;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GlobalParam)) return false;
+
+        final GlobalParam globalParam = (GlobalParam) o;
+
+        if (!qname.equals(globalParam.qname)) return false;
+        if (!value.equals(globalParam.value)) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        result = qname.hashCode();
+        result = 29 * result + value.hashCode();
+        return result;
     }
 
     private String findNamespaceURI(Map namespaces) {

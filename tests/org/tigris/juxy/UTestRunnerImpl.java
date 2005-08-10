@@ -2,17 +2,13 @@ package org.tigris.juxy;
 
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.util.XMLComparator;
-import org.tigris.juxy.xpath.XPathExpr;
-import org.tigris.juxy.xpath.XPathExpressionException;
-import junit.framework.TestCase;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import javax.xml.transform.TransformerException;
 import java.io.FileNotFoundException;
 import java.util.TimeZone;
 
-public class UTestRunnerImpl extends TestCase
+public class UTestRunnerImpl extends JuxyTestCase
 {
     public void setUp()
     {
@@ -28,7 +24,7 @@ public class UTestRunnerImpl extends TestCase
         catch (IllegalArgumentException ex) {}
     }
 
-    public void testApplyTemplatesWithNullContext() throws XPathExpressionException, TransformerException
+    public void testApplyTemplatesWithNullContext() throws Exception
     {
         try
         {
@@ -39,14 +35,14 @@ public class UTestRunnerImpl extends TestCase
 
         try
         {
-            runner.applyTemplates(null, new XPathExpr("aselect"));
+            runner.applyTemplates(null, xpath("aselect"));
             fail("An exception expected");
         }
         catch (IllegalArgumentException ex) {}
 
         try
         {
-            runner.applyTemplates(null, new XPathExpr("aselect"), "amode");
+            runner.applyTemplates(null, xpath("aselect"), "amode");
             fail("An exception expected");
         }
         catch (IllegalArgumentException ex) {}
@@ -75,7 +71,7 @@ public class UTestRunnerImpl extends TestCase
         catch (IllegalStateException ex) {}
     }
 
-    public void testApplyTemplateWithoutSourceDoc() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testApplyTemplateWithoutSourceDoc() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/fake.xsl");
         try
@@ -87,31 +83,31 @@ public class UTestRunnerImpl extends TestCase
 
         try
         {
-            runner.applyTemplates(ctx, new XPathExpr("aselect"));
+            runner.applyTemplates(ctx, xpath("aselect"));
             fail("An exception expected");
         }
         catch (IllegalStateException ex) {}
 
         try
         {
-            runner.applyTemplates(ctx, new XPathExpr("aselect"), "amode");
+            runner.applyTemplates(ctx, xpath("aselect"), "amode");
             fail("An exception expected");
         }
         catch (IllegalStateException ex) {}
     }
 
 
-    public void testCallNamedTemplate() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testCallNamedTemplate() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/name-tpl.xsl");
         ctx.setDocument("<source/>");
         Node result = runner.callTemplate(ctx, "getText");
         assertNotNull(result);
 
-        assertEquals("atext", new XPathExpr("root/text()").toString(result));
+        assertEquals("atext", xpath("root/text()").toString(result));
     }
 
-    public void testCallNamedTemplateWithGlobalParams() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testCallNamedTemplateWithGlobalParams() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/name-tpl.xsl");
         ctx.setDocument("<source/>");
@@ -119,16 +115,16 @@ public class UTestRunnerImpl extends TestCase
         Node result = runner.callTemplate(ctx, "getGlobalParamValue");
         assertNotNull(result);
 
-        assertEquals("", new XPathExpr("/root").toString(result));
+        assertEquals("", xpath("/root").toString(result));
 
         ctx.setGlobalParamValue("aparam", "avalue");
         result = runner.callTemplate(ctx, "getGlobalParamValue");
         assertNotNull(result);
 
-        assertEquals("avalue", new XPathExpr("root").toString(result));
+        assertEquals("avalue", xpath("root").toString(result));
     }
 
-    public void testCallNamedTemplateWithGlobalParamsAndExtObject() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testCallNamedTemplateWithGlobalParamsAndExtObject() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/extfunc.xsl");
         ctx.setDocument("<source/>");
@@ -137,10 +133,10 @@ public class UTestRunnerImpl extends TestCase
         Node result = runner.callTemplate(ctx, "getTimeZoneString");
         assertNotNull(result);
 
-        assertEquals(TimeZone.getDefault().toString(), new XPathExpr("root").toString(result));
+        assertEquals(TimeZone.getDefault().toString(), xpath("root").toString(result));
     }
 
-    public void testCallNamedTemplateWithInvokeParam() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testCallNamedTemplateWithInvokeParam() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/name-tpl.xsl");
         ctx.setDocument("<source/>");
@@ -151,15 +147,15 @@ public class UTestRunnerImpl extends TestCase
         Node result = runner.callTemplate(ctx, "getConcatenatedInvokeParamValues");
         assertNotNull(result);
 
-        assertEquals("1:2", new XPathExpr("root").toString(result));
+        assertEquals("1:2", xpath("root").toString(result));
 
         result = runner.callTemplate(ctx, "getSumOfInvokeParamValues");
         assertNotNull(result);
 
-        assertEquals(3, new XPathExpr("root").toInt(result));
+        assertEquals(3, xpath("root").toInt(result));
     }
 
-    public void testGlobalVariablesDefaultValues() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testGlobalVariablesDefaultValues() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/variables.xsl");
         ctx.setDocument("<source/>");
@@ -167,22 +163,22 @@ public class UTestRunnerImpl extends TestCase
         Node result = runner.callTemplate(ctx, "getVarWithStringValue");
         assertNotNull(result);
 
-        assertEquals("defaultvalue", new XPathExpr("root").toString(result));
+        assertEquals("defaultvalue", xpath("root").toString(result));
 
         result = runner.callTemplate(ctx, "getVarWithSelectValue");
         assertNotNull(result);
 
-        assertNotNull(new XPathExpr("*[1][self::source]").toNode(result));
-        assertEquals(1, new XPathExpr("count(*)").toInt(result));
+        assertNotNull(xpath("*[1][self::source]").toNode(result));
+        assertEquals(1, xpath("count(*)").toInt(result));
 
         result = runner.callTemplate(ctx, "getVarWithContentValue");
         assertNotNull(result);
 
-        assertNotNull(new XPathExpr("*[1][self::rootElem]").toNode(result));
-        assertEquals(1, new XPathExpr("count(*)").toInt(result));
+        assertNotNull(xpath("*[1][self::rootElem]").toNode(result));
+        assertEquals(1, xpath("count(*)").toInt(result));
     }
 
-    public void testGlobalVariablesRedefined() throws FileNotFoundException, SAXException, XPathExpressionException, TransformerException
+    public void testGlobalVariablesRedefined() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/variables.xsl");
         ctx.setDocument("<source><subElem/></source>");
@@ -191,30 +187,30 @@ public class UTestRunnerImpl extends TestCase
         Node result = runner.callTemplate(ctx, "getVarWithStringValue");
         assertNotNull(result);
 
-        assertEquals("", new XPathExpr("text()").toString(result));
+        assertEquals("", xpath("text()").toString(result));
 
         ctx.setGlobalVariableValue("varWithString", "new value");
         result = runner.callTemplate(ctx, "getVarWithStringValue");
         assertNotNull(result);
 
-        assertEquals("new value", new XPathExpr("root").toString(result));
+        assertEquals("new value", xpath("root").toString(result));
 
-        ctx.setGlobalVariableValue("varWithSelect", new XPathExpr("//subElem"));
+        ctx.setGlobalVariableValue("varWithSelect", xpath("//subElem"));
         result = runner.callTemplate(ctx, "getVarWithSelectValue");
         assertNotNull(result);
 
-        assertNotNull(new XPathExpr("*[1][self::subElem]").toNode(result));
-        assertEquals(1, new XPathExpr("count(*)").toInt(result));
+        assertNotNull(xpath("*[1][self::subElem]").toNode(result));
+        assertEquals(1, xpath("count(*)").toInt(result));
 
         ctx.setGlobalVariableValue("varWithContent", DOMUtil.parse("<varContent/>"));
         result = runner.callTemplate(ctx, "getVarWithContentValue");
         assertNotNull(result);
 
-        assertNotNull(new XPathExpr("*[1][self::varContent]").toNode(result));
-        assertEquals(1, new XPathExpr("count(*)").toInt(result));
+        assertNotNull(xpath("*[1][self::varContent]").toNode(result));
+        assertEquals(1, xpath("count(*)").toInt(result));
     }
 
-    public void testRelativeImportWorks() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testRelativeImportWorks() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/relative-import.xsl");
         ctx.setDocument("<source/>");
@@ -222,10 +218,10 @@ public class UTestRunnerImpl extends TestCase
         Node result = runner.applyTemplates(ctx);
         assertNotNull(result);
 
-        assertNotNull(new XPathExpr("root").toNode(result));
+        assertNotNull(xpath("root").toNode(result));
     }
 
-    public void testRelativeIncludeWorks() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testRelativeIncludeWorks() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/relative-include.xsl");
         ctx.setDocument("<source/>");
@@ -233,10 +229,10 @@ public class UTestRunnerImpl extends TestCase
         Node result = runner.applyTemplates(ctx);
         assertNotNull(result);
 
-        assertNotNull(new XPathExpr("root").toNode(result));
+        assertNotNull(xpath("root").toNode(result));
     }
 
-    public void testRelativeDocumentFunctionWorks() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testRelativeDocumentFunctionWorks() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/document-func.xsl");
         ctx.setDocument("<source/>");
@@ -244,30 +240,30 @@ public class UTestRunnerImpl extends TestCase
         Node result = runner.callTemplate(ctx, "copyDoc");
         assertNotNull(result);
 
-        assertNotNull(new XPathExpr("document").toNode(result));
+        assertNotNull(xpath("document").toNode(result));
     }
 
-    public void testTextOnlyOutput() throws FileNotFoundException, TransformerException, XPathExpressionException {
+    public void testTextOnlyOutput() throws Exception {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/not-xml-output.xsl");
         ctx.setDocument("<source/>");
 
         Node result = runner.callTemplate(ctx, "textOnly");
-        assertEquals("The result of this template is this text.", new XPathExpr("text()").toString(result).trim());
+        assertEquals("The result of this template is this text.", xpath("text()").toString(result).trim());
     }
 
-    public void testMoreThanOneRootElement() throws FileNotFoundException, TransformerException, XPathExpressionException {
+    public void testMoreThanOneRootElement() throws Exception {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/not-xml-output.xsl");
         ctx.setDocument("<source/>");
 
         Node result = runner.callTemplate(ctx, "moreThanOneRoot");
-        assertEquals(2, new XPathExpr("count(root)").toInt(result));
+        assertEquals(2, xpath("count(root)").toInt(result));
     }
 
     public void testMatchRootNode() throws Exception {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/match-root.xsl");
         ctx.setDocument("<doc/>");
 
-        Node result = runner.applyTemplates(ctx, new XPathExpr("/"));
+        Node result = runner.applyTemplates(ctx, xpath("/"));
         XMLComparator.assertEquals("<root>matched</root>", result);
     }
 

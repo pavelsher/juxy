@@ -5,6 +5,10 @@ import junit.framework.TestCase;
 import javax.xml.transform.TransformerFactory;
 import java.io.File;
 
+import org.tigris.juxy.xpath.XPathExpr;
+import org.tigris.juxy.xpath.XPathFactory;
+import org.tigris.juxy.xpath.XPathExpressionException;
+
 public abstract class BaseTestTemplatesBuilder extends TestCase
 {
     protected TemplatesBuilderImpl builder = null;
@@ -18,5 +22,9 @@ public abstract class BaseTestTemplatesBuilder extends TestCase
     protected String getTestingXsltSystemId(String filePath)
     {
         return new File(filePath).toURI().toString();
+    }
+
+    protected XPathExpr xpath(String expression) throws XPathExpressionException {
+        return XPathFactory.newXPath(expression);
     }
 }

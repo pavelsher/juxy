@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.tigris.juxy.*;
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.xpath.XPathExpr;
-import org.tigris.juxy.xpath.XPathExpressionException;
+import org.tigris.juxy.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.5 2005-08-07 17:29:55 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.6 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -60,15 +60,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         this.transformerFactory = trFactory;
         this.transformerFactory.setErrorListener(new BuilderErrorListener());
 
-        try
-        {
-            rootNode = new XPathExpr("/");
-        }
-        catch (XPathExpressionException e)
-        {
-            throw new JuxyRuntimeException("Failed to create XPathExpr object for '/'", e);
-        }
-
+        this.rootNode = XPathFactory.newXPath("/");
         this.parserFactory = SAXParserFactory.newInstance();
         parserFactory.setNamespaceAware(true);
     }
@@ -400,7 +392,8 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
             Map.Entry ns = (Map.Entry)it.next();
             String uri = (String)ns.getKey();
             String prefix = (String)ns.getValue();
-            stylesheetEl.setAttributeNS(xmlnsNS, "xmlns:" + prefix, uri);
+            String qname = prefix != null && prefix.length() > 0 ? "xmlns:" + prefix : "xmlns";
+            stylesheetEl.setAttributeNS(xmlnsNS, qname, uri);
         }
     }
 

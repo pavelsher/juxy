@@ -1,72 +1,25 @@
 package org.tigris.juxy.xpath;
 
-import org.jaxen.JaxenException;
-import org.jaxen.XPathSyntaxException;
-import org.jaxen.dom.DOMXPath;
-import org.tigris.juxy.util.ArgumentAssert;
 import org.w3c.dom.Node;
 
 import java.util.Collection;
 
 /**
- * $Id: XPathExpr.java,v 1.5 2005-08-07 16:43:15 pavelsher Exp $
+ * $Id: XPathExpr.java,v 1.6 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * Simple XPath expressions evaluator. You can evaluate XPath expression to string, int, double, boolean, nodeset or node.
  *
  * @author Pavel Sher
  */
-public class XPathExpr
-{
-    private final DOMXPath xpath;
-
+public interface XPathExpr {
     /**
-     * Constructs new XPath expression. Can throw XPathExpressionException exception if an expression syntax incorrect
-     * or other errors occured.
-     * @param expression an XPath expression
-     * @throws XPathExpressionException thrown if an expression syntax is incorrect
-     * or other errors occured.
-     */
-    public XPathExpr(final String expression) throws XPathExpressionException
-    {
-        ArgumentAssert.notEmpty(expression, "Expression must not be empty");
-
-        try
-        {
-            xpath = new DOMXPath(expression);
-        }
-        catch (XPathSyntaxException e)
-        {
-            throw new XPathExpressionException("The specified XPath expression is invalid", e);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Error occured during creation of XPath expression", e);
-        }
-    }
-
-    /**
-     * Registers new namespace in XPath expression context. The function returns the same XPathExpr object.
+     * Registers new namespace in the XPath expression context. The function returns the same XPathExpr object.
      * @param prefix namespace prefix
      * @param uri namespace uri
      * @return XPathExpr object
      * @throws XPathExpressionException thrown if an error occured
      */
-    public XPathExpr addNamespace(String prefix, String uri) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(prefix, "Prefix must not be null");
-        ArgumentAssert.notEmpty(uri, "URI must not be empty");
-
-        try
-        {
-            xpath.addNamespace(prefix, uri);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Error occured during namespace registraion", e);
-        }
-
-        return this;
-    }
+    XPathExpr addNamespace(String prefix, String uri) throws XPathExpressionException;
 
     /**
      * Evaluates expression and converts result to boolean.
@@ -74,18 +27,7 @@ public class XPathExpr
      * @return boolean result of XPath expression
      * @throws XPathExpressionException thrown if error occured during XPath evaluation
      */
-    public boolean toBoolean(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            return xpath.booleanValueOf(node);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
-    }
+    boolean toBoolean(Node node) throws XPathExpressionException;
 
     /**
      * Evaluates expression and converts result to string.
@@ -93,18 +35,7 @@ public class XPathExpr
      * @return string result of XPath expression
      * @throws XPathExpressionException thrown if error occured during XPath evaluation
      */
-    public String toString(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            return xpath.stringValueOf(node);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
-    }
+    String toString(Node node) throws XPathExpressionException;
 
     /**
      * Evaluates expression and converts result to int.
@@ -112,19 +43,7 @@ public class XPathExpr
      * @return int result of XPath expression
      * @throws XPathExpressionException thrown if error occured during XPath evaluation
      */
-    public int toInt(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            Number num = xpath.numberValueOf(node);
-            return num.intValue();
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
-    }
+    int toInt(Node node) throws XPathExpressionException;
 
     /**
      * Evaluates expression and converts result to double.
@@ -132,19 +51,7 @@ public class XPathExpr
      * @return double result of XPath expression
      * @throws XPathExpressionException thrown if error occured during XPath evaluation
      */
-    public double toDouble(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            Number num = xpath.numberValueOf(node);
-            return num.doubleValue();
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
-    }
+    double toDouble(Node node) throws XPathExpressionException;
 
     /**
      * Evaluates expression and conveerts result to a set of nodes.
@@ -152,18 +59,7 @@ public class XPathExpr
      * @return a collection of nodes
      * @throws XPathExpressionException thrown if error occurs during XPath evaluation
      */
-    public Collection toNodeSet(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            return xpath.selectNodes(node);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
-    }
+    Collection toNodeSet(Node node) throws XPathExpressionException;
 
     /**
      * Evaluates expression and returns node as its result.
@@ -171,43 +67,11 @@ public class XPathExpr
      * @return a node
      * @throws XPathExpressionException thrown if error occurs during XPath evaluation
      */
-    public Node toNode(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            return (Node) xpath.selectSingleNode(node);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
-    }
+    Node toNode(Node node) throws XPathExpressionException;
 
     /**
-     * Returns normalized XPath expression as string. An expression might not be equal to the initial
-     * expression specified in the constructor.
-     * @return XPath expression as string
+     * Returns this XPath expression as a String
+     * @return
      */
-    public String getExpression()
-    {
-        return xpath.toString();
-    }
-
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (!(o instanceof XPathExpr)) return false;
-
-        final XPathExpr xPathExpr = (XPathExpr) o;
-
-        if (xpath != null ? !xpath.toString().equals(xPathExpr.xpath.toString()) : xPathExpr.xpath != null) return false;
-
-        return true;
-    }
-
-    public int hashCode()
-    {
-        return (xpath != null ? xpath.toString().hashCode() : 0);
-    }
+    String getExpression();
 }

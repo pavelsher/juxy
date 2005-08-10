@@ -55,10 +55,10 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         builder.setCurrentNode(null);
         assertSame(orig, builder.build());
 
-        builder.setCurrentNode(new XPathExpr("test"));
+        builder.setCurrentNode(xpath("test"));
         orig = builder.build();
 
-        builder.setCurrentNode(new XPathExpr("test"));
+        builder.setCurrentNode(xpath("test"));
         assertSame(orig, builder.build());
     }
 
@@ -79,10 +79,10 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
-        builder.setInvokationStatementInfo(new XPathExpr("root"), "amode", null);
+        builder.setInvokationStatementInfo(xpath("root"), "amode", null);
         orig = builder.build();
 
-        builder.setInvokationStatementInfo(new XPathExpr("root"), "amode", Collections.EMPTY_SET);
+        builder.setInvokationStatementInfo(xpath("root"), "amode", Collections.EMPTY_SET);
         assertSame(orig, builder.build());
     }
 
@@ -115,11 +115,11 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         Templates orig = builder.build();
 
-        builder.setCurrentNode(new XPathExpr("fff"));
+        builder.setCurrentNode(xpath("fff"));
         assertNotSame(orig, builder.build());
 
         orig = builder.build();
-        builder.setCurrentNode(new XPathExpr("test"));
+        builder.setCurrentNode(xpath("test"));
         assertNotSame(orig, builder.build());
 
         orig = builder.build();
@@ -160,30 +160,30 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         assertNotSame(orig, builder.build());
 
         orig = builder.build();
-        builder.setInvokationStatementInfo(new XPathExpr("root"), null, null);
+        builder.setInvokationStatementInfo(xpath("root"), null, null);
         assertNotSame(orig, builder.build());
 
         orig = builder.build();
-        builder.setInvokationStatementInfo(new XPathExpr("root"), "amode", null);
+        builder.setInvokationStatementInfo(xpath("root"), "amode", null);
         assertNotSame(orig, builder.build());
 
         orig = builder.build();
-        builder.setInvokationStatementInfo(new XPathExpr("anotherroot"), "amode", null);
+        builder.setInvokationStatementInfo(xpath("anotherroot"), "amode", null);
         assertNotSame(orig, builder.build());
 
         orig = builder.build();
-        builder.setInvokationStatementInfo(new XPathExpr("anotherroot"), "anothermodemode", null);
+        builder.setInvokationStatementInfo(xpath("anotherroot"), "anothermodemode", null);
         assertNotSame(orig, builder.build());
 
         List invparams = new ArrayList();
         invparams.add(new InvokeParam("aparam", "avalue"));
 
         orig = builder.build();
-        builder.setInvokationStatementInfo(new XPathExpr("anotherroot"), "anothermodemode", invparams);
+        builder.setInvokationStatementInfo(xpath("anotherroot"), "anothermodemode", invparams);
         assertNotSame(orig, builder.build());
 
         orig = builder.build();
-        builder.setInvokationStatementInfo(new XPathExpr("anotherroot"), "anothermodemode", Collections.EMPTY_SET);
+        builder.setInvokationStatementInfo(xpath("anotherroot"), "anothermodemode", Collections.EMPTY_SET);
         assertNotSame(orig, builder.build());
     }
 
@@ -192,13 +192,13 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         builder.build();
 
-        assertNotNull( new XPathExpr("/xsl:stylesheet")
+        assertNotNull( xpath("/xsl:stylesheet")
                         .addNamespace("xsl", XSLTKeys.XSLT_NS)
                         .toNode(builder.getCurrentStylesheetDoc()) );
-        assertNotNull( new XPathExpr("/xsl:stylesheet/xsl:import[@href = '" + getTestingXsltSystemId("tests/xml/fake.xsl") + "']")
+        assertNotNull( xpath("/xsl:stylesheet/xsl:import[@href = '" + getTestingXsltSystemId("tests/xml/fake.xsl") + "']")
                         .addNamespace("xsl", XSLTKeys.XSLT_NS)
                         .toNode(builder.getCurrentStylesheetDoc()) );
-        assertEquals( 1, new XPathExpr("count(/xsl:stylesheet/*)")
+        assertEquals( 1, xpath("count(/xsl:stylesheet/*)")
                         .addNamespace("xsl", XSLTKeys.XSLT_NS)
                         .toInt(builder.getCurrentStylesheetDoc()) );
     }
@@ -213,37 +213,37 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         builder.setGlobalVariables(glvars);
         builder.build();
 
-        assertEquals("avalue", new XPathExpr("/xsl:stylesheet/xsl:variable[@name = 'aname1']/text()")
+        assertEquals("avalue", xpath("/xsl:stylesheet/xsl:variable[@name = 'aname1']/text()")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toString(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals(1, new XPathExpr("count(/xsl:stylesheet/xsl:variable)")
+        assertEquals(1, xpath("count(/xsl:stylesheet/xsl:variable)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
 
-        XPathExpr xp = new XPathExpr("//elem[position() < 2]");
+        XPathExpr xp = xpath("//elem[position() < 2]");
 
         glvars.add( new GlobalVariable("aname2", xp) );
         builder.setGlobalVariables(glvars);
         builder.build();
 
-        assertNotNull(new XPathExpr("/xsl:stylesheet/xsl:variable[@name = 'aname2' and @select = '" + xp.getExpression() + "']")
+        assertNotNull(xpath("/xsl:stylesheet/xsl:variable[@name = 'aname2' and @select = '" + xp.getExpression() + "']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals(2, new XPathExpr("count(/xsl:stylesheet/xsl:variable)")
+        assertEquals(2, xpath("count(/xsl:stylesheet/xsl:variable)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
 
-        assertNotNull(new XPathExpr("/xsl:stylesheet/*[1][self::xsl:import]")
+        assertNotNull(xpath("/xsl:stylesheet/*[1][self::xsl:import]")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertNotNull(new XPathExpr("/xsl:stylesheet/*[2][self::xsl:variable and @name = 'aname1']")
+        assertNotNull(xpath("/xsl:stylesheet/*[2][self::xsl:variable and @name = 'aname1']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertNotNull(new XPathExpr("/xsl:stylesheet/*[3][self::xsl:variable and @name = 'aname2']")
+        assertNotNull(xpath("/xsl:stylesheet/*[3][self::xsl:variable and @name = 'aname2']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
     }
@@ -255,19 +255,19 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         builder.setInvokationStatementInfo("aname", null);
         builder.build();
 
-        assertNotNull(new XPathExpr("/xsl:stylesheet/xsl:template[@match = '/']")
+        assertNotNull(xpath("/xsl:stylesheet/xsl:template[@match = '/']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(/xsl:stylesheet/xsl:template)")
+        assertEquals( 1, xpath("count(/xsl:stylesheet/xsl:template)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
 
-        assertNotNull(new XPathExpr("//xsl:template[@match = '/']/xsl:call-template[@name = 'aname']")
+        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:call-template[@name = 'aname']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(//xsl:call-template[@name = 'aname'])")
+        assertEquals( 1, xpath("count(//xsl:call-template[@name = 'aname'])")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
     }
@@ -276,19 +276,19 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
     {
         builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
         builder.setInvokationStatementInfo("aname", null);
-        XPathExpr xp = new XPathExpr("zzz");
+        XPathExpr xp = xpath("zzz");
         builder.setCurrentNode(xp);
         builder.build();
 
-        assertNotNull(new XPathExpr("//xsl:template[@match = '/']/xsl:for-each[@select = '" + xp.getExpression() + "']/xsl:call-template[@name = 'aname']")
+        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:for-each[@select = '" + xp.getExpression() + "']/xsl:call-template[@name = 'aname']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(//xsl:for-each[@select = '" + xp.getExpression() + "'])")
+        assertEquals( 1, xpath("count(//xsl:for-each[@select = '" + xp.getExpression() + "'])")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(//xsl:call-template[@name = 'aname'])")
+        assertEquals( 1, xpath("count(//xsl:call-template[@name = 'aname'])")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
     }
@@ -300,19 +300,19 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         builder.setInvokationStatementInfo(null, null, null);
         builder.build();
 
-        assertNotNull(new XPathExpr("/xsl:stylesheet/xsl:template[@match = '/']")
+        assertNotNull(xpath("/xsl:stylesheet/xsl:template[@match = '/']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(/xsl:stylesheet/xsl:template)")
+        assertEquals( 1, xpath("count(/xsl:stylesheet/xsl:template)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
 
-        assertNotNull(new XPathExpr("//xsl:template[@match = '/']/xsl:apply-templates[not(@*)]")
+        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:apply-templates[not(@*)]")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(//xsl:apply-templates)")
+        assertEquals( 1, xpath("count(//xsl:apply-templates)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
     }
@@ -321,15 +321,15 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
     {
         builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
-        XPathExpr xp = new XPathExpr("aselect");
+        XPathExpr xp = xpath("aselect");
         builder.setInvokationStatementInfo(xp, null, null);
         builder.build();
 
-        assertNotNull(new XPathExpr("//xsl:template[@match = '/']/xsl:apply-templates[@select = '" + xp.getExpression() + "']")
+        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:apply-templates[@select = '" + xp.getExpression() + "']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(//xsl:apply-templates)")
+        assertEquals( 1, xpath("count(//xsl:apply-templates)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
     }
@@ -338,15 +338,15 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
     {
         builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
-        XPathExpr xp = new XPathExpr("aselect");
+        XPathExpr xp = xpath("aselect");
         builder.setInvokationStatementInfo(xp, "amode", null);
         builder.build();
 
-        assertNotNull(new XPathExpr("//xsl:template[@match = '/']/xsl:apply-templates[@select = '" + xp.getExpression() + "' and @mode = 'amode']")
+        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:apply-templates[@select = '" + xp.getExpression() + "' and @mode = 'amode']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(//xsl:apply-templates)")
+        assertEquals( 1, xpath("count(//xsl:apply-templates)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
     }
@@ -355,57 +355,57 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
     {
         builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
-        XPathExpr xp1 = new XPathExpr("aselect");
+        XPathExpr xp1 = xpath("aselect");
         builder.setInvokationStatementInfo(xp1, "amode", null);
 
-        XPathExpr xp2 = new XPathExpr("zzz");
+        XPathExpr xp2 = xpath("zzz");
         builder.setCurrentNode(xp2);
         builder.build();
 
-        assertNotNull(new XPathExpr("//xsl:template[@match = '/']/xsl:for-each[@select = '" + xp2.getExpression() + "']/xsl:apply-templates[@select = '" + xp1.getExpression() + "' and @mode = 'amode']")
+        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:for-each[@select = '" + xp2.getExpression() + "']/xsl:apply-templates[@select = '" + xp1.getExpression() + "' and @mode = 'amode']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(//xsl:for-each)")
+        assertEquals( 1, xpath("count(//xsl:for-each)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(//xsl:apply-templates)")
+        assertEquals( 1, xpath("count(//xsl:apply-templates)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
     }
 
-    public void testAppliedInvStatementWithRootSelect() throws MalformedURLException, XPathExpressionException, TransformerConfigurationException
+    public void testAppliedInvStatementWithRootSelect() throws MalformedURLException, XPathExpressionException, TransformerException
     {
         builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
-        builder.setInvokationStatementInfo(new XPathExpr("/"), "amode", null);
+        builder.setInvokationStatementInfo(xpath("/"), "amode", null);
         builder.build();
 
-        assertNotNull(new XPathExpr("//xsl:template[@match = '/']/xsl:apply-templates[@select = '/' and @mode = 'amode']")
+        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:apply-templates[@select = '/' and @mode = 'amode']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, new XPathExpr("count(//xsl:apply-templates)")
+        assertEquals( 1, xpath("count(//xsl:apply-templates)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
 
-        builder.setInvokationStatementInfo(new XPathExpr("/"), null, null);
+        builder.setInvokationStatementInfo(xpath("/"), null, null);
         builder.build();
 
-        assertNull(new XPathExpr("//xsl:template")
+        assertNull(xpath("//xsl:template")
                         .addNamespace("xsl", XSLTKeys.XSLT_NS)
                         .toNode(builder.getCurrentStylesheetDoc()) );
 
-        builder.setCurrentNode(new XPathExpr("/"));
-        XPathExpr xp = new XPathExpr("elem");
+        builder.setCurrentNode(xpath("/"));
+        XPathExpr xp = xpath("elem");
         builder.setInvokationStatementInfo(xp, null, null);
         builder.build();
 
-        assertNotNull(new XPathExpr("//xsl:template[@match = '/']/xsl:apply-templates[@select = '" + xp.getExpression() + "']")
+        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:apply-templates[@select = '" + xp.getExpression() + "']")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertNull(new XPathExpr("//xsl:for-each")
+        assertNull(xpath("//xsl:for-each")
                         .addNamespace("xsl", XSLTKeys.XSLT_NS)
                         .toNode(builder.getCurrentStylesheetDoc()) );
     }
@@ -415,7 +415,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         builder.setImportSystemId(getTestingXsltSystemId("tests/xml/fake.xsl"), null);
 
         List params = new ArrayList();
-        XPathExpr xp = new XPathExpr("//elem");
+        XPathExpr xp = xpath("//elem");
         params.add(new InvokeParam("apar1", "aval1"));
         params.add(new InvokeParam("apar2", xp));
         params.add(new InvokeParam("apar3", DOMUtil.parse("<param-content/>")));
@@ -423,19 +423,19 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
         builder.setInvokationStatementInfo("aname", params);
         builder.build();
 
-        assertEquals( "aval1", new XPathExpr("//xsl:call-template/xsl:with-param[@name = 'apar1']/text()")
+        assertEquals( "aval1", xpath("//xsl:call-template/xsl:with-param[@name = 'apar1']/text()")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toString(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( xp.getExpression(), new XPathExpr("//xsl:call-template/xsl:with-param[@name = 'apar2']/@select")
+        assertEquals( xp.getExpression(), xpath("//xsl:call-template/xsl:with-param[@name = 'apar2']/@select")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toString(builder.getCurrentStylesheetDoc()) );
 
-        assertNotNull( new XPathExpr("//xsl:call-template/xsl:with-param[@name = 'apar3' and not(@select)]/param-content")
+        assertNotNull( xpath("//xsl:call-template/xsl:with-param[@name = 'apar3' and not(@select)]/param-content")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 3, new XPathExpr("count(//xsl:call-template/xsl:with-param)")
+        assertEquals( 3, xpath("count(//xsl:call-template/xsl:with-param)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
     }

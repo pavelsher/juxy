@@ -59,6 +59,7 @@
         <delete dir="${instr.classes.dir}" failonerror="false"/>
         <delete dir="${test.classes.dir}" failonerror="false"/>
         <delete dir="${build.dir}" failonerror="false"/>
+        <delete dir="${coverage.report.dir}" failonerror="false"/>
         <delete file="coverage.ec"/>
         <delete file="coverage.em"/>
     </target>
@@ -209,17 +210,20 @@
 
     <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
 
-    <target name="init-coverage">
+    <target name="init-coverage" depends="clean" >
         <mkdir dir="${coverage.report.dir}"/>
         <mkdir dir="${instr.classes.dir}"/>
     </target>
 
     <target name="coverage-ut">
-        <antcall target="ut">
-            <param name="files" value="all.tests"/>
-            <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
-            <param name="classpath" value="run-instr-tests.classpath"/>
-        </antcall>
+        <junit printsummary="yes" haltonfailure="yes" fork="no" showoutput="yes">
+            <jvmarg line="-ea -Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"/>
+            <classpath refid="run-instr-tests.classpath" />
+            <formatter type="plain" usefile="false"/>
+            <batchtest fork="yes">
+                <fileset refid="all.tests"/>
+            </batchtest>
+        </junit>
     </target>
 
     <target name="coverage-report">

@@ -1,14 +1,8 @@
 package org.tigris.juxy;
 
-import org.tigris.juxy.xpath.XPathExpr;
-import org.tigris.juxy.xpath.XPathExpressionException;
-import junit.framework.TestCase;
 import org.w3c.dom.Node;
 
-import javax.xml.transform.TransformerException;
-import java.io.FileNotFoundException;
-
-public class UTestRunnerNamespaces extends TestCase
+public class UTestRunnerNamespaces extends JuxyTestCase
 {
     private Runner runner = null;
 
@@ -17,7 +11,7 @@ public class UTestRunnerNamespaces extends TestCase
         runner = RunnerFactory.newRunner();
     }
 
-    public void testGlobalVariables() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testGlobalVariables() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/namespaces/variable.xsl");
         ctx.setDocument("<source/>");
@@ -27,10 +21,10 @@ public class UTestRunnerNamespaces extends TestCase
         Node result = runner.callTemplate(ctx, "getter");
         assertNotNull(result);
 
-        assertEquals("avalue", new XPathExpr("root").toString(result));
+        assertEquals("avalue", xpath("root").toString(result));
     }
 
-    public void testGlobalParams() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testGlobalParams() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/namespaces/param.xsl");
         ctx.setDocument("<source/>");
@@ -40,10 +34,10 @@ public class UTestRunnerNamespaces extends TestCase
         Node result = runner.callTemplate(ctx, "getter");
         assertNotNull(result);
 
-        assertEquals("avalue", new XPathExpr("root").toString(result));
+        assertEquals("avalue", xpath("root").toString(result));
     }
 
-    public void testInvokeParams() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testInvokeParams() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/namespaces/invoke.xsl");
         ctx.setDocument("<source/>");
@@ -53,10 +47,10 @@ public class UTestRunnerNamespaces extends TestCase
         Node result = runner.callTemplate(ctx, "getter");
         assertNotNull(result);
 
-        assertEquals("avalue", new XPathExpr("root").toString(result));
+        assertEquals("avalue", xpath("root").toString(result));
     }
 
-    public void testTemplates() throws FileNotFoundException, XPathExpressionException, TransformerException
+    public void testTemplates() throws Exception
     {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/namespaces/templates.xsl");
         ctx.setDocument("<source/>");
@@ -64,10 +58,10 @@ public class UTestRunnerNamespaces extends TestCase
 
         Node result = runner.callTemplate(ctx, "ns1:named");
         assertNotNull(result);
-        assertNotNull( new XPathExpr("named").toString(result) );
+        assertNotNull( xpath("named").toString(result) );
 
-        result = runner.applyTemplates(ctx, new XPathExpr("/"), "ns1:mode");
+        result = runner.applyTemplates(ctx, xpath("/"), "ns1:mode");
         assertNotNull(result);
-        assertNotNull( new XPathExpr("matched").toString(result) );
+        assertNotNull( xpath("matched").toString(result) );
     }
 }

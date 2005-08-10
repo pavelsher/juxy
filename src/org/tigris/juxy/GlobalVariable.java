@@ -1,10 +1,10 @@
 package org.tigris.juxy;
 
-import org.w3c.dom.Document;
 import org.tigris.juxy.xpath.XPathExpr;
+import org.w3c.dom.Document;
 
 /**
- * $Id: GlobalVariable.java,v 1.4 2005-08-07 17:29:55 pavelsher Exp $
+ * $Id: GlobalVariable.java,v 1.5 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */

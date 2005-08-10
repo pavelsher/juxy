@@ -1,16 +1,17 @@
 package org.tigris.juxy;
 
 import junit.framework.TestCase;
+import org.tigris.juxy.util.ArgumentAssert;
 import org.tigris.juxy.util.StringUtil;
 import org.tigris.juxy.util.XMLComparator;
-import org.tigris.juxy.util.ArgumentAssert;
 import org.tigris.juxy.xpath.XPathExpr;
+import org.tigris.juxy.xpath.XPathFactory;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.URIResolver;
 
 /**
- * $Id: JuxyTestCase.java,v 1.6 2005-08-07 16:43:16 pavelsher Exp $
+ * $Id: JuxyTestCase.java,v 1.7 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -66,7 +67,7 @@ public abstract class JuxyTestCase extends TestCase {
      * @throws Exception
      */
     public XPathExpr xpath(String xpathExpr) throws Exception {
-        return new XPathExpr(xpathExpr);
+        return XPathFactory.newXPath(xpathExpr);
     }
 
     /**

@@ -69,6 +69,25 @@ public class UTestTemplatesBuilderNamespaces extends BaseTestTemplatesBuilder
         assertNotSame(orig, builder.build());
     }
 
+    public void testTemplatesDefaultNamespace_DOM() throws Exception
+    {
+        String testingXsltSystemId = getTestingXsltSystemId("tests/xml/fake.xsl");
+        builder.setImportSystemId(testingXsltSystemId, null);
+        Map namespaces = new HashMap();
+        namespaces.put("http://ns1.net", "");
+        builder.setNamespaces(namespaces);
+        builder.build();
+
+        XMLComparator.assertEquals(
+                "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' " +
+                "                xmlns='http://ns1.net' " +
+                "                version='1.0'>\n" +
+                "   <xsl:import href='" + testingXsltSystemId + "'/>" +
+                "</xsl:stylesheet>",
+                builder.getCurrentStylesheetDoc()
+        );
+    }
+
     public void testNamespaces_DOM() throws MalformedURLException, XPathExpressionException, TransformerException, SAXException
     {
         String testingXsltSystemId = getTestingXsltSystemId("tests/xml/fake.xsl");

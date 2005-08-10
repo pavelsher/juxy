@@ -5,7 +5,7 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
- * $Id: VariableBase.java,v 1.4 2005-08-07 17:29:55 pavelsher Exp $
+ * $Id: VariableBase.java,v 1.5 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -67,5 +67,24 @@ public class VariableBase
     public String getQname()
     {
         return qname;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VariableBase)) return false;
+
+        final VariableBase variableBase = (VariableBase) o;
+
+        if (!qname.equals(variableBase.qname)) return false;
+        if (!value.equals(variableBase.value)) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        result = qname.hashCode();
+        result = 29 * result + value.hashCode();
+        return result;
     }
 }

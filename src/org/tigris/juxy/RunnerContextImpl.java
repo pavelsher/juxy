@@ -7,6 +7,7 @@ import org.xml.sax.InputSource;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.URIResolver;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import java.io.ByteArrayInputStream;
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * $Id: RunnerContextImpl.java,v 1.5 2005-08-07 17:29:55 pavelsher Exp $
+ * $Id: RunnerContextImpl.java,v 1.6 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -22,8 +23,7 @@ class RunnerContextImpl implements RunnerContext
 {
     private String systemId = null;
     private URIResolver resolver = null;
-    private Source sourceDocument = null;
-    private String sourceDocumentContent = null;
+    private SourceDocument sourceDocument = null;
     private XPathExpr currentNodeSelector = null;
     private Map globalParams = null;
     private Map globalVariables = null;
@@ -58,8 +58,13 @@ class RunnerContextImpl implements RunnerContext
 
     public void setDocument(String documentContent)
     {
-        ArgumentAssert.notEmpty(documentContent, "The source document must not be empty");
-        sourceDocumentContent = documentContent;
+        ArgumentAssert.notEmpty(documentContent, "Input document must not be empty");
+        sourceDocument = new SourceDocument(documentContent);
+    }
+
+    public void setDocument(Document document) {
+        ArgumentAssert.notNull(document, "Input document must not be null");
+        sourceDocument = new SourceDocument(document);
     }
 
     public void registerNamespace(String prefix, String uri)
@@ -138,10 +143,7 @@ class RunnerContextImpl implements RunnerContext
 
     protected Source getSourceDocument()
     {
-        if (sourceDocument == null && sourceDocumentContent != null)
-            return toSAXSource(sourceDocumentContent);
-
-        return sourceDocument;
+        return sourceDocument.toSource();
     }
 
     protected XPathExpr getCurrentNodeSelector()
@@ -175,15 +177,37 @@ class RunnerContextImpl implements RunnerContext
 
     void checkComplete()
     {
-        if (sourceDocument == null && sourceDocumentContent == null)
-            throw new IllegalStateException("The source document must not be empty, call setDocument() method first");
+        if (sourceDocument == null)
+            throw new IllegalStateException("Input document was not specified, call setDocument() method first");
     }
 
-    public SAXSource toSAXSource(String documentContent)
-    {
-        ByteArrayInputStream bais = new ByteArrayInputStream(documentContent.getBytes());
-        InputSource is = new InputSource(bais);
+    class SourceDocument {
+        private String content;
+        private Document document;
 
-        return new SAXSource(is);
+        public SourceDocument(String content) {
+            assert content != null;
+            this.content = content;
+        }
+
+        public SourceDocument(Document document) {
+            assert document != null;
+            this.document = document;
+        }
+
+        public Source toSource() {
+            if (content != null)
+                return toSAXSource(content);
+
+            return new DOMSource(document);
+        }
+
+        private SAXSource toSAXSource(String documentContent)
+        {
+            ByteArrayInputStream bais = new ByteArrayInputStream(documentContent.getBytes());
+            InputSource is = new InputSource(bais);
+
+            return new SAXSource(is);
+        }
     }
 }
