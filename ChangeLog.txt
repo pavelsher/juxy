@@ -3,3 +3,5 @@
     - JuxyTestCase.parse(String)
     - JuxyTestCase.print(org.w3c.dom.Document)
     - JuxyTestCase.assertXMLEquals(String, String)
+
+10-Aug-2005: Juxy 0.6.7 released
