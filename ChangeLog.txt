@@ -1,0 +1,5 @@
+
+11-Aug-2005: new methods added into the JuxyTestCase:
+    - JuxyTestCase.parse(String)
+    - JuxyTestCase.print(org.w3c.dom.Document)
+    - JuxyTestCase.assertXMLEquals(String, String)
