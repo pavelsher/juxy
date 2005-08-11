@@ -1,9 +1,11 @@
 <?xml version='1.0'?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:tz="java:java.util.TimeZone"
-                version='1.1'>
+                xmlns:container="java:org.tigris.juxy.ValueContainer"
+                version='1.0'>
 
 <xsl:param name="tz"/>
+<xsl:param name="container"/>
 
 <xsl:template name="getTimeZoneString">
     <root>
@@ -11,5 +13,16 @@
     </root>
 </xsl:template>
 
+<xsl:template name="setStringToContainer">
+    <xsl:param name="string" select="''"/>
+
+    <xsl:value-of select="container:setString($container, $string)"/>
+</xsl:template>
+
+<!--
+<xsl:template name="setNodeToContainer">
+    <xsl:value-of select="container:setNode($container, /)"/>
+</xsl:template>
+-->
 
 </xsl:stylesheet>

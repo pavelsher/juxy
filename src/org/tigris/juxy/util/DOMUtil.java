@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * $Id: DOMUtil.java,v 1.4 2005-08-07 16:43:15 pavelsher Exp $
+ * $Id: DOMUtil.java,v 1.5 2005-08-11 08:24:37 pavelsher Exp $
  * <p/>
  * Contains utility methods easing DOM creation and transformation.
  *
@@ -128,6 +128,7 @@ public class DOMUtil
         Transformer tr = trFactory.newTransformer();
         tr.setOutputProperty(OutputKeys.METHOD, "xml");
         tr.setOutputProperty(OutputKeys.INDENT, "yes");
+        tr.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         tr.transform(new DOMSource(root), res);
     }
 

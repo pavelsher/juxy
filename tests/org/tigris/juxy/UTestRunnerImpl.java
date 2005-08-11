@@ -5,9 +5,8 @@ import org.tigris.juxy.util.XMLComparator;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.TransformerException;
-import java.io.FileNotFoundException;
 import java.io.File;
-import java.util.TimeZone;
+import java.io.FileNotFoundException;
 
 public class UTestRunnerImpl extends JuxyTestCase
 {
@@ -123,18 +122,6 @@ public class UTestRunnerImpl extends JuxyTestCase
         assertNotNull(result);
 
         assertEquals("avalue", xpath("root").toString(result));
-    }
-
-    public void testCallNamedTemplateWithGlobalParamsAndExtObject() throws Exception
-    {
-        RunnerContext ctx = runner.newRunnerContext("tests/xml/extfunc.xsl");
-        ctx.setDocument("<source/>");
-
-        ctx.setGlobalParamValue("tz", TimeZone.getDefault());
-        Node result = runner.callTemplate(ctx, "getTimeZoneString");
-        assertNotNull(result);
-
-        assertEquals(TimeZone.getDefault().toString(), xpath("root").toString(result));
     }
 
     public void testCallNamedTemplateWithInvokeParam() throws Exception

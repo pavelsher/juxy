@@ -2,16 +2,19 @@ package org.tigris.juxy;
 
 import junit.framework.TestCase;
 import org.tigris.juxy.util.ArgumentAssert;
+import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.util.StringUtil;
 import org.tigris.juxy.util.XMLComparator;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.URIResolver;
+import java.io.ByteArrayOutputStream;
 
 /**
- * $Id: JuxyTestCase.java,v 1.7 2005-08-10 08:57:18 pavelsher Exp $
+ * $Id: JuxyTestCase.java,v 1.8 2005-08-11 08:24:37 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -108,8 +111,18 @@ public abstract class JuxyTestCase extends TestCase {
     }
 
     /**
+     * Asserts that two documents are equal. Meaningless spaces will be ignored during this assertion.
+     * @param expectedDocument XML document which is expected
+     * @param actualDocument actual xml document
+     * @throws Exception
+     */
+    public static void assertXMLEquals(String expectedDocument, String actualDocument) throws Exception {
+        XMLComparator.assertEquals(expectedDocument, actualDocument);
+    }
+
+    /**
      * For method description see {@link StringUtil#normalizeSpaces(String)}
-     * @param str
+     * @param str string to normalize
      * @return normalized string
      */
     public String normalizeSpaces(String str) {
@@ -118,11 +131,42 @@ public abstract class JuxyTestCase extends TestCase {
 
     /**
      * For method description see {@link StringUtil#normalizeAll(String)}
-     * @param str
+     * @param str string to normalize
      * @return normalized string
      */
     public String normalizeAll(String str) {
         return StringUtil.normalizeAll(str);
+    }
+
+    /**
+     * Prints fragment of the document to System.out starting from the specified node.
+     * @param node node to display
+     */
+    public void print(Node node) throws Exception {
+        ArgumentAssert.notNull(node, "Node must not be null");
+        System.out.println(asString(node));
+    }
+
+    /**
+     * Serializes fragment of the document to String, starting from the specified node.
+     * @param node node to display
+     * @return xml document corresponding to the specified node
+     */
+    public String asString(Node node) throws Exception {
+        ArgumentAssert.notNull(node, "Node must not be null");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(100);
+        DOMUtil.printDOM(node, bos);
+        return bos.toString();
+    }
+
+    /**
+     * Parses specified string into the DOM Document.
+     * @param document xml document
+     * @return DOM Document
+     */
+    public Document parse(String document) throws Exception {
+        ArgumentAssert.notEmpty(document, "Document must not be empty");
+        return DOMUtil.parse(document);
     }
 
     private RunnerContext getContext() {
