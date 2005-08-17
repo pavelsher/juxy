@@ -14,7 +14,7 @@ import javax.xml.transform.URIResolver;
 import java.io.ByteArrayOutputStream;
 
 /**
- * $Id: JuxyTestCase.java,v 1.8 2005-08-11 08:24:37 pavelsher Exp $
+ * $Id: JuxyTestCase.java,v 1.9 2005-08-17 17:54:52 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -167,6 +167,20 @@ public abstract class JuxyTestCase extends TestCase {
     public Document parse(String document) throws Exception {
         ArgumentAssert.notEmpty(document, "Document must not be empty");
         return DOMUtil.parse(document);
+    }
+
+    /**
+     * Enables XSLT stylesheet execution tracing (disabled by default).
+     */
+    public void enableTracing() {
+        getRunner().enableTracing();
+    }
+
+    /**
+     * Disables XSLT stylesheet execution tracing.
+     */
+    public void disableTracing() {
+        getRunner().disableTracing();
     }
 
     private RunnerContext getContext() {

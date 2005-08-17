@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * $Id: DOMUtil.java,v 1.5 2005-08-11 08:24:37 pavelsher Exp $
+ * $Id: DOMUtil.java,v 1.6 2005-08-17 17:54:52 pavelsher Exp $
  * <p/>
  * Contains utility methods easing DOM creation and transformation.
  *
@@ -78,7 +78,7 @@ public class DOMUtil
 
     /**
      * Logs document with specified title if current logging level is DEBUG.
-     * @param title title of the document, used to identify document printed in log
+     * @param title title of the document, used to identify document printed in trace
      * @param root root node of the document or document itself
      */
     public static void logDocument(String title, Node root)
@@ -87,7 +87,7 @@ public class DOMUtil
         {
             if (root == null)
             {
-                logger.error("Attempt to log null document, title = " + title);
+                logger.error("Attempt to trace null document, title = " + title);
                 return;
             }
 
@@ -99,7 +99,7 @@ public class DOMUtil
             }
             catch (TransformerException e)
             {
-                logger.debug("Failed to log document", e);
+                logger.debug("Failed to trace document", e);
             }
         }
     }

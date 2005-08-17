@@ -130,7 +130,11 @@
         </junit>
     </target>
 
-    <target name="build" depends="clean, test-all, verify-samples" description="Creates Juxy build">
+    <target name="build" description="Creates Juxy build">
+        <antcall target="clean"/>
+        <antcall target="test-all"/>
+        <antcall target="verify-samples"/>
+
         <property file="${basedir}/build.properties"/>
 
         <mkdir dir="${build.dir}"/>

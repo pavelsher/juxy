@@ -20,6 +20,10 @@
 </xsl:template>
 
 <!--
+<xsl:value-of select="tracer:log($juxy:tracer, 1, 2, 'file.xsl', 'message')"/>    
+-->
+
+<!--
 <xsl:template name="setNodeToContainer">
     <xsl:value-of select="container:setNode($container, /)"/>
 </xsl:template>

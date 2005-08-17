@@ -2,6 +2,7 @@ package org.tigris.juxy;
 
 import org.tigris.juxy.builder.TemplatesBuilder;
 import org.tigris.juxy.builder.TemplatesBuilderImpl;
+import org.tigris.juxy.builder.JuxyParams;
 import org.tigris.juxy.util.ArgumentAssert;
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.xpath.XPathExpr;
@@ -16,7 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.7 2005-08-07 17:29:55 pavelsher Exp $
+ * $Id: RunnerImpl.java,v 1.8 2005-08-17 17:54:52 pavelsher Exp $
  * <p/>
  * This runner uses only standard features. It does not use any xslt engine - specific extensions.
  *
@@ -26,6 +27,7 @@ class RunnerImpl implements Runner
 {
     private static TransformerFactory trFactory = null;
     private TemplatesBuilder templatesBuilder = null;
+    private boolean tracingEnabled = false;
 
     protected RunnerImpl()
     {
@@ -102,6 +104,14 @@ class RunnerImpl implements Runner
         return internalApplyTemplates(ctx, selectXpathExpr, mode);
     }
 
+    public void enableTracing() {
+        tracingEnabled = true;
+    }
+
+    public void disableTracing() {
+        tracingEnabled = false;
+    }
+
     private Node internalApplyTemplates(RunnerContext ctx, XPathExpr selectXpathExpr, String mode) throws TransformerException {
         RunnerContextImpl sctx = getContext(ctx);
 
@@ -123,6 +133,7 @@ class RunnerImpl implements Runner
     private void setupTemplatesBuilder(RunnerContextImpl ctx)
     {
         templatesBuilder.setImportSystemId(ctx.getSystemId(), ctx.getResolver());
+        templatesBuilder.setTracingEnabled(tracingEnabled);
         templatesBuilder.setCurrentNode(ctx.getCurrentNodeSelector());
         templatesBuilder.setGlobalVariables(ctx.getGlobalVariables());
         templatesBuilder.setNamespaces(ctx.getNamespaces());
@@ -131,6 +142,8 @@ class RunnerImpl implements Runner
     private Node transformSource(Source sourceDoc, RunnerContextImpl ctx) throws TransformerException {
         Transformer transformer = getTransformer();
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        Tracer traceLogger = null;
+
         if (ctx.getGlobalParams() != null)
         {
             Map namespaces = ctx.getNamespaces();
@@ -140,6 +153,11 @@ class RunnerImpl implements Runner
                 GlobalParam param = (GlobalParam)it.next();
                 transformer.setParameter(param.getTransformerQName(namespaces), param.getValue());
             }
+
+            if (tracingEnabled) {
+                traceLogger = new Tracer(System.out);
+                transformer.setParameter("{" + JuxyParams.NS + "}" + JuxyParams.TRACE_PARAM, traceLogger);
+            }
         }
 
         Document document = DOMUtil.newDocument();
@@ -148,6 +166,10 @@ class RunnerImpl implements Runner
         DOMResult result = new DOMResult(parentNode);
         transformer.transform(sourceDoc, result);
         parentNode.normalize();
+
+        if (traceLogger != null)
+            traceLogger.endLogging();
+
         DOMUtil.logDocument("Transformation result:", parentNode);
 
         return parentNode;

@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.tigris.juxy.*;
 import org.tigris.juxy.util.DOMUtil;
+import org.tigris.juxy.util.SAXUtil;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathFactory;
 import org.w3c.dom.Document;
@@ -12,14 +13,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -28,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.6 2005-08-10 08:57:18 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.7 2005-08-17 17:54:51 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -48,10 +46,10 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
     private boolean newTemplatesRequired = true;
     private Templates currentTemplates = null;
     private Document currentStylesheetDoc = null;
+    private boolean tracingEnabled = false;
 
     private TransformerFactory transformerFactory = null;
     private static final Log logger = LogFactory.getLog(TemplatesBuilderImpl.class);
-    private SAXParserFactory parserFactory;
 
     public TemplatesBuilderImpl(TransformerFactory trFactory)
     {
@@ -61,8 +59,6 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         this.transformerFactory.setErrorListener(new BuilderErrorListener());
 
         this.rootNode = XPathFactory.newXPath("/");
-        this.parserFactory = SAXParserFactory.newInstance();
-        parserFactory.setNamespaceAware(true);
     }
 
     public void setImportSystemId(String systemId, URIResolver resolver)
@@ -86,6 +82,11 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         this.resolvedSystemId = src.getSystemId();
         this.importSystemId = systemId;
         this.resolver = resolver;
+    }
+
+    public void setTracingEnabled(boolean tracingEnabled) {
+        updateNewTemplateFlag(this.tracingEnabled != tracingEnabled);
+        this.tracingEnabled = tracingEnabled;
     }
 
     public void setGlobalVariables(Collection variables)
@@ -171,16 +172,15 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         if (!(stylesheetSource instanceof DOMSource)) {
             XSLVersionRetriever handler = new XSLVersionRetriever();
             try {
-                SAXParser parser = parserFactory.newSAXParser();
-                InputSource is = toInputSource(stylesheetSource);
-                parser.parse(is, handler);
+                XMLReader reader = SAXUtil.newXMLReader();
+                InputSource is = SAXSource.sourceToInputSource(stylesheetSource);
+                reader.setContentHandler(handler);
+                reader.parse(is);
             } catch (SAXException e) {
                 if (!XSLVersionRetriever.STOP_MESSAGE.equals(e.getMessage()))
                     throw new JuxyRuntimeException("XML parse error", e);
             } catch (IOException e) {
                 throw new JuxyRuntimeException("Input / output error on attempt to read from stylesheet: " + importSystemId, e);
-            } catch (ParserConfigurationException e) {
-                throw new JuxyRuntimeException("Failed to create SAX parser", e);
             }
 
             version = handler.getVersion();
@@ -213,23 +213,6 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         return version;
     }
 
-    private InputSource toInputSource(Source source) {
-        if (source instanceof StreamSource) {
-            InputSource is = new InputSource(source.getSystemId());
-            StreamSource streamSource = (StreamSource)source;
-            is.setByteStream(streamSource.getInputStream());
-            is.setPublicId(streamSource.getPublicId());
-            return is;
-        }
-
-        if (source instanceof SAXSource) {
-            SAXSource saxSource = (SAXSource) source;
-            return saxSource.getInputSource();
-        }
-
-        return null;
-    }
-
     Document getCurrentStylesheetDoc()
     {
         return currentStylesheetDoc;
@@ -246,7 +229,8 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
         try
         {
-            transformerFactory.setURIResolver(resolver);
+            transformerFactory.setURIResolver(tracingEnabled ? new TracingURIResolver(resolver) : resolver);
+
             DOMSource source = new DOMSource(stylesheet.getDocumentElement());
             // Setting system id to be in the current directory (we are using some file for that,
             // but it does not matter whether this file exists or not).
@@ -287,12 +271,20 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         if ( !rootNode.equals(invokationStatementInfo.getTemplateSelectXPath()) ||
                 invokationStatementInfo.getTemplateMode() != null )
         {
+            if (invokationStatementInfo.getTemplateSelectXPath() == null &&
+                    invokationStatementInfo.getTemplateMode() == null &&
+                    (currentNode == null || currentNode.equals(rootNode))) {
+                Element applyImportsEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:apply-imports");
+                createCallingStatementParent(stylesheetEl).appendChild(applyImportsEl);
+                createInvokationParams(applyImportsEl, invokationStatementInfo.getTemplateInvokeParams());
+                return;
+            }
+
             Element applyTemplatesEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:apply-templates");
             if (invokationStatementInfo.getTemplateSelectXPath() != null)
                 applyTemplatesEl.setAttribute("select", invokationStatementInfo.getTemplateSelectXPath().getExpression());
             if (invokationStatementInfo.getTemplateMode() != null)
                 applyTemplatesEl.setAttribute("mode", invokationStatementInfo.getTemplateMode());
-
             createCallingStatementParent(stylesheetEl).appendChild(applyTemplatesEl);
             createInvokationParams(applyTemplatesEl, invokationStatementInfo.getTemplateInvokeParams());
         }
@@ -381,6 +373,14 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
         createImport(stylesheetEl);
 
+        if (tracingEnabled) {
+            stylesheetEl.setAttributeNS(XMLNS_NS, "xmlns:" + JuxyParams.PREFIX, JuxyParams.NS);
+
+            Element traceParamEl = stylesheetDoc.createElementNS(XSLTKeys.XSLT_NS, "xsl:param");
+            traceParamEl.setAttribute("name", JuxyParams.PREFIX + ":" + JuxyParams.TRACE_PARAM);
+            stylesheetEl.appendChild(traceParamEl);
+        }
+
         return stylesheetEl;
     }
 
@@ -393,7 +393,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
             String uri = (String)ns.getKey();
             String prefix = (String)ns.getValue();
             String qname = prefix != null && prefix.length() > 0 ? "xmlns:" + prefix : "xmlns";
-            stylesheetEl.setAttributeNS(xmlnsNS, qname, uri);
+            stylesheetEl.setAttributeNS(XMLNS_NS, qname, uri);
         }
     }
 
@@ -508,5 +508,5 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
     }
 
     private XPathExpr rootNode = null;
-    static final String xmlnsNS = "http://www.w3.org/2000/xmlns/";
+    static final String XMLNS_NS = "http://www.w3.org/2000/xmlns/";
 }

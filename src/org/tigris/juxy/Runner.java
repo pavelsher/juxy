@@ -7,7 +7,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
 /**
- * $Id: Runner.java,v 1.6 2005-08-07 16:43:16 pavelsher Exp $
+ * $Id: Runner.java,v 1.7 2005-08-17 17:54:52 pavelsher Exp $
  * <p/>
  * Interface represents Runner. Runner instance can be obtained from the RunnerFactory.
  * <br>
@@ -93,4 +93,7 @@ public interface Runner
      * @return result Node of type {@link org.w3c.dom.DocumentFragment}, containing the results of the transformation
      */
     Node applyTemplates(RunnerContext ctx, XPathExpr xpath, String mode) throws TransformerException;
+
+    void enableTracing();
+    void disableTracing();
 }

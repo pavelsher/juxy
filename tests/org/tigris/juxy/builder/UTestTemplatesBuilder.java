@@ -308,11 +308,11 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
 
-        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:apply-templates[not(@*)]")
+        assertNotNull(xpath("//xsl:template[@match = '/']/xsl:apply-imports[not(@*)]")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toNode(builder.getCurrentStylesheetDoc()) );
 
-        assertEquals( 1, xpath("count(//xsl:apply-templates)")
+        assertEquals( 1, xpath("count(//xsl:apply-imports)")
                                     .addNamespace("xsl", XSLTKeys.XSLT_NS)
                                     .toInt(builder.getCurrentStylesheetDoc()) );
     }
