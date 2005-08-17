@@ -1,93 +1,91 @@
 package org.tigris.juxy.builder;
 
 import junit.framework.TestCase;
-import org.tigris.juxy.util.*;
+import org.tigris.juxy.Tracer;
+import org.tigris.juxy.XSLTKeys;
+import org.tigris.juxy.util.SAXSerializer;
+import org.tigris.juxy.util.SAXUtil;
+import org.tigris.juxy.util.StringUtil;
+import org.tigris.juxy.util.XMLComparator;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.1 2005-08-17 17:54:52 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.2 2005-08-17 18:21:30 pavelsher Exp $
  *
  * @author Pavel Sher
  */
 public class UTestTracingFilter extends TestCase {
-    private TransformerFactory transformerFactory;
+    private static final String JUXY_XMLNS = "xmlns:juxy='" + JuxyParams.NS + "'";
+    private static final String TRACER_XMLNS = "xmlns:tracer='java:" + Tracer.class.getName() + "'";
+    private static final String XSLT_XMLNS = "xmlns:xsl='" + XSLTKeys.XSLT_NS + "'";
+    private static final String JUXY_TRACER_PARAM_TAG = "<xsl:param name='juxy:tracer'/>";
+    private static final String AUGMENTED_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' " + JUXY_XMLNS + " " + TRACER_XMLNS + " " + XSLT_XMLNS + ">" + JUXY_TRACER_PARAM_TAG;
+    private static final String START_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' " + XSLT_XMLNS + ">\n" + JUXY_TRACER_PARAM_TAG;
+    private static final String END_STYLESHEET_TAG = "</xsl:stylesheet>";
 
-    protected void setUp() throws Exception {
-        transformerFactory = TransformerFactory.newInstance();
+    private String filteredStylesheet;
+
+    protected void tearDown() throws Exception {
+        // to check that filtered stylesheet is valid
+        TransformerFactory.newInstance().
+                newTransformer(new StreamSource(new ByteArrayInputStream(filteredStylesheet.getBytes())));
     }
 
     public void testInstructionOutOfTemplate() throws Exception {
         String originalStylesheet = "" +
-                "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>\n" +
+                START_STYLESHEET_TAG +
                 "<xsl:variable name='var1'/>\n" +
-                "</xsl:stylesheet>";
-        String filtered = filter(originalStylesheet);
-        XMLComparator.assertEquals("" +
-                "<xsl:stylesheet version='1.0' " +
-                "   xmlns:juxy='http://juxy.tigris.org/' " +
-                "   xmlns:tracer='java:org.tigris.juxy.Tracer'" +
-                "   xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
                 "<xsl:variable name='var1'/>" +
-                "</xsl:stylesheet>", filtered);
-        createTransformer(filtered);
+                END_STYLESHEET_TAG);
     }
 
     public void testTemplate() throws Exception {
         String originalStylesheet = "" +
-                "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>\n" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                START_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'></xsl:template>\n" +
-                "</xsl:stylesheet>";
-        String filtered = filter(originalStylesheet);
-        XMLComparator.assertEquals("" +
-                "<xsl:stylesheet version='1.0' " +
-                "   xmlns:juxy='http://juxy.tigris.org/' " +
-                "   xmlns:tracer='java:org.tigris.juxy.Tracer'" +
-                "   xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>" +
                         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
                 "   </xsl:template>" +
-                "</xsl:stylesheet>", filtered);
-        createTransformer(filtered);
+                END_STYLESHEET_TAG);
     }
 
     public void testValueOf() throws Exception {
         String originalStylesheet = "" +
-                "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>\n" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                START_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>\n" +
                 "       <xsl:value-of select=\"''\"/>\n" +
                 "   </xsl:template>\n" +
-                "</xsl:stylesheet>";
-        String filtered = filter(originalStylesheet);
-        XMLComparator.assertEquals("" +
-                "<xsl:stylesheet version='1.0' " +
-                "   xmlns:juxy='http://juxy.tigris.org/' " +
-                "   xmlns:tracer='java:org.tigris.juxy.Tracer'" +
-                "   xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>" +
                         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
                         makeValueOf("<xsl:value-of select=\"''\">", 3, 2) +
                 "       <xsl:value-of select=\"''\"/>" +
                 "   </xsl:template>" +
-                "</xsl:stylesheet>", filtered);
-        createTransformer(filtered);
+                END_STYLESHEET_TAG);
     }
 
     public void testAttribute() throws Exception {
         String originalStylesheet = "" +
-                "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>\n" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                START_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>\n" +
                 "       <xsl:element name='root'>\n" +
                 "           <xsl:attribute name='id'>\n" +
@@ -95,14 +93,10 @@ public class UTestTracingFilter extends TestCase {
                 "           </xsl:attribute>\n" +
                 "       </xsl:element>\n" +
                 "   </xsl:template>\n" +
-                "</xsl:stylesheet>";
-        String filtered = filter(originalStylesheet);
-        XMLComparator.assertEquals("" +
-                "<xsl:stylesheet version='1.0' " +
-                "   xmlns:juxy='http://juxy.tigris.org/' " +
-                "   xmlns:tracer='java:org.tigris.juxy.Tracer'" +
-                "   xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>" +
                         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
                         makeValueOf("<xsl:element name=\"root\">", 3, 2) +
@@ -114,27 +108,21 @@ public class UTestTracingFilter extends TestCase {
                 "           </xsl:attribute>" +
                 "       </xsl:element>" +
                 "   </xsl:template>" +
-                "</xsl:stylesheet>", filtered);
-        createTransformer(filtered);
+                END_STYLESHEET_TAG);
     }
 
     public void testIf() throws Exception {
         String originalStylesheet = "" +
-                "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>\n" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                START_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>\n" +
                 "       <xsl:if test='true()'>\n" +
                 "           <root/>\n" +
                 "       </xsl:if>\n" +
                 "   </xsl:template>\n" +
-                "</xsl:stylesheet>";
-        String filtered = filter(originalStylesheet);
-        XMLComparator.assertEquals("" +
-                "<xsl:stylesheet version='1.0' " +
-                "   xmlns:juxy='http://juxy.tigris.org/' " +
-                "   xmlns:tracer='java:org.tigris.juxy.Tracer'" +
-                "   xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>" +
                         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
                         makeValueOf("<xsl:if test=\"true()\">", 3, 2) +
@@ -143,28 +131,22 @@ public class UTestTracingFilter extends TestCase {
                 "           <root/>\n" +
                 "       </xsl:if>\n" +
                 "   </xsl:template>" +
-                "</xsl:stylesheet>", filtered);
-        createTransformer(filtered);
+                END_STYLESHEET_TAG);
     }
 
     public void testChoose() throws Exception {
         String originalStylesheet = "" +
-                "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>\n" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                START_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>\n" +
                 "       <xsl:choose>\n" +
                 "           <xsl:when test='true()'/>\n" +
                 "           <xsl:otherwise/>\n" +
                 "       </xsl:choose>\n" +
                 "   </xsl:template>\n" +
-                "</xsl:stylesheet>";
-        String filtered = filter(originalStylesheet);
-        XMLComparator.assertEquals("" +
-                "<xsl:stylesheet version='1.0' " +
-                "   xmlns:juxy='http://juxy.tigris.org/' " +
-                "   xmlns:tracer='java:org.tigris.juxy.Tracer'" +
-                "   xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>" +
                         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
                         makeValueOf("<xsl:choose>", 3, 2) +
@@ -177,27 +159,21 @@ public class UTestTracingFilter extends TestCase {
                 "           </xsl:otherwise>" +
                 "       </xsl:choose>" +
                 "   </xsl:template>" +
-                "</xsl:stylesheet>", filtered);
-        createTransformer(filtered);
+                END_STYLESHEET_TAG);
     }
 
     public void testForEach() throws Exception {
         String originalStylesheet = "" +
-                "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>\n" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                START_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>\n" +
                 "       <xsl:for-each select='/root'>\n" +
                 "           <item/>\n" +
                 "       </xsl:for-each>\n" +
                 "   </xsl:template>\n" +
-                "</xsl:stylesheet>";
-        String filtered = filter(originalStylesheet);
-        XMLComparator.assertEquals("" +
-                "<xsl:stylesheet version='1.0' " +
-                "   xmlns:juxy='http://juxy.tigris.org/' " +
-                "   xmlns:tracer='java:org.tigris.juxy.Tracer'" +
-                "   xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>" +
                         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
                 "       <xsl:for-each select='/root'>" +
@@ -206,14 +182,12 @@ public class UTestTracingFilter extends TestCase {
                 "           <item/>" +
                 "       </xsl:for-each>" +
                 "   </xsl:template>" +
-                "</xsl:stylesheet>", filtered);
-        createTransformer(filtered);
+                END_STYLESHEET_TAG);
     }
 
     public void testCallTemplate() throws Exception {
         String originalStylesheet = "" +
-                "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>\n" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                START_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>\n" +
                 "       <xsl:call-template name='tpl2'>\n" +
                 "           <xsl:with-param name='p1' select='v1'/>\n" +
@@ -222,14 +196,10 @@ public class UTestTracingFilter extends TestCase {
                 "   <xsl:template name='tpl2'>\n" +
                 "       <xsl:param name='p1'/>\n" +
                 "   </xsl:template>\n" +
-                "</xsl:stylesheet>";
-        String filtered = filter(originalStylesheet);
-        XMLComparator.assertEquals("" +
-                "<xsl:stylesheet version='1.0' " +
-                "   xmlns:juxy='http://juxy.tigris.org/' " +
-                "   xmlns:tracer='java:org.tigris.juxy.Tracer'" +
-                "   xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +
-                "   <xsl:param name='juxy:tracer'/>" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>" +
                         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
                         makeValueOf("<xsl:call-template name=\"tpl2\">", 3, 2) +
@@ -241,8 +211,11 @@ public class UTestTracingFilter extends TestCase {
                 "       <xsl:param name='p1'/>" +
                     makeValueOf("<xsl:template name=\"tpl2\">", 7, 1) +
                 "   </xsl:template>" +
-                "</xsl:stylesheet>", filtered);
-        createTransformer(filtered);
+                END_STYLESHEET_TAG);
+    }
+
+    private void assertFilteredEquals(String expectedStylesheet) throws SAXException {
+        XMLComparator.assertEquals(expectedStylesheet, filteredStylesheet);
     }
 
     private String makeValueOf(String statement, int line, int col) {
@@ -251,7 +224,7 @@ public class UTestTracingFilter extends TestCase {
         return "<xsl:value-of select=\"tracer:trace($juxy:tracer, " + line + ", " + col + ", '" + getSystemId() + "', '" + escapedStatement + "')\"/>";
     }
 
-    private String filter(String originalStylesheet) throws Exception {
+    private void filter(String originalStylesheet) throws Exception {
         XMLReader reader = SAXUtil.newXMLReader();
         InputSource src = new InputSource();
         src.setSystemId("stylesheet.xsl");
@@ -266,14 +239,10 @@ public class UTestTracingFilter extends TestCase {
 
         s.parse(src);
 
-        return bos.toString();
+        filteredStylesheet = bos.toString();
     }
 
     private String getSystemId() {
         return new StreamSource(new File("stylesheet.xsl")).getSystemId();
-    }
-
-    private void createTransformer(String stylesheet) throws TransformerConfigurationException {
-        transformerFactory.newTransformer(new StreamSource(new ByteArrayInputStream(stylesheet.getBytes())));
     }
 }

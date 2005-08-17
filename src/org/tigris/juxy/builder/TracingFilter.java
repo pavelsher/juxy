@@ -3,6 +3,7 @@ package org.tigris.juxy.builder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.tigris.juxy.XSLTKeys;
+import org.tigris.juxy.Tracer;
 import org.tigris.juxy.util.StringUtil;
 import org.xml.sax.*;
 import org.xml.sax.helpers.AttributesImpl;
@@ -11,7 +12,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import java.util.*;
 
 /**
- * $Id: TracingFilter.java,v 1.1 2005-08-17 17:54:52 pavelsher Exp $
+ * $Id: TracingFilter.java,v 1.2 2005-08-17 18:21:29 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -28,7 +29,7 @@ public class TracingFilter extends XMLFilterImpl {
         logger.info("Start augmenting stylesheet with tracing code: " + locator.getSystemId() + " ...");
         super.startDocument();
         super.startPrefixMapping(JuxyParams.PREFIX, JuxyParams.NS);
-        super.startPrefixMapping(JuxyParams.TRACE_PARAM, "java:org.tigris.juxy.Tracer");
+        super.startPrefixMapping(JuxyParams.TRACE_PARAM, "java:" + Tracer.class.getName());
     }
 
     public void endDocument() throws SAXException {
