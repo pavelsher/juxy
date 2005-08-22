@@ -12,7 +12,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import java.util.*;
 
 /**
- * $Id: TracingFilter.java,v 1.2 2005-08-17 18:21:29 pavelsher Exp $
+ * $Id: TracingFilter.java,v 1.3 2005-08-22 07:46:15 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -23,7 +23,11 @@ public class TracingFilter extends XMLFilterImpl {
     private boolean withinTemplate;
 
     private List activeQueue = new ArrayList(3);
-    private List postponedQueue = new ArrayList(3);
+    private List templateEvents = new ArrayList(3);
+    private List rawEvents = new ArrayList(3);
+
+    private static int MAX_TEXT_LEN = 51;
+    private boolean withinXslText = false;
 
     public void startDocument() throws SAXException {
         logger.info("Start augmenting stylesheet with tracing code: " + locator.getSystemId() + " ...");
@@ -50,12 +54,28 @@ public class TracingFilter extends XMLFilterImpl {
         super.endElement(uri, localName, qName);
     }
 
+    private void superCharacters(char[] ch, int start, int length) throws SAXException {
+        super.characters(ch, start, length);
+    }
+
+    private void superProcessingInstruction(String target, String data) throws SAXException {
+        super.processingInstruction(target, data);
+    }
+
     private void pushStartElement(List queue, String uri, String localName, String qName, Attributes atts) {
         queue.add(new StartElementEvent(uri, localName, qName, atts));
     }
 
     private void pushEndElement(List queue, String uri, String localName, String qName) {
         queue.add(new EndElementEvent(uri, localName, qName));
+    }
+
+    private void pushCharacters(List queue, char[] ch, int start, int length) {
+        queue.add(new CharactersEvent(ch, start, length));
+    }
+
+    private void pushProcessingInstruction(List queue, String target, String data) {
+        queue.add(new PiEvent(target, data));
     }
 
     private void pushEvents(List queue, List events) {
@@ -66,8 +86,8 @@ public class TracingFilter extends XMLFilterImpl {
         flushQueue(activeQueue);
     }
 
-    private void flushPostponedQueue() throws SAXException {
-        flushQueue(postponedQueue);
+    private void flushTemplateEvents() throws SAXException {
+        flushQueue(templateEvents);
     }
 
     private void flushQueue(List queue) throws SAXException {
@@ -89,24 +109,32 @@ public class TracingFilter extends XMLFilterImpl {
             level++;
             if (isTemplateElement(uri, localName)) {
                 withinTemplate = true;
-                pushEvents(postponedQueue, generateValueOfEvents(tagToString(qName, atts)));
+                pushEvents(templateEvents, generateTracing(tagToString(qName, atts)));
                 pushStartElement(activeQueue, uri, localName, qName, atts);
             } else {
                 if (!isParamElement(localName))
-                    flushPostponedQueue();
+                    flushTemplateEvents();
 
                 String tag = tagToString(qName, atts);
-                if (isAugmentationPossible(localName) && !isAugmentedAfterStart(localName))
-                    pushEvents(activeQueue, generateValueOfEvents(tag));
+                if (isAugmented(localName) && !isAugmentedAfterStart(localName))
+                    pushEvents(activeQueue, generateTracing(tag));
 
                 pushStartElement(activeQueue, uri, localName, qName, atts);
 
-                if (isAugmentationPossible(localName) && isAugmentedAfterStart(localName))
-                    pushEvents(activeQueue, generateValueOfEvents(tag));
+                if (isAugmented(localName) && isAugmentedAfterStart(localName))
+                    pushEvents(activeQueue, generateTracing(tag));
             }
         }
 
+        generateAndFlushRawEvents();
         flushActiveQueue();
+
+        if (isXslTextElement(uri, localName))
+            withinXslText = true;
+    }
+
+    private boolean isXslTextElement(String uri, String localName) {
+        return XSLTKeys.XSLT_NS.equals(uri) && localName.equals("text");
     }
 
     private boolean isParamElement(String localName) {
@@ -122,24 +150,103 @@ public class TracingFilter extends XMLFilterImpl {
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        level--;
-        if (isTemplateElement(uri, localName)) {
-            withinTemplate = false;
-            flushPostponedQueue();
-        }
+        try {
+            if (isTemplateElement(uri, localName))
+                flushTemplateEvents();
 
-        super.endElement(uri, localName, qName);
+            if (isXslTextElement(uri, localName)) {
+                withinXslText = false;
+                List result = generateTracingForRawEvents();
+                flushRawEvents();
+                super.endElement(uri, localName, qName);
+                flushQueue(result);
+                return;
+            }
+
+            generateAndFlushRawEvents();
+
+            super.endElement(uri, localName, qName);
+        } finally {
+            if (isTemplateElement(uri, localName))
+                withinTemplate = false;
+            level--;
+        }
     }
 
-    private List generateValueOfEvents(String tag) {
+    public void characters(char ch[], int start, int length) throws SAXException {
+        pushCharacters(rawEvents, ch, start, length);
+    }
+
+    public void skippedEntity(String name) throws SAXException {
+        super.skippedEntity(name);
+    }
+
+    public void processingInstruction(String target, String data) throws SAXException {
+        pushProcessingInstruction(rawEvents, target, data);
+    }
+
+    private void flushRawEvents() throws SAXException {
+        flushQueue(rawEvents);
+    }
+
+    private void generateAndFlushRawEvents() throws SAXException {
+        if (isAugmentationAllowed()) {
+            flushQueue(generateTracingForRawEvents());
+            flushQueue(rawEvents);
+        }
+    }
+
+    private List generateTracingForRawEvents() {
+        List result = new ArrayList(5);
+
+        if (isAugmentationAllowed()) {
+            int lineNum = -1;
+            int level = -1;
+            StringBuffer text = new StringBuffer(30);
+            for (int i=0; i<rawEvents.size(); i++) {
+                Event e = (Event) rawEvents.get(i);
+                if (e instanceof PiEvent) {
+                    PiEvent pe = (PiEvent) e;
+                    result.addAll(generateTracing("<?" + pe.target + " " + pe.data + "?>", pe.getStartLineNum(), pe.getLevel()));
+                } else {
+                    CharactersEvent ce = (CharactersEvent) e;
+                    if (i == 0) {
+                        lineNum = ce.getStartLineNum();
+                        level = ce.getLevel();
+                    }
+                    String et = ce.toString();
+                    text.append(StringUtil.collapseSpaces(et, StringUtil.SPACE_AND_CARRIAGE_CHARS));
+
+                    if (i+1 >= rawEvents.size() || !(rawEvents.get(i+1) instanceof CharactersEvent)) {
+                        if (text.length() >= MAX_TEXT_LEN) {
+                            text.delete(MAX_TEXT_LEN - 1, text.length());
+                            text.append(" ...");
+                        }
+
+                        String trimmedText = text.toString().trim();
+                        if (trimmedText.length() > 0)
+                            result.addAll(generateTracing(trimmedText, lineNum, level));
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private List generateTracing(String text) {
+        return generateTracing(text, locator.getLineNumber(), level);
+    }
+
+    private List generateTracing(String text, int lineNum, int level) {
         List events = new ArrayList(2);
         AttributesImpl a = new AttributesImpl();
         a.addAttribute("", "select", "select", "CDATA",
                 "tracer:trace($" + JuxyParams.PREFIX + ":" + JuxyParams.TRACE_PARAM + ", " +
-                            locator.getLineNumber() + ", " +
+                            lineNum + ", " +
                             level + ", '" +
                             escapeSingleQuot(locator.getSystemId()) + "', '" +
-                            escapeSingleQuot(tag) + "')");
+                            escapeSingleQuot(text) + "')");
 
         pushStartElement(events, XSLTKeys.XSLT_NS, "value-of", "xsl:value-of", a);
         pushEndElement(events, XSLTKeys.XSLT_NS, "value-of", "xsl:value-of");
@@ -161,8 +268,12 @@ public class TracingFilter extends XMLFilterImpl {
         return StringUtil.replaceCharByEntityRef(str, '\'');
     }
 
-    private boolean isAugmentationPossible(String localName) {
-        return withinTemplate && !NOT_AUGMENTED_STATEMENTS.contains(localName);
+    private boolean isAugmentationAllowed() {
+        return withinTemplate && !withinXslText;
+    }
+
+    private boolean isAugmented(String localName) {
+        return isAugmentationAllowed() && !NOT_AUGMENTED_STATEMENTS.contains(localName);
     }
 
     private boolean isAugmentedAfterStart(String localName) {
@@ -219,6 +330,70 @@ public class TracingFilter extends XMLFilterImpl {
 
         public void generate() throws SAXException {
             superEndElement(uri, localName, qName);
+        }
+    }
+
+    class CharactersEvent implements Event {
+        private char[] chars;
+        private int start;
+        private int length;
+        private int startLine;
+        private int currentLevel;
+
+        public CharactersEvent(char ch[], int start, int length) {
+            this.chars = new char[length];
+            System.arraycopy(ch, start, chars, 0, length);
+            this.start = 0;
+            this.length = length;
+            this.startLine = locator.getLineNumber();
+            this.currentLevel = level;
+        }
+
+        public String toString() {
+            StringBuffer buf = new StringBuffer(20);
+            for (int i=start; i<start + length; i++) {
+                buf.append(chars[i]);
+            }
+
+            return buf.toString();
+        }
+
+        public int getStartLineNum() {
+            return startLine;
+        }
+
+        public int getLevel() {
+            return currentLevel;
+        }
+
+        public void generate() throws SAXException {
+            superCharacters(chars, start, length);
+        }
+    }
+
+    class PiEvent implements Event {
+        private String target;
+        private String data;
+        private int startLine;
+        private int currentLevel;
+
+        public PiEvent(String target, String data) {
+            this.target = target;
+            this.data = data;
+            this.startLine = locator.getLineNumber();
+            this.currentLevel = level;
+        }
+
+        public int getStartLineNum() {
+            return startLine;
+        }
+
+        public int getLevel() {
+            return currentLevel;
+        }
+
+        public void generate() throws SAXException {
+            superProcessingInstruction(target, data);
         }
     }
 }

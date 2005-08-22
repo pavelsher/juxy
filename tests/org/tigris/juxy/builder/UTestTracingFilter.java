@@ -18,7 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.2 2005-08-17 18:21:30 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.3 2005-08-22 07:46:15 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -210,6 +210,134 @@ public class UTestTracingFilter extends TestCase {
                 "   <xsl:template name='tpl2'>" +
                 "       <xsl:param name='p1'/>" +
                     makeValueOf("<xsl:template name=\"tpl2\">", 7, 1) +
+                "   </xsl:template>" +
+                END_STYLESHEET_TAG);
+    }
+
+    public void testTextNodes() throws Exception {
+        String originalStylesheet = "" +
+                START_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>\n" +
+                "       some text\n" +
+                "   </xsl:template>\n" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>" +
+                        makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
+                        makeValueOf("some text", 3, 1) +
+                "       some text\n" +
+                "   </xsl:template>" +
+                END_STYLESHEET_TAG);
+    }
+
+    public void testTextNodesMixed() throws Exception {
+        String originalStylesheet = "" +
+                START_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>\n" +
+                "       some text<xsl:value-of select='aaa'/> text continued\n" +
+                "   </xsl:template>\n" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>" +
+                        makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
+                        makeValueOf("some text", 3, 1) +
+                "       some text" +
+                        makeValueOf("<xsl:value-of select=\"aaa\">", 3, 2) +
+                "       <xsl:value-of select='aaa'/>" +
+                        makeValueOf("text continued", 3, 1) +
+                "       text continued" +
+                "   </xsl:template>" +
+                END_STYLESHEET_TAG);
+    }
+
+    public void testTextMustBeBeEscaped() throws Exception {
+        String originalStylesheet = "" +
+                START_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>\n" +
+                "       some &lt;&amp; ' text\n" +
+                "   </xsl:template>\n" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>" +
+                        makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
+                        makeValueOf("some <& ' text", 3, 1) +
+                "       some &lt;&amp; ' text\n" +
+                "   </xsl:template>" +
+                END_STYLESHEET_TAG);
+    }
+
+    public void testMaximumLengthText() throws Exception {
+        String originalStylesheet = "" +
+                START_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>\n" +
+                "       first line\n" +
+                "       second line\n" +
+                "       third line\n" +
+                "       fourth line\n" +
+                "       fifth line\n" +
+                "   </xsl:template>\n" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>" +
+                        makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
+                        makeValueOf("first line second line third line fourth line fif ...", 3, 1) +
+                "       first line\n" +
+                "       second line\n" +
+                "       third line\n" +
+                "       fourth line\n" +
+                "       fifth line\n" +
+                "   </xsl:template>" +
+                END_STYLESHEET_TAG);
+    }
+
+    public void testXslText() throws Exception {
+        String originalStylesheet = "" +
+                START_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>\n" +
+                "       first line\n" +
+                "       <xsl:text>text within xsl:text</xsl:text>\n" +
+                "       last line" +
+                "   </xsl:template>\n" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>" +
+                        makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
+                        makeValueOf("first line", 3, 1) +
+                "       first line\n" +
+                        makeValueOf("<xsl:text>", 4, 2) +
+                "       <xsl:text>text within xsl:text</xsl:text>\n" +
+                        makeValueOf("text within xsl:text", 4, 2) +
+                        makeValueOf("last line", 5, 1) +
+                "       last line" +
+                "   </xsl:template>" +
+                END_STYLESHEET_TAG);
+    }
+
+    public void testProcessingInstruction() throws Exception {
+        String originalStylesheet = "" +
+                START_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>\n" +
+                "       <xsl:text><?instr param=\"val\"?></xsl:text>\n" +
+                "   </xsl:template>\n" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>" +
+                        makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
+                        makeValueOf("<xsl:text>", 3, 2) +
+                "       <xsl:text><?instr param=\"val\"?></xsl:text>\n" +
+                        makeValueOf("<?instr param=\"val\"?>", 3, 2) +
                 "   </xsl:template>" +
                 END_STYLESHEET_TAG);
     }

@@ -100,6 +100,73 @@ public class UTestRunnerTracing extends JuxyTestCase {
         applyTemplates();
     }
 
+    public void testApplyImports() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "   <xsl:apply-imports/>" +
+                "</xsl:template>");
+        context().setDocument("<root/>");
+        applyTemplates();
+    }
+
+    public void testForEach() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "   <xsl:for-each select='//*'>\n" +
+                "       <xsl:value-of select='.'/>\n" +
+                "   </xsl:for-each>" +
+                "</xsl:template>");
+        context().setDocument("<root><item/></root>");
+        applyTemplates();
+    }
+
+    public void testVariable() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "   <xsl:variable name='v' select='*'/>\n" +
+                "</xsl:template>");
+        context().setDocument("<root/>");
+        applyTemplates();
+    }
+
+    public void testTextNodesExist() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "   first text string\n" +
+                "   second text string\n" +
+                "   <p>a paragraph content</p>\n" +
+                "</xsl:template>");
+        context().setDocument("<root/>");
+        applyTemplates();
+    }
+
+    public void testXslText() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "   first text string\n" +
+                "   <xsl:text>second text string</xsl:text>\n" +
+                "   <p>a paragraph content</p>\n" +
+                "</xsl:template>");
+        context().setDocument("<root/>");
+        applyTemplates();
+    }
+
+    public void testProcessingInstructionsAndText() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "   <xsl:text>\n" +
+                "   <?first?>\n" +
+                "   <?second param='value'?>\n" +
+                "   <?third param=\"value\"?>\n" +
+                "   some text\n" +
+                "   </xsl:text>\n" +
+                "   text out of xsl:text\n" +
+                "   <p>a paragraph content</p>\n" +
+                "</xsl:template>");
+        context().setDocument("<root/>");
+        applyTemplates();
+    }
+
     private void setStylesheet(final String stylesheet) {
         newContext("stylesheet.xsl", new URIResolver() {
             public Source resolve(String href, String base) {

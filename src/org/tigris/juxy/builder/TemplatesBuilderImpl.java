@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.7 2005-08-17 17:54:51 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.8 2005-08-22 07:46:15 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -243,8 +243,6 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         {
             throw new JuxyRuntimeException("Failed to create Templates object", ex);
         }
-
-        DOMUtil.logDocument("Generated stylesheet", stylesheet);
     }
 
     private void createInvokationStatement(Element stylesheetEl)

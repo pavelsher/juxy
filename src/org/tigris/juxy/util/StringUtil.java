@@ -1,7 +1,7 @@
 package org.tigris.juxy.util;
 
 /**
- * $Id: StringUtil.java,v 1.3 2005-08-05 08:38:29 pavelsher Exp $
+ * $Id: StringUtil.java,v 1.4 2005-08-22 07:46:15 pavelsher Exp $
  * <p/>
  * Various utility methods.
  *
@@ -16,11 +16,7 @@ public class StringUtil
      * @param text the string to normalize
      * @return normalized string
      */
-    public static String normalizeAll(String text)
-    {
-        if (text == null || text.length() == 0)
-            return text;
-
+    public static String normalizeAll(String text) {
         return collapseSpaces(text, SPACE_AND_CARRIAGE_CHARS).trim();
     }
 
@@ -30,13 +26,16 @@ public class StringUtil
      * @return text with collapsed spaces
      */
     public static String normalizeSpaces(String text) {
-        if (text == null || text.length() == 0)
-            return text;
-
         return collapseSpaces(text, SPACE_CHARS).trim();
     }
 
-    private static String collapseSpaces(String text, char[] spaceCharacters)
+    /**
+     * Collapses spaces in the text, but does not trim the resulting string.
+     * @param text
+     * @param spaceCharacters array of characters treated as spaces
+     * @return
+     */
+    public static String collapseSpaces(String text, char[] spaceCharacters)
     {
         if (text == null || text.length() == 0)
             return text;
