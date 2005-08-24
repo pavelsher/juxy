@@ -1,7 +1,7 @@
 package org.tigris.juxy.util;
 
 /**
- * $Id: StringUtil.java,v 1.4 2005-08-22 07:46:15 pavelsher Exp $
+ * $Id: StringUtil.java,v 1.5 2005-08-24 08:28:30 pavelsher Exp $
  * <p/>
  * Various utility methods.
  *

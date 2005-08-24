@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.8 2005-08-22 07:46:15 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.9 2005-08-24 08:28:30 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -209,7 +209,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
             return DEFAULT_VERSION;
         }
 
-        logger.info("Imported stylesheet has version: " + version);
+        logger.info("Imported stylesheet version: " + version);
         return version;
     }
 

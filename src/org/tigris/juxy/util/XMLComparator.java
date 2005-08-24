@@ -9,7 +9,7 @@ import org.xml.sax.SAXException;
 import java.util.*;
 
 /**
- * $Id: XMLComparator.java,v 1.6 2005-08-11 08:24:37 pavelsher Exp $
+ * $Id: XMLComparator.java,v 1.7 2005-08-24 08:28:30 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -36,7 +36,7 @@ public class XMLComparator {
         Node anode = actualTw.getCurrentNode();
 
         while(true) {
-            if (enode == null && anode == null) return;
+            if (enode == null && (anode == null || anode == actual.getNextSibling())) return;
             if (enode == null || anode == null)
                 throw new DocumentsAssertionError(expTw, actualTw);
 
@@ -81,7 +81,7 @@ public class XMLComparator {
         switch (currentNode.getNodeType()) {
             case Node.DOCUMENT_NODE:
             case Node.DOCUMENT_FRAGMENT_NODE:
-                tw.nextNode();
+                tw.firstChild();
         }
     }
 

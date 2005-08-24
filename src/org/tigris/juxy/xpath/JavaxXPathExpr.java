@@ -10,19 +10,19 @@ import javax.xml.namespace.QName;
 import java.util.*;
 
 /**
- * $Id: Java50XPathExpr.java,v 1.1 2005-08-10 08:57:18 pavelsher Exp $
+ * $Id: JavaxXPathExpr.java,v 1.1 2005-08-24 08:28:30 pavelsher Exp $
  *
  * @author Pavel Sher
 1 */
-public class Java50XPathExpr implements XPathExpr {
+public class JavaxXPathExpr implements XPathExpr {
     private XPath xpath;
     private String expression;
     private Map namespaces;
 
-    protected Java50XPathExpr(String expression) {
+    protected JavaxXPathExpr(String expression) throws XPathFactoryConfigurationException {
         assert expression != null;
 
-        this.xpath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
+        this.xpath = javax.xml.xpath.XPathFactory.newInstance(javax.xml.xpath.XPathConstants.DOM_OBJECT_MODEL).newXPath();
         this.expression = expression;
         this.namespaces = new HashMap();
     }
@@ -81,9 +81,9 @@ public class Java50XPathExpr implements XPathExpr {
 
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Java50XPathExpr)) return false;
+        if (!(o instanceof JavaxXPathExpr)) return false;
 
-        final Java50XPathExpr java50XPathExpr = (Java50XPathExpr) o;
+        final JavaxXPathExpr java50XPathExpr = (JavaxXPathExpr) o;
 
         if (!expression.equals(java50XPathExpr.expression)) return false;
 

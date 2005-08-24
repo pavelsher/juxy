@@ -1,21 +1,22 @@
 package org.tigris.juxy;
 
-import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
- * $Id: Tracer.java,v 1.1 2005-08-17 17:54:52 pavelsher Exp $
+ * $Id: Tracer.java,v 1.2 2005-08-24 08:28:30 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
 public class Tracer {
     private String currentSystemid;
-    private int lastLine = -1;
-    private StringBuffer buf = new StringBuffer(20);
+    private int lastLine;
+    private StringBuffer buf;
     private PrintStream traceOs;
 
-    public Tracer(OutputStream traceOs) {
-        this.traceOs = new PrintStream(traceOs);
+    public Tracer(PrintStream traceOs) {
+        this.traceOs = traceOs;
+        this.buf = new StringBuffer(20);
+        this.lastLine = -1;
     }
 
     public void trace(int line, int level, String systemId, String statement) {
@@ -37,12 +38,15 @@ public class Tracer {
         lastLine = line;
     }
 
-    private String unescapeMessage(String message) {
-        return message.replaceAll("&#39;", "'");
+    /**
+     * Should be called when transformation is completed
+     */
+    public void stopTracing() {
+        traceOs.println();
     }
 
-    public void endLogging() {
-        traceOs.println();
+    private String unescapeMessage(String message) {
+        return message.replaceAll("&#39;", "'");
     }
 
     private String messageAndLocation(int line, int level, String message) {

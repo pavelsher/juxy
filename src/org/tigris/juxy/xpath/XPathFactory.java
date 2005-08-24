@@ -2,14 +2,19 @@ package org.tigris.juxy.xpath;
 
 import org.tigris.juxy.JuxyRuntimeException;
 import org.tigris.juxy.util.ArgumentAssert;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.xml.xpath.XPathFactoryConfigurationException;
 
 /**
- * $Id: XPathFactory.java,v 1.1 2005-08-10 08:57:18 pavelsher Exp $
+ * $Id: XPathFactory.java,v 1.2 2005-08-24 08:28:30 pavelsher Exp $
  * <p/>
  * Factory for XPath expressions.
  * @author Pavel Sher
  */
 public class XPathFactory {
+    private final static Log logger = LogFactory.getLog(XPathFactory.class);
 
     /**
      * Constructs new XPath expression.
@@ -28,9 +33,14 @@ public class XPathFactory {
     protected static XPathExpr createJava50XPath(String expression) {
         try {
             if (Class.forName("javax.xml.xpath.XPathFactory") != null) {
-                return new Java50XPathExpr(expression);
+                return new JavaxXPathExpr(expression);
             }
-        } catch (ClassNotFoundException e) {}
+        }
+        catch (ClassNotFoundException e) {}
+        catch (XPathFactoryConfigurationException e) {
+            logger.debug("Failed to obtain instance of the javax.xml.xpath.XPathFactory");
+        }
+
         return null;
     }
 

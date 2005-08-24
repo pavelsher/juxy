@@ -2,9 +2,10 @@ package org.tigris.juxy.util;
 
 import junit.framework.TestCase;
 import org.xml.sax.SAXException;
+import org.w3c.dom.Document;
 
 /**
- * $Id: UTestXMLComparator.java,v 1.1 2005-07-29 17:43:44 pavelsher Exp $
+ * $Id: UTestXMLComparator.java,v 1.2 2005-08-24 08:28:31 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -222,5 +223,11 @@ public class UTestXMLComparator extends TestCase {
         } catch (DocumentsAssertionError e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public void testPassed_DocumentPartsCompared() throws SAXException {
+        Document actual = DOMUtil.parse("<parent><child1/><child2/></parent>");
+        XMLComparator.assertEquals("<child1/>", actual.getDocumentElement().getFirstChild());
+        XMLComparator.assertEquals("<child2/>", actual.getDocumentElement().getLastChild());
     }
 }

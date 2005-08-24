@@ -12,7 +12,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import java.util.*;
 
 /**
- * $Id: TracingFilter.java,v 1.3 2005-08-22 07:46:15 pavelsher Exp $
+ * $Id: TracingFilter.java,v 1.4 2005-08-24 08:28:30 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -101,10 +101,7 @@ public class TracingFilter extends XMLFilterImpl {
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         if (isStylesheetElement(uri, localName)) {
             level = 0;
-            String excludedPrefixes = atts.getValue("exclude-result-prefixes");
-            if (excludedPrefixes == null) excludedPrefixes = "";
-            excludedPrefixes += " " + JuxyParams.PREFIX + " " + JuxyParams.TRACE_PARAM;
-            pushStartElement(activeQueue, uri, localName, qName, new AttributesImpl(atts));
+            pushStartElement(activeQueue, uri, localName, qName, atts);
         } else {
             level++;
             if (isTemplateElement(uri, localName)) {

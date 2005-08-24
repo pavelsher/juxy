@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.8 2005-08-17 17:54:52 pavelsher Exp $
+ * $Id: RunnerImpl.java,v 1.9 2005-08-24 08:28:30 pavelsher Exp $
  * <p/>
  * This runner uses only standard features. It does not use any xslt engine - specific extensions.
  *
@@ -168,7 +168,7 @@ class RunnerImpl implements Runner
         parentNode.normalize();
 
         if (traceLogger != null)
-            traceLogger.endLogging();
+            traceLogger.stopTracing();
 
         DOMUtil.logDocument("Transformation result:", parentNode);
 

@@ -24,13 +24,14 @@
         <pathelement path="${tools.dir}/junit.jar"/>
     </path>
 
+    <path id="compile-tests.classpath">
+        <path refid="compile.classpath"/>
+        <pathelement path="${tools.dir}/ant-testutil.jar"/>
+    </path>
+
     <path id="test.classpath">
-        <pathelement path="${classes.dir}"/>
         <pathelement path="${test.classes.dir}"/>
-        <fileset dir="${lib.dir}" >
-            <include name="*.jar"/>
-        </fileset>
-        <pathelement path="${tools.dir}/junit.jar"/>
+        <path refid="compile-tests.classpath"/>
     </path>
 
     <path id="instr.classpath">
@@ -80,10 +81,16 @@
 
         <javac  srcdir="${tests.dir}" destdir="${test.classes.dir}"
                 includes="org/**"
-                classpathref="compile.classpath"
+                classpathref="compile-tests.classpath"
                 debug="true"
                 source="1.4"
         />
+
+        <copy todir="${test.classes.dir}/META-INF">
+            <fileset dir="${tests.dir}/META-INF">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="compile" depends="init, compile-src, compile-tests" />
@@ -260,6 +267,18 @@
         <antcall target="coverage-instr"/>
         <antcall target="coverage-ut"/>
         <antcall target="coverage-report"/>
+    </target>
+
+    <target name="xsltverifier">
+        <taskdef name="xsltverifier" classname="org.tigris.juxy.verifier.VerifierTask" classpathref="compile.classpath"/>
+        <xsltverifier dir="." includes="**/*.xsl">
+        </xsltverifier>
+
+        <xsltverifier>
+            <fileset dir=".">
+                <include name="**/*.xsl"/>
+            </fileset>
+        </xsltverifier>
     </target>
 
 </project>
