@@ -12,7 +12,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import java.util.*;
 
 /**
- * $Id: TracingFilter.java,v 1.4 2005-08-24 08:28:30 pavelsher Exp $
+ * $Id: TracingFilter.java,v 1.5 2005-08-25 08:16:38 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -25,6 +25,8 @@ public class TracingFilter extends XMLFilterImpl {
     private List activeQueue = new ArrayList(3);
     private List templateEvents = new ArrayList(3);
     private List rawEvents = new ArrayList(3);
+    private List nsStartEvents = new ArrayList(3);
+    private List nsEndEvents = new ArrayList(3);
 
     private static int MAX_TEXT_LEN = 51;
     private boolean withinXslText = false;
@@ -32,8 +34,6 @@ public class TracingFilter extends XMLFilterImpl {
     public void startDocument() throws SAXException {
         logger.info("Start augmenting stylesheet with tracing code: " + locator.getSystemId() + " ...");
         super.startDocument();
-        super.startPrefixMapping(JuxyParams.PREFIX, JuxyParams.NS);
-        super.startPrefixMapping(JuxyParams.TRACE_PARAM, "java:" + Tracer.class.getName());
     }
 
     public void endDocument() throws SAXException {
@@ -62,6 +62,14 @@ public class TracingFilter extends XMLFilterImpl {
         super.processingInstruction(target, data);
     }
 
+    private void superStartPrefixMapping(String prefix, String uri) throws SAXException {
+        super.startPrefixMapping(prefix, uri);
+    }
+
+    private void superEndPrefixMapping(String prefix) throws SAXException {
+        super.endPrefixMapping(prefix);
+    }
+
     private void pushStartElement(List queue, String uri, String localName, String qName, Attributes atts) {
         queue.add(new StartElementEvent(uri, localName, qName, atts));
     }
@@ -76,6 +84,14 @@ public class TracingFilter extends XMLFilterImpl {
 
     private void pushProcessingInstruction(List queue, String target, String data) {
         queue.add(new PiEvent(target, data));
+    }
+
+    private void pushStartPrefixMapping(List queue, String prefix, String uri) {
+        queue.add(new StartPrefixMappingEvent(prefix, uri));
+    }
+
+    private void pushEndPrefixMapping(List queue, String prefix) {
+        queue.add(new EndPrefixMappingEvent(prefix));
     }
 
     private void pushEvents(List queue, List events) {
@@ -98,37 +114,80 @@ public class TracingFilter extends XMLFilterImpl {
         queue.clear();
     }
 
+    public void startPrefixMapping(String prefix, String uri) throws SAXException {
+        pushStartPrefixMapping(nsStartEvents, prefix, uri);
+    }
+
+    public void endPrefixMapping(String prefix) throws SAXException {
+        pushEndPrefixMapping(nsEndEvents, prefix);
+    }
+
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-        if (isStylesheetElement(uri, localName)) {
-            level = 0;
-            pushStartElement(activeQueue, uri, localName, qName, atts);
-        } else {
-            level++;
-            if (isTemplateElement(uri, localName)) {
-                withinTemplate = true;
-                pushEvents(templateEvents, generateTracing(tagToString(qName, atts)));
+        try {
+            if (isStylesheetElement(uri, localName)) {
+                level = 0;
+                activeQueue.addAll(nsStartEvents);
                 pushStartElement(activeQueue, uri, localName, qName, atts);
             } else {
-                if (!isParamElement(localName))
-                    flushTemplateEvents();
+                level++;
+                if (isTemplateElement(uri, localName)) {
+                    withinTemplate = true;
+                    pushEvents(templateEvents, generateTracing(tagToString(qName, atts)));
+                    pushStartElement(activeQueue, uri, localName, qName, atts);
+                } else {
+                    if (!isParamElement(localName)) {
+                        flushTemplateEvents();
+                    }
 
-                String tag = tagToString(qName, atts);
-                if (isAugmented(localName) && !isAugmentedAfterStart(localName))
-                    pushEvents(activeQueue, generateTracing(tag));
+                    String tag = tagToString(qName, atts);
+                    if (isAugmented(localName) && !isAugmentedAfterStart(localName)) {
+                        pushEvents(activeQueue, generateTracing(tag));
+                    }
 
-                pushStartElement(activeQueue, uri, localName, qName, atts);
+                    activeQueue.addAll(nsStartEvents);
+                    pushStartElement(activeQueue, uri, localName, qName, atts);
 
-                if (isAugmented(localName) && isAugmentedAfterStart(localName))
-                    pushEvents(activeQueue, generateTracing(tag));
+                    if (isAugmented(localName) && isAugmentedAfterStart(localName))
+                        pushEvents(activeQueue, generateTracing(tag));
+                }
             }
+
+            generateAndFlushRawEvents();
+            flushActiveQueue();
+
+            if (isXslTextElement(uri, localName))
+                withinXslText = true;
+        } finally{
+            nsStartEvents.clear();
         }
-
-        generateAndFlushRawEvents();
-        flushActiveQueue();
-
-        if (isXslTextElement(uri, localName))
-            withinXslText = true;
     }
+
+/*
+    private AttributesImpl attributesWithExcludedPrefixes(Attributes atts) {
+        AttributesImpl a = new AttributesImpl(atts);
+        String excludedPrefixes = a.getValue("exclude-result-prefixes");
+        if (!"#all".equals(excludedPrefixes)) {
+            Set prefixes = new HashSet();
+            prefixes.add(JuxyParams.PREFIX);
+            prefixes.add(JuxyParams.TRACE_PARAM);
+            if (excludedPrefixes != null) {
+                String[] currentPrefixes = excludedPrefixes.split(" ");
+                for (int i=0; i<currentPrefixes.length; i++)
+                    prefixes.add(currentPrefixes[i].trim());
+            }
+
+            StringBuffer attrValue = new StringBuffer(20);
+            Iterator it = prefixes.iterator();
+            while (it.hasNext()) attrValue.append(it.next()).append(' ');
+
+            if (excludedPrefixes != null)
+                a.setValue(a.getIndex("exclude-result-prefixes"), attrValue.toString());
+            else
+                a.addAttribute(null, "exclude-result-prefixes", "exclude-result-prefixes", "CDATA", attrValue.toString());
+        }
+        return a;
+    }
+*/
 
     private boolean isXslTextElement(String uri, String localName) {
         return XSLTKeys.XSLT_NS.equals(uri) && localName.equals("text");
@@ -167,6 +226,7 @@ public class TracingFilter extends XMLFilterImpl {
             if (isTemplateElement(uri, localName))
                 withinTemplate = false;
             level--;
+            flushQueue(nsEndEvents);
         }
     }
 
@@ -245,14 +305,22 @@ public class TracingFilter extends XMLFilterImpl {
                             escapeSingleQuot(locator.getSystemId()) + "', '" +
                             escapeSingleQuot(text) + "')");
 
+        pushStartPrefixMapping(events, JuxyParams.PREFIX, JuxyParams.NS);
+        pushStartPrefixMapping(events, JuxyParams.TRACE_PARAM, "java:" + Tracer.class.getName());
         pushStartElement(events, XSLTKeys.XSLT_NS, "value-of", "xsl:value-of", a);
         pushEndElement(events, XSLTKeys.XSLT_NS, "value-of", "xsl:value-of");
+        pushEndPrefixMapping(events, JuxyParams.PREFIX);
+        pushEndPrefixMapping(events, JuxyParams.TRACE_PARAM);
         return events;
     }
 
     private String tagToString(String qName, Attributes atts) {
         StringBuffer msg = new StringBuffer(10);
         msg.append("<").append(qName);
+        Iterator it = nsStartEvents.iterator();
+        while (it.hasNext())
+            msg.append(" ").append(it.next());
+
         for (int i=0; i < atts.getLength(); i++) {
             msg.append(" ").append(atts.getQName(i));
             msg.append("=\"").append(atts.getValue(i)).append("\"");
@@ -391,6 +459,60 @@ public class TracingFilter extends XMLFilterImpl {
 
         public void generate() throws SAXException {
             superProcessingInstruction(target, data);
+        }
+    }
+
+    class StartPrefixMappingEvent implements Event {
+        private String prefix;
+        private String uri;
+        private int startLine;
+        private int currentLevel;
+
+        public StartPrefixMappingEvent(String prefix, String uri) {
+            this.prefix = prefix;
+            this.uri = uri;
+            this.startLine = locator.getLineNumber();
+            this.currentLevel = level;
+        }
+
+        public int getStartLineNum() {
+            return startLine;
+        }
+
+        public int getLevel() {
+            return currentLevel;
+        }
+
+        public void generate() throws SAXException {
+            superStartPrefixMapping(prefix, uri);
+        }
+
+        public String toString() {
+            return "xmlns:" + prefix + "=\"" + escapeSingleQuot(uri) + "\"";
+        }
+    }
+
+    class EndPrefixMappingEvent implements Event {
+        private String prefix;
+        private int startLine;
+        private int currentLevel;
+
+        public EndPrefixMappingEvent(String prefix) {
+            this.prefix = prefix;
+            this.startLine = locator.getLineNumber();
+            this.currentLevel = level;
+        }
+
+        public int getStartLineNum() {
+            return startLine;
+        }
+
+        public int getLevel() {
+            return currentLevel;
+        }
+
+        public void generate() throws SAXException {
+            superEndPrefixMapping(prefix);
         }
     }
 }

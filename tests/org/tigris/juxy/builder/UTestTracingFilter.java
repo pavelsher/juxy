@@ -1,8 +1,8 @@
 package org.tigris.juxy.builder;
 
 import junit.framework.TestCase;
-import org.tigris.juxy.Tracer;
 import org.tigris.juxy.XSLTKeys;
+import org.tigris.juxy.Tracer;
 import org.tigris.juxy.util.SAXSerializer;
 import org.tigris.juxy.util.SAXUtil;
 import org.tigris.juxy.util.StringUtil;
@@ -18,7 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.4 2005-08-24 08:28:31 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.5 2005-08-25 08:16:38 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -26,8 +26,8 @@ public class UTestTracingFilter extends TestCase {
     private static final String JUXY_XMLNS = "xmlns:juxy='" + JuxyParams.NS + "'";
     private static final String TRACER_XMLNS = "xmlns:tracer='java:" + Tracer.class.getName() + "'";
     private static final String XSLT_XMLNS = "xmlns:xsl='" + XSLTKeys.XSLT_NS + "'";
-    private static final String JUXY_TRACER_PARAM_TAG = "<xsl:param name='juxy:tracer'/>";
-    private static final String AUGMENTED_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' " + JUXY_XMLNS + " " + TRACER_XMLNS + " " + XSLT_XMLNS + ">" + JUXY_TRACER_PARAM_TAG;
+    private static final String JUXY_TRACER_PARAM_TAG = "<xsl:param name='juxy:tracer' xmlns:juxy='http://juxy.tigris.org/'/>";
+    private static final String AUGMENTED_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' " + XSLT_XMLNS + ">" + JUXY_TRACER_PARAM_TAG;
     private static final String START_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' " + XSLT_XMLNS + ">\n" + JUXY_TRACER_PARAM_TAG;
     private static final String END_STYLESHEET_TAG = "</xsl:stylesheet>";
 
@@ -342,6 +342,27 @@ public class UTestTracingFilter extends TestCase {
                 END_STYLESHEET_TAG);
     }
 
+    public void testPrefixesConflict() throws Exception {
+        String originalStylesheet = "" +
+                START_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>\n" +
+                "       <tracer:trace xmlns:tracer='tracer.uri'/>\n" +
+                "       <juxy:trace xmlns:juxy='juxy.uri'/>\n" +
+                "   </xsl:template>" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
+                "   <xsl:template name='tpl'>" +
+                        makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
+                        makeValueOf("<tracer:trace xmlns:tracer=\"tracer.uri\">", 3, 2) +
+                "       <tracer:trace xmlns:tracer='tracer.uri'/>\n" +
+                        makeValueOf("<juxy:trace xmlns:juxy=\"juxy.uri\">", 4, 2) +
+                "       <juxy:trace xmlns:juxy='juxy.uri'/>\n" +
+                "   </xsl:template>" +
+                END_STYLESHEET_TAG);
+    }
+
     private void assertFilteredEquals(String expectedStylesheet) throws SAXException {
         XMLComparator.assertEquals(expectedStylesheet, filteredStylesheet);
     }
@@ -349,7 +370,7 @@ public class UTestTracingFilter extends TestCase {
     private String makeValueOf(String statement, int line, int col) {
         String escapedStatement = StringUtil.escapeQuoteCharacter(
                 StringUtil.escapeXMLText(StringUtil.replaceCharByEntityRef(statement, '\'')));
-        return "<xsl:value-of select=\"tracer:trace($juxy:tracer, " + line + ", " + col + ", '" + getSystemId() + "', '" + escapedStatement + "')\"/>";
+        return "<xsl:value-of select=\"tracer:trace($juxy:tracer, " + line + ", " + col + ", '" + getSystemId() + "', '" + escapedStatement + "')\" " + JUXY_XMLNS + " " + TRACER_XMLNS + "/>";
     }
 
     private void filter(String originalStylesheet) throws Exception {

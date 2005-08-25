@@ -167,6 +167,16 @@ public class UTestRunnerTracing extends JuxyTestCase {
         applyTemplates();
     }
 
+    public void testPrefixesConflict() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "   <tracer:trace xmlns:tracer='tracer.uri'/>\n" +
+                "   <juxy:trace xmlns:juxy='juxy.uri'/>\n" +
+                "</xsl:template>");
+        context().setDocument("<root/>");
+        applyTemplates();
+    }
+
     private void setStylesheet(final String stylesheet) {
         newContext("stylesheet.xsl", new URIResolver() {
             public Source resolve(String href, String base) {

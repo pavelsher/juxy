@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.9 2005-08-24 08:28:30 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.10 2005-08-25 08:16:38 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -226,7 +226,11 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
     private void updateCurrentTemplates(Document stylesheet) {
         assert resolver != null;
-
+        try {
+            DOMUtil.printDOM(stylesheet, System.out);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
         try
         {
             transformerFactory.setURIResolver(tracingEnabled ? new TracingURIResolver(resolver) : resolver);
@@ -372,9 +376,8 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         createImport(stylesheetEl);
 
         if (tracingEnabled) {
-            stylesheetEl.setAttributeNS(XMLNS_NS, "xmlns:" + JuxyParams.PREFIX, JuxyParams.NS);
-
             Element traceParamEl = stylesheetDoc.createElementNS(XSLTKeys.XSLT_NS, "xsl:param");
+            traceParamEl.setAttributeNS(XMLNS_NS, "xmlns:" + JuxyParams.PREFIX, JuxyParams.NS);
             traceParamEl.setAttribute("name", JuxyParams.PREFIX + ":" + JuxyParams.TRACE_PARAM);
             stylesheetEl.appendChild(traceParamEl);
         }
