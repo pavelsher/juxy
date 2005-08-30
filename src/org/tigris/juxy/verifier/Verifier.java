@@ -1,7 +1,6 @@
 package org.tigris.juxy.verifier;
 
 import javax.xml.transform.URIResolver;
-import java.io.File;
 import java.util.List;
 
 /**

@@ -3,6 +3,7 @@ package org.tigris.juxy.builder;
 import junit.framework.TestCase;
 import org.tigris.juxy.XSLTKeys;
 import org.tigris.juxy.Tracer;
+import org.tigris.juxy.TestUtil;
 import org.tigris.juxy.util.SAXSerializer;
 import org.tigris.juxy.util.SAXUtil;
 import org.tigris.juxy.util.StringUtil;
@@ -18,7 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.5 2005-08-25 08:16:38 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.6 2005-08-30 19:51:19 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -375,9 +376,7 @@ public class UTestTracingFilter extends TestCase {
 
     private void filter(String originalStylesheet) throws Exception {
         XMLReader reader = SAXUtil.newXMLReader();
-        InputSource src = new InputSource();
-        src.setSystemId("stylesheet.xsl");
-        src.setByteStream(new ByteArrayInputStream(originalStylesheet.getBytes()));
+        InputSource src = TestUtil.makeInputSource("stylesheet.xsl", originalStylesheet);
         SAXSerializer s = new SAXSerializer();
         ByteArrayOutputStream bos = new ByteArrayOutputStream(50);
         s.setOutputStream(bos);

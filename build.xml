@@ -270,7 +270,7 @@
     </target>
 
     <target name="xsltverifier">
-        <taskdef name="xsltverifier" classname="org.tigris.juxy.verifier.VerifierTask" classpathref="compile.classpath"/>
+        <taskdef name="xsltverifier" classname="org.tigris.juxy.verifier.VerifierTask" classpathref="test.classpath"/>
         <xsltverifier dir="." includes="**/*.xsl">
         </xsltverifier>
 
