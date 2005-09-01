@@ -20,8 +20,11 @@ public class VerifierImpl implements Verifier {
     private ErrorReporter er;
     private URIResolver resolver = new FileURIResolver();
     private int numberOfErrors = 0;
+    private int numberOfVerifiedFiles = 0;
+    private int numberOfFilesToVerify = 0;
 
     public void setErrorReporter(ErrorReporter er) {
+        assert er != null;
         this.er = er;
     }
 
@@ -35,40 +38,53 @@ public class VerifierImpl implements Verifier {
         Iterator it = files.iterator();
         while (it.hasNext()) {
             File f = (File) it.next();
-            if (f.exists())
+            if (f.exists() && f.isFile())
                 urisToVerify.add(f.toURI().normalize());
         }
     }
 
     public boolean verify(boolean failFast) {
         try {
-            Map links = new HashMap();
+            Map stylesheets = new HashMap();
             IncludeInstructionsHandler iih = new IncludeInstructionsHandler();
+            XMLReader reader = SAXUtil.newXMLReader();
+            reader.setContentHandler(iih);
+
             Iterator it = urisToVerify.iterator();
             while (it.hasNext()) {
                 URI fileURI = (URI) it.next();
+                boolean parsed = false;
                 Source src = new StreamSource(fileURI.toString());
-                registerStylesheet(fileURI, src, links);
-                XMLReader reader = SAXUtil.newXMLReader();
-                reader.setContentHandler(iih);
+                registerStylesheet(fileURI, src, stylesheets);
                 iih.reset();
                 try {
                     reader.parse(fileURI.toString());
+                    parsed = true;
                 } catch (IOException e) {
-                    reportError("Failed to parse " + fileURI + " due to the error: " + e.getMessage(), failFast);
+                    reportError("Failed to parse " + fileURI + " due to error: " + e.getMessage(), failFast);
+                } catch (ParseStoppedException e) {
+                    // parsing stopped by handler
+                    parsed = true;
                 } catch (SAXException e) {
-                    reportError("Failed to parse " + fileURI + " due to the error: " + e.getMessage(), failFast);
+                    reportError("Failed to parse " + fileURI + " due to error: " + e.getMessage(), failFast);
                 }
 
-                try {
-                    appendIncludes(fileURI, links, iih.getHrefs());
-                } catch (TransformerException e) {
-                    reportError(e.getMessageAndLocation(), failFast);
+                if (!parsed) {
+                    urisToVerify.remove(fileURI);
+                } else {
+                    try {
+                        processIncludes(fileURI, stylesheets, iih.getHrefs());
+                    } catch (TransformerException e) {
+                        urisToVerify.remove(fileURI);
+                        reportError(e.getMessageAndLocation(), failFast);
+                    }
                 }
             }
 
-            List topStylesheets = getTopStylesheets(links);
-            compileStylesheets(topStylesheets, failFast);
+            List topStylesheets = getTopStylesheets(stylesheets);
+            numberOfFilesToVerify = topStylesheets.size();
+            debug("Found " + topStylesheets.size() + " stylesheet(s) to verify");
+            verifyStylesheets(topStylesheets, failFast);
         } catch (VerificationFailedException e) {
             return false;
         }
@@ -76,18 +92,28 @@ public class VerifierImpl implements Verifier {
         return numberOfErrors == 0;
     }
 
-    private void compileStylesheets(List topStylesheets, boolean failFast) {
+    public int getNumberOfVerifiedFiles() {
+        return numberOfVerifiedFiles;
+    }
+
+    public int getNumberOfFilesToVerify() {
+        return numberOfFilesToVerify;
+    }
+
+    private void verifyStylesheets(List topStylesheets, boolean failFast) {
         TransformerFactory trFactory = TransformerFactory.newInstance();
         trFactory.setURIResolver(resolver);
 
         Iterator it = topStylesheets.iterator();
         while (it.hasNext()) {
             Source src = (Source) it.next();
-            trace("Compiling stylesheet: " + src.getSystemId() + " ... ");
+            debug("Verifying stylesheet: " + src.getSystemId() + " ... ");
             VerifierErrorListener errorListener = new VerifierErrorListener();
             try {
                 trFactory.setErrorListener(errorListener);
                 trFactory.newTransformer(src);
+                if (!errorListener.wereErrors())
+                    numberOfVerifiedFiles++;
                 printErrorListenerErrors(errorListener, failFast);
             } catch (TransformerConfigurationException e) {
                 printErrorListenerErrors(errorListener, failFast);
@@ -115,22 +141,19 @@ public class VerifierImpl implements Verifier {
         while(it.hasNext()) {
             Map.Entry me = (Map.Entry)it.next();
             StylesheetInfo sinfo = (StylesheetInfo) me.getValue();
-            if (sinfo.referencesCounter == 0) {
-                String systemId = sinfo.resolvedSource.getSystemId();
-                try {
-                    URI uri = new URI(systemId);
-                    if (urisToVerify.contains(uri.normalize()))
-                        result.add(sinfo.resolvedSource);
-                } catch (URISyntaxException e) {
-                    trace("Invalid URI: " + systemId);
-                }
+            try {
+                URI uri = new URI(sinfo.resolvedSource.getSystemId());
+                if (sinfo.referencesCounter == 0 && urisToVerify.contains(uri))
+                    result.add(sinfo.resolvedSource);
+            } catch (URISyntaxException e) {
+                debug("Invalid URI: " + sinfo.resolvedSource.getSystemId());
             }
         }
 
         return result;
     }
 
-    private void appendIncludes(URI fileURI, Map links, Set hrefs) throws TransformerException {
+    private void processIncludes(URI fileURI, Map links, Set hrefs) throws TransformerException {
         Iterator it = hrefs.iterator();
         while (it.hasNext()) {
             String href = (String) it.next();
@@ -139,21 +162,26 @@ public class VerifierImpl implements Verifier {
             assert resolvedSystemId != null;
             try {
                 URI resolvedURI = new URI(resolvedSystemId);
-                registerStylesheet(resolvedURI, resolvedSource, links);
+                if (!links.containsKey(resolvedURI))
+                    registerStylesheet(resolvedURI, resolvedSource, links);
+
+                incrementReferences(links, resolvedURI);
             } catch (URISyntaxException e) {
-                trace("Invalid URI: " + resolvedSystemId);
+                debug("Invalid URI: " + resolvedSystemId);
             }
         }
     }
 
     private void registerStylesheet(URI uri, Source src, Map links) {
-        if (!links.containsKey(uri)) {
+        if (!links.containsKey(uri))
             links.put(uri, new StylesheetInfo(src, 0));
-        }
-        else {
-            StylesheetInfo sinfo = (StylesheetInfo) links.get(uri);
-            sinfo.referencesCounter++;
-        }
+        else
+            incrementReferences(links, uri);
+    }
+
+    private void incrementReferences(Map links, URI uri) {
+        StylesheetInfo sinfo = (StylesheetInfo) links.get(uri);
+        sinfo.referencesCounter++;
     }
 
     private void reportError(String message, boolean fail) {
@@ -169,9 +197,9 @@ public class VerifierImpl implements Verifier {
         er.warning(message);
     }
 
-    private void trace(String message) {
+    private void debug(String message) {
         assert er != null;
-        er.trace(message);
+        er.debug(message);
     }
 
     class StylesheetInfo {
