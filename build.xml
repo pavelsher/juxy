@@ -10,7 +10,7 @@
     <property name="depcache.dir" location="${basedir}/depcache"/>
     <property name="build.dir" location="${basedir}/build"/>
 
-    <!-- JCoverage properties -->
+    <!-- emma coverage properties -->
     <property name="instr.classes.dir" location="${basedir}/instr-classes"/>
     <property name="coverage.report.dir" location="${basedir}/cvgreport"/>
 
@@ -99,21 +99,23 @@
 
     <fileset id="all.tests" dir="${tests.dir}">
         <include name="org/**/UTest*.java" />
+        <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
 
-    <fileset id="all.tests.except.xslt20" dir="${tests.dir}">
+    <fileset id="all.tests.except.xslt20.and.verifier" dir="${tests.dir}">
         <include name="org/**/UTest*.java" />
         <exclude name="org/**/UTest*20.java" />
+        <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
 
     <target name="test-all" depends="compile" description="Runs all tests under the Xalan and Saxon engines" >
         <!-- run unit tests with xalan -->
         <antcall target="ut">
-            <param name="files" value="all.tests.except.xslt20"/>
+            <param name="files" value="all.tests.except.xslt20.and.verifier"/>
             <param name="transformerFactory" value="org.apache.xalan.processor.TransformerFactoryImpl"/>
             <param name="classpath" value="test.classpath"/>
         </antcall>
-        <!-- run unit tests with default xslt engine (saxon) -->
+        <!-- run unit tests with saxon -->
         <antcall target="ut">
             <param name="files" value="all.tests"/>
             <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
@@ -126,7 +128,7 @@
     </target>
 
     <target name="ut">
-        <junit printsummary="yes" haltonfailure="yes" fork="no" showoutput="yes" reloading="false" >
+        <junit printsummary="yes" haltonfailure="yes" fork="no" showoutput="false" reloading="false" >
             <jvmarg line="-ea"/>
             <sysproperty key="javax.xml.transform.TransformerFactory" value="${transformerFactory}"/>
             <classpath refid="${classpath}" />

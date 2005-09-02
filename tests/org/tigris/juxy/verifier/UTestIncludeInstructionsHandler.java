@@ -31,6 +31,20 @@ public class UTestIncludeInstructionsHandler extends TestCase {
         assertTrue(iih.getHrefs().contains("include2.xsl"));
     }
 
+    public void testParsingStopped() throws Exception {
+        IncludeInstructionsHandler iih = new IncludeInstructionsHandler();
+        try {
+            parse("stylesheet.xsl",
+                    makeStylesheet("" +
+                            "<xsl:import href='import1.xsl'/>" +
+                            "<xsl:template match='/'/>"), iih);
+            fail("An exception expected");
+        } catch(ParseStoppedException e) {}
+
+        assertEquals(1, iih.getHrefs().size());
+        assertTrue(iih.getHrefs().contains("import1.xsl"));
+    }
+
     private String makeStylesheet(String internalContent) {
         return "<xsl:stylesheet version='1.0' xmlns:xsl='" + XSLTKeys.XSLT_NS + "'>" + internalContent + "</xsl:stylesheet>";
     }

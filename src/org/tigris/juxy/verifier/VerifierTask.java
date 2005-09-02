@@ -10,19 +10,19 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * $Id: VerifierTask.java,v 1.1 2005-08-30 19:51:19 pavelsher Exp $
+ * $Id: VerifierTask.java,v 1.2 2005-09-02 08:19:52 pavelsher Exp $
  *
  * @author Pavel Sher
  */
 public class VerifierTask extends MatchingTask implements ErrorReporter {
+    private boolean failFast = false;
 
     public void execute() throws BuildException {
-        verifyRequiredParams();
         List files = findFiles();
         Verifier verifier = new VerifierImpl();
         verifier.setFiles(files);
         verifier.setErrorReporter(this);
-        if (!verifier.verify(false)) {
+        if (!verifier.verify(failFast)) {
             throw new BuildException("Verification failed");
         }
     }
@@ -39,8 +39,8 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
         return files;
     }
 
-    private void verifyRequiredParams() {
-
+    public void setFailOnError(boolean failOnError) {
+        this.failFast = failOnError;
     }
 
     private DirectoryScanner getDirectoryScanner() {
@@ -55,7 +55,7 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
         this.fileset = fs;
     }
 
-    public void trace(String message) {
+    public void debug(String message) {
         log(message + "\n");
     }
 

@@ -3,7 +3,7 @@ package org.tigris.juxy.verifier;
 /**
  */
 public interface ErrorReporter {
-    void trace(String message);
+    void debug(String message);
 
     void error(String message);
 

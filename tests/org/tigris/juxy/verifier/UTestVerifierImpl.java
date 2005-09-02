@@ -26,14 +26,12 @@ public class UTestVerifierImpl extends TestCase {
         verifier.setFiles(files(new String[] {"no-imports.xsl"}));
         assertTrue(verifier.verify(false));
         assertEquals(1, verifier.getNumberOfVerifiedFiles());
-        assertEquals(1, verifier.getNumberOfFilesToVerify());
     }
 
     public void testImportedStylesheetsUseGlobalVariable() {
         verifier.setFiles(files(new String[] {"imported.xsl", "included.xsl", "root.xsl"}));
         assertTrue(verifier.verify(false));
         assertEquals(1, verifier.getNumberOfVerifiedFiles());
-        assertEquals(1, verifier.getNumberOfFilesToVerify());
     }
 
     public void testImportUsingURIResolver() {
@@ -48,7 +46,6 @@ public class UTestVerifierImpl extends TestCase {
         });
         assertTrue(verifier.verify(false));
         assertEquals(1, verifier.getNumberOfVerifiedFiles());
-        assertEquals(1, verifier.getNumberOfFilesToVerify());
     }
 
     public void testURIResolverThrowsException() {
@@ -60,28 +57,39 @@ public class UTestVerifierImpl extends TestCase {
         });
         assertFalse(verifier.verify(false));
         assertEquals(0, verifier.getNumberOfVerifiedFiles());
-        assertEquals(0, verifier.getNumberOfFilesToVerify());
+        assertTrue(reporter.errors()[0].endsWith("an exception"));
     }
 
     public void testNotExistentFileIgnored() {
         verifier.setFiles(files(new String[] {"non-existent-file.xsl", "root.xsl"}));
         assertTrue(verifier.verify(false));
         assertEquals(1, verifier.getNumberOfVerifiedFiles());
-        assertEquals(1, verifier.getNumberOfFilesToVerify());
     }
 
     public void testDirectoryInsteadOfFileIgnored() {
         verifier.setFiles(files(new String[] {".", "root.xsl"}));
         assertTrue(verifier.verify(false));
         assertEquals(1, verifier.getNumberOfVerifiedFiles());
-        assertEquals(1, verifier.getNumberOfFilesToVerify());
     }
 
     public void testNotWellFormedFile() {
         verifier.setFiles(files(new String[] {"not-well-formed.xsl", "root.xsl"}));
         assertFalse(verifier.verify(false));
         assertEquals(1, verifier.getNumberOfVerifiedFiles());
-        assertEquals(1, verifier.getNumberOfFilesToVerify());
+        assertEquals(2, reporter.errors().length);
+    }
+
+    public void testNotWellFormedFileFailFast() {
+        verifier.setFiles(files(new String[] {"not-well-formed.xsl", "root.xsl"}));
+        assertFalse(verifier.verify(true));
+        assertEquals(0, verifier.getNumberOfVerifiedFiles());
+    }
+
+    public void testStylesheetIsIncorrect() {
+        verifier.setFiles(files(new String[] {"bad-stylesheet.xsl"}));
+        assertFalse(verifier.verify(false));
+        assertEquals(0, verifier.getNumberOfVerifiedFiles());
+        assertTrue(reporter.errors().length > 0);
     }
 
     private List files(String[] paths) {
@@ -94,18 +102,23 @@ public class UTestVerifierImpl extends TestCase {
     }
 
     class DummyReporter implements ErrorReporter {
-//        private List errors = new ArrayList();
+        private List errors = new ArrayList();
 
         public void debug(String message) {
-            System.out.println(message);
+            System.out.println("[DEBUG] " + message);
         }
 
         public void error(String message) {
-            System.out.println(message);
+            System.out.println("[ERROR] " + message);
+            errors.add(message);
         }
 
         public void warning(String message) {
-            System.out.println(message);
+            System.out.println("[WARN] " + message);
+        }
+
+        public String[] errors() {
+            return (String[]) errors.toArray(new String[] {});
         }
     }
 }

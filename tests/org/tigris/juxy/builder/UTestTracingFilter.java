@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.6 2005-08-30 19:51:19 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.7 2005-09-02 08:19:53 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -347,8 +347,8 @@ public class UTestTracingFilter extends TestCase {
         String originalStylesheet = "" +
                 START_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>\n" +
-                "       <tracer:trace xmlns:tracer='tracer.uri'/>\n" +
-                "       <juxy:trace xmlns:juxy='juxy.uri'/>\n" +
+                "       <tracer:debug xmlns:tracer='tracer.uri'/>\n" +
+                "       <juxy:debug xmlns:juxy='juxy.uri'/>\n" +
                 "   </xsl:template>" +
                 END_STYLESHEET_TAG;
         filter(originalStylesheet);
@@ -356,10 +356,10 @@ public class UTestTracingFilter extends TestCase {
                 AUGMENTED_STYLESHEET_TAG +
                 "   <xsl:template name='tpl'>" +
                         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
-                        makeValueOf("<tracer:trace xmlns:tracer=\"tracer.uri\">", 3, 2) +
-                "       <tracer:trace xmlns:tracer='tracer.uri'/>\n" +
-                        makeValueOf("<juxy:trace xmlns:juxy=\"juxy.uri\">", 4, 2) +
-                "       <juxy:trace xmlns:juxy='juxy.uri'/>\n" +
+                        makeValueOf("<tracer:debug xmlns:tracer=\"tracer.uri\">", 3, 2) +
+                "       <tracer:debug xmlns:tracer='tracer.uri'/>\n" +
+                        makeValueOf("<juxy:debug xmlns:juxy=\"juxy.uri\">", 4, 2) +
+                "       <juxy:debug xmlns:juxy='juxy.uri'/>\n" +
                 "   </xsl:template>" +
                 END_STYLESHEET_TAG);
     }

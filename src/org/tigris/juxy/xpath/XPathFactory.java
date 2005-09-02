@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.xml.xpath.XPathFactoryConfigurationException;
 
 /**
- * $Id: XPathFactory.java,v 1.2 2005-08-24 08:28:30 pavelsher Exp $
+ * $Id: XPathFactory.java,v 1.3 2005-09-02 08:19:52 pavelsher Exp $
  * <p/>
  * Factory for XPath expressions.
  * @author Pavel Sher
@@ -37,6 +37,7 @@ public class XPathFactory {
             }
         }
         catch (ClassNotFoundException e) {}
+        catch (NoClassDefFoundError e) {}
         catch (XPathFactoryConfigurationException e) {
             logger.debug("Failed to obtain instance of the javax.xml.xpath.XPathFactory");
         }
@@ -49,7 +50,9 @@ public class XPathFactory {
             if (Class.forName("org.jaxen.dom.DOMXPath") != null) {
                 return new JaxenXPathExpr(expression);
             }
-        } catch (ClassNotFoundException e) {}
+        }
+        catch (ClassNotFoundException e) {}
+        catch (NoClassDefFoundError e) {}
         return null;
     }
 }

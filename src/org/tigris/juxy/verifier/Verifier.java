@@ -28,4 +28,10 @@ public interface Verifier {
      * @return true if verification was successful and false otherwise
      */
     boolean verify(boolean failFast);
+
+    /**
+     * Returns number of successfully verified files
+     * @return number of successfully verified files
+     */
+    int getNumberOfVerifiedFiles();
 }

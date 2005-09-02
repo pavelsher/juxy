@@ -1,0 +1,56 @@
+<project name="successful-verification" basedir="../../../">
+
+    <property name="classes.dir" location="${basedir}/classes"/>
+    <property name="lib.dir" location="${basedir}/lib"/>
+
+    <path id="juxy.task.path">
+        <pathelement path="${classes.dir}"/>
+        <fileset dir="${lib.dir}" >
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <taskdef name="xsltverifier" classname="org.tigris.juxy.verifier.VerifierTask" classpathref="juxy.task.path"/>
+
+    <target name="verification-nofiles">
+        <xsltverifier>
+            <fileset dir=".">
+                <include name="*.nofiles"/>
+            </fileset>
+        </xsltverifier>
+    </target>
+
+    <target name="verification-invaliddir">
+        <xsltverifier dir="nodir" includes="*.xsl"/>
+    </target>
+
+    <target name="verification-noattributes">
+        <xsltverifier/>
+    </target>
+
+    <target name="verification-dirandfileset">
+        <xsltverifier dir=".">
+            <fileset dir="tests/xml/verifier">
+                <include name="root.xsl"/>
+            </fileset>
+        </xsltverifier>
+    </target>
+
+    <target name="successful-verification">
+        <xsltverifier dir="tests/xml/verifier" includes="root.xsl"/>
+        <xsltverifier>
+            <fileset dir="tests/xml/verifier">
+                <include name="root.xsl"/>
+            </fileset>
+        </xsltverifier>
+    </target>
+
+    <target name="failfast">
+        <xsltverifier dir="tests/xml/verifier" includes="not-well-formed.xsl, root.xsl" failonerror="true"/>
+    </target>
+
+    <target name="no-failfast">
+        <xsltverifier dir="tests/xml/verifier" includes="not-well-formed.xsl, root.xsl" failonerror="false"/>
+    </target>
+
+</project>

@@ -12,7 +12,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import java.util.*;
 
 /**
- * $Id: TracingFilter.java,v 1.5 2005-08-25 08:16:38 pavelsher Exp $
+ * $Id: TracingFilter.java,v 1.6 2005-09-02 08:19:52 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
