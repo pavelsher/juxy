@@ -1,4 +1,4 @@
-package org.tigris.juxy.builder;
+package org.tigris.juxy.util;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 import java.io.File;
 
 /**
- * $Id: FileURIResolver.java,v 1.1 2005-08-07 17:29:55 pavelsher Exp $
+ * $Id: FileURIResolver.java,v 1.1 2005-09-05 17:44:08 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
