@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.xml.xpath.XPathFactoryConfigurationException;
 
 /**
- * $Id: XPathFactory.java,v 1.3 2005-09-02 08:19:52 pavelsher Exp $
+ * $Id: XPathFactory.java,v 1.4 2005-09-05 17:37:37 pavelsher Exp $
  * <p/>
  * Factory for XPath expressions.
  * @author Pavel Sher

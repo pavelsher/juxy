@@ -4,7 +4,7 @@ import org.apache.tools.ant.BuildFileTest;
 import org.apache.tools.ant.BuildException;
 
 /**
- * $Id: UTestVerifierTask.java,v 1.1 2005-09-02 08:19:53 pavelsher Exp $
+ * $Id: UTestVerifierTask.java,v 1.2 2005-09-05 17:37:37 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -18,55 +18,63 @@ public class UTestVerifierTask extends BuildFileTest {
     }
 
     public void testNoFilesFoundForVerification() {
-        expectLogContaining("verification-nofiles", "Found 0 stylesheet(s) to verify");
+        expectLogContaining("verification-nofiles", "0 stylesheet(s) were selected for verification");
     }
 
     public void testSpecifiedDirDoesNotExist() {
-        try {
-            executeTarget("verification-invaliddir");
-            fail("An exception expected");
-        } catch (BuildException e) {}
+        expectBuildException("verification-invaliddir", "");
     }
 
     public void testNoAttributesAtAll() {
-        try {
-            executeTarget("verification-noattributes");
-            fail("An exception expected");
-        } catch (BuildException e) {}
+        expectBuildException("verification-noattributes", "");
     }
 
     public void testDirAndFilesetSpecified() {
-        expectLogContaining("verification-dirandfileset", "Found 1 stylesheet(s) to verify");
+        expectBuildException("verification-dirandfileset", "");
     }
 
     public void testVerificationSuccessful() {
-        expectLogContaining("successful-verification", "Found 1 stylesheet(s) to verify");
+        expectLogContaining("successful-verification", "1 stylesheet(s) were selected for verification");
     }
 
-    public void testFailFast() {
+    public void testFailOnError() {
         try {
-            executeTarget("failfast");
+            executeTarget("failonerror");
             fail("An exception expected");
         } catch (BuildException e) {}
 
         assertTrue(getLog().contains("ERROR: Failed to parse file"));
         assertTrue(getLog().contains("not-well-formed.xsl"));
-        assertFalse(getLog().contains("root.xsl"));
-    }
-
-    public void testNoFailFast() {
-        try {
-            executeTarget("no-failfast");
-            fail("An exception expected");
-        } catch (BuildException e) {}
-
-        assertTrue(getLog().contains("ERROR: Failed to parse file"));
-        assertTrue(getLog().contains("not-well-formed.xsl"));
-        assertTrue(getLog().contains("Found 1 stylesheet(s) to verify"));
         assertTrue(getLog().contains("root.xsl"));
+    }
+
+    public void testNoFailOnError() {
+        executeTarget("no-failonerror");
+
+        assertTrue(getLog().contains("ERROR: Failed to parse file"));
+        assertTrue(getLog().contains("not-well-formed.xsl"));
+        assertTrue(getLog().contains("1 stylesheet(s) were selected for verification"));
+        assertTrue(getLog().contains("root.xsl"));
+    }
+
+    public void testFactory() {
+        expectBuildException("verification-factorywithoutname", "");
+        expectBuildException("verification-factorywithemptyname", "");
+
+        executeTarget("verification-validfactory");
+        assertTrue(getLog().contains("Obtained TransformerFactory: net.sf.saxon.TransformerFactoryImpl"));
+        assertTrue(getLog().contains("Obtained TransformerFactory: org.apache.xalan.processor.TransformerFactoryImpl"));
+    }
+
+    public void testCatalog() {
+        expectBuildException("verification-emptycatalog", "");
+        expectBuildException("verification-catalogwithemptycatalogfiles", "");
+
+        executeTarget("verification-validcatalog");
     }
 
     protected void tearDown() throws Exception {
         System.out.println(getLog());
+        System.out.println(getOutput());
     }
 }

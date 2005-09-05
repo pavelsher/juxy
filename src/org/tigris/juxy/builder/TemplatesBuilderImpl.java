@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.tigris.juxy.*;
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.util.SAXUtil;
+import org.tigris.juxy.util.FileURIResolver;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathFactory;
 import org.w3c.dom.Document;
@@ -26,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.10 2005-08-25 08:16:38 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.11 2005-09-05 17:37:37 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */

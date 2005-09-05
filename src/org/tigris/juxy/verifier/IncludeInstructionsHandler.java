@@ -16,7 +16,7 @@ public class IncludeInstructionsHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
         if (isStopElement(uri, localName))
-            throw new ParseStoppedException();
+            throw new ParseStoppedException(null);
 
         if (isIncludeInstruction(uri, localName)) {
             String href = attributes.getValue("href");

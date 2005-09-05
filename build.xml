@@ -97,7 +97,7 @@
 
     <target name="remake" depends="clean, test-all" description="Remakes all source codes and runs all tests"/>
 
-    <fileset id="all.tests" dir="${tests.dir}">
+    <fileset id="all.tests.except.verifier" dir="${tests.dir}">
         <include name="org/**/UTest*.java" />
         <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
@@ -108,6 +108,26 @@
         <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
 
+    <fileset id="verifier.task.tests" dir="${tests.dir}">
+        <include name="org/**/UTestVerifierTask.java" />
+    </fileset>
+
+    <path id="verifiertask.test.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="saxon*.jar"/>
+        </fileset>
+        <pathelement path="${test.classes.dir}"/>
+        <pathelement path="${tools.dir}/ant-testutil.jar"/>
+    </path>
+
+    <target name="test-verifiertask">
+        <antcall target="ut">
+            <param name="files" value="verifier.task.tests"/>
+            <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
+            <param name="classpath" value="verifiertask.test.classpath"/>
+        </antcall>
+    </target>
+
     <target name="test-all" depends="compile" description="Runs all tests under the Xalan and Saxon engines" >
         <!-- run unit tests with xalan -->
         <antcall target="ut">
@@ -117,10 +137,12 @@
         </antcall>
         <!-- run unit tests with saxon -->
         <antcall target="ut">
-            <param name="files" value="all.tests"/>
+            <param name="files" value="all.tests.except.verifier"/>
             <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
             <param name="classpath" value="test.classpath"/>
         </antcall>
+        <!-- run unit tests for veriier task -->
+        <antcall target="test-verifiertask"/>
     </target>
 
     <target name="verify-samples" description="Runs samples" >
@@ -169,10 +191,21 @@
             </fileset>
         </copy>
 
-        <jar destfile="${build.dir}/lib/juxy.jar" basedir="${classes.dir}" includes="org/**" >
+        <jar destfile="${build.dir}/juxy.jar" basedir="${classes.dir}" includes="org/**" excludes="org/**/verifier/**">
             <manifest>
                 <attribute name="Version" value="${version}"/>
             </manifest>
+        </jar>
+
+        <jar destfile="${build.dir}/juxy_verifier.jar">
+            <manifest>
+                <attribute name="Version" value="${version}"/>
+            </manifest>
+
+            <fileset dir="${classes.dir}" includes="org/**/verifier/**"/>
+            <fileset dir="${classes.dir}" includes="org/**/util/**"/>
+            <fileset dir="${classes.dir}" includes="org/tigris/juxy/XSLTKeys.class, org/tigris/juxy/JuxyRuntimeException.class"/>
+            <fileset dir="${basedir}" includes="verifier_ant.properties"/>
         </jar>
 
         <zip file="juxy-${version}.zip">
@@ -240,7 +273,7 @@
             <classpath refid="run-instr-tests.classpath" />
             <formatter type="plain" usefile="false"/>
             <batchtest fork="yes">
-                <fileset refid="all.tests"/>
+                <fileset refid="all.tests.except.verifier"/>
             </batchtest>
         </junit>
     </target>
@@ -269,18 +302,6 @@
         <antcall target="coverage-instr"/>
         <antcall target="coverage-ut"/>
         <antcall target="coverage-report"/>
-    </target>
-
-    <target name="xsltverifier">
-        <taskdef name="xsltverifier" classname="org.tigris.juxy.verifier.VerifierTask" classpathref="test.classpath"/>
-        <xsltverifier dir="." includes="**/*.xsl">
-        </xsltverifier>
-
-        <xsltverifier>
-            <fileset dir=".">
-                <include name="**/*.xsl"/>
-            </fileset>
-        </xsltverifier>
     </target>
 
 </project>

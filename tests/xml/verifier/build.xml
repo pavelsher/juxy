@@ -10,6 +10,10 @@
         </fileset>
     </path>
 
+    <fileset dir="tests/xml/verifier" id="valid-xsl">
+        <include name="root.xsl"/>
+    </fileset>
+
     <taskdef name="xsltverifier" classname="org.tigris.juxy.verifier.VerifierTask" classpathref="juxy.task.path"/>
 
     <target name="verification-nofiles">
@@ -30,27 +34,66 @@
 
     <target name="verification-dirandfileset">
         <xsltverifier dir=".">
-            <fileset dir="tests/xml/verifier">
-                <include name="root.xsl"/>
-            </fileset>
+            <fileset refid="valid-xsl"/>
         </xsltverifier>
     </target>
 
     <target name="successful-verification">
         <xsltverifier dir="tests/xml/verifier" includes="root.xsl"/>
         <xsltverifier>
-            <fileset dir="tests/xml/verifier">
-                <include name="root.xsl"/>
-            </fileset>
+            <fileset refid="valid-xsl"/>
         </xsltverifier>
     </target>
 
-    <target name="failfast">
+    <target name="failonerror">
         <xsltverifier dir="tests/xml/verifier" includes="not-well-formed.xsl, root.xsl" failonerror="true"/>
     </target>
 
-    <target name="no-failfast">
+    <target name="no-failonerror">
         <xsltverifier dir="tests/xml/verifier" includes="not-well-formed.xsl, root.xsl" failonerror="false"/>
+    </target>
+
+    <target name="verification-factorywithoutname">
+        <xsltverifier dir=".">
+            <factory/>
+        </xsltverifier>
+    </target>
+
+    <target name="verification-factorywithemptyname">
+        <xsltverifier dir=".">
+            <factory name=""/>
+        </xsltverifier>
+    </target>
+
+    <target name="verification-validfactory">
+        <xsltverifier>
+            <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+            <fileset refid="valid-xsl"/>
+        </xsltverifier>
+        <xsltverifier>
+            <factory name="org.apache.xalan.processor.TransformerFactoryImpl"/>
+            <fileset refid="valid-xsl"/>
+        </xsltverifier>
+    </target>
+
+    <target name="verification-emptycatalog">
+        <xsltverifier>
+            <catalog/>
+            <fileset refid="valid-xsl"/>
+        </xsltverifier>
+    </target>
+
+    <target name="verification-catalogwithemptycatalogfiles">
+        <xsltverifier>
+            <catalog catalogfiles=""/>
+            <fileset refid="valid-xsl"/>
+        </xsltverifier>
+    </target>
+
+    <target name="verification-validcatalog">
+        <xsltverifier dir="tests/xml/verifier" includes="using-catalog.xsl">
+            <catalog catalogfiles="tests/xml/verifier/catalog1.xml,tests/xml/verifier/catalog2.xml"/>
+        </xsltverifier>
     </target>
 
 </project>

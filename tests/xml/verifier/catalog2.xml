@@ -1,0 +1,3 @@
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <uri name="/path/to/xsl2" uri="included.xsl"/>
+</catalog>

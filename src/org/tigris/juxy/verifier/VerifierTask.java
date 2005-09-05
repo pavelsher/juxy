@@ -2,29 +2,58 @@ package org.tigris.juxy.verifier;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.taskdefs.MatchingTask;
+import org.apache.tools.ant.types.FileSet;
+import org.apache.xml.resolver.CatalogManager;
+import org.apache.xml.resolver.tools.CatalogResolver;
 
+import javax.xml.transform.URIResolver;
 import java.io.File;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
- * $Id: VerifierTask.java,v 1.2 2005-09-02 08:19:52 pavelsher Exp $
+ * $Id: VerifierTask.java,v 1.3 2005-09-05 17:37:37 pavelsher Exp $
  *
  * @author Pavel Sher
  */
 public class VerifierTask extends MatchingTask implements ErrorReporter {
-    private boolean failFast = false;
+    private boolean failOnError = true;
+    private Catalog catalog;
+    private Factory factory;
 
     public void execute() throws BuildException {
         List files = findFiles();
         Verifier verifier = new VerifierImpl();
         verifier.setFiles(files);
         verifier.setErrorReporter(this);
-        if (!verifier.verify(failFast)) {
+        if (catalog != null)
+            verifier.setURIResolver(createCatalogResolver());
+        if (factory != null)
+            verifier.setTransformerFactory(factory.getFactoryClassName());
+
+        if (!verifier.verify(false) && failOnError)
             throw new BuildException("Verification failed");
+    }
+
+    private URIResolver createCatalogResolver() {
+        String catalogs = catalog.getCatalogFiles();
+        CatalogManager cm = CatalogManager.getStaticManager();
+        cm.setCatalogFiles(toResolverFileList(catalogs));
+        cm.setIgnoreMissingProperties(true);
+        //cm.setVerbosity(10);
+
+        return new CatalogResolver(cm);
+    }
+
+    private String toResolverFileList(String catalogs) {
+        StringBuffer catalogFiles = new StringBuffer(100);
+        StringTokenizer st = new StringTokenizer(catalogs, ",");
+        while (st.hasMoreTokens()) {
+            catalogFiles.append(st.nextToken().trim()).append(";");
         }
+        return catalogFiles.toString();
     }
 
     private List findFiles() {
@@ -40,7 +69,7 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
     }
 
     public void setFailOnError(boolean failOnError) {
-        this.failFast = failOnError;
+        this.failOnError = failOnError;
     }
 
     private DirectoryScanner getDirectoryScanner() {
@@ -55,15 +84,24 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
         this.fileset = fs;
     }
 
-    public void debug(String message) {
-        log(message + "\n");
+    public void addConfiguredCatalog(Catalog catalog) {
+        if (catalog.getCatalogFiles() == null || catalog.getCatalogFiles().length() == 0)
+            throw new BuildException("Attribute catalogfiles is required for catalog");
+
+        this.catalog = catalog;
+    }
+
+    public void addConfiguredFactory(Factory factory) {
+        if (factory.getFactoryClassName() == null || factory.getFactoryClassName().length() == 0)
+            throw new BuildException("Attribute name is required for factory");
+        this.factory = factory;
     }
 
     public void error(String message) {
-        log("ERROR: " + message + "\n");
+        log("ERROR: " + message);
     }
 
     public void warning(String message) {
-        log("WARNING: " + message + "\n");
+        log("WARNING: " + message);
     }
 }

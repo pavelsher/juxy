@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.7 2005-09-02 08:19:53 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.8 2005-09-05 17:37:37 pavelsher Exp $
  *
  * @author Pavel Sher
  */

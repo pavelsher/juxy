@@ -1,19 +1,19 @@
 package org.tigris.juxy.verifier;
 
-import org.tigris.juxy.builder.FileURIResolver;
+import org.tigris.juxy.util.FileURIResolver;
 import org.tigris.juxy.util.SAXUtil;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
 
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.*;
 
 /**
  */
@@ -23,10 +23,16 @@ public class VerifierImpl implements Verifier {
     private URIResolver resolver = new FileURIResolver();
     private int numberOfErrors = 0;
     private int numberOfVerifiedFiles = 0;
+    private String transformerFactoryClassName;
 
     public void setErrorReporter(ErrorReporter er) {
         assert er != null;
         this.er = er;
+    }
+
+    public void setTransformerFactory(String className) {
+        assert className != null && className.length() > 0;
+        this.transformerFactoryClassName = className;
     }
 
     public void setURIResolver(URIResolver resolver) {
@@ -46,6 +52,7 @@ public class VerifierImpl implements Verifier {
 
     public boolean verify(boolean failFast) {
         try {
+            log("Searching for stylesheets to verify ...");
             Map stylesheets = new HashMap();
             IncludeInstructionsHandler iih = new IncludeInstructionsHandler();
             XMLReader reader = SAXUtil.newXMLReader();
@@ -64,15 +71,18 @@ public class VerifierImpl implements Verifier {
                     reader.parse(fileURI.toString());
                     parsed = true;
                 } catch (IOException e) {
+                    numberOfErrors++;
                     reportErrorAndProbablyFail("Failed to parse " + fileURI + " due to error: " + e.getMessage(), failFast);
                 } catch (ParseStoppedException e) {
                     // parsing stopped by handler
                     parsed = true;
                 } catch (SAXException e) {
+                    numberOfErrors++;
                     if (failFast)
                         return false;
                 } finally {
                     if (ec.hasErrors()) {
+                        numberOfErrors++;
                         reportError("Failed to parse file " + fileURI);
                         reportParserErrors(ec.getParseErrors());
                         reportParserWarnings(ec.getParseWarnings());
@@ -90,7 +100,7 @@ public class VerifierImpl implements Verifier {
             }
 
             List topStylesheets = getTopStylesheets(stylesheets);
-            debug("Found " + topStylesheets.size() + " stylesheet(s) to verify");
+            log(topStylesheets.size() + " stylesheet(s) were selected for verification");
             verifyStylesheets(topStylesheets, failFast);
         } catch (VerificationFailedException e) {
             return false;
@@ -122,13 +132,15 @@ public class VerifierImpl implements Verifier {
     }
 
     private void verifyStylesheets(List topStylesheets, boolean failFast) {
-        TransformerFactory trFactory = TransformerFactory.newInstance();
+        TransformerFactory trFactory = getTransformerFactory();
+        log("Obtained TransformerFactory: " + trFactory.getClass().getName());
+
         trFactory.setURIResolver(resolver);
 
         Iterator it = topStylesheets.iterator();
         while (it.hasNext()) {
             Source src = (Source) it.next();
-            debug("Verifying stylesheet: " + src.getSystemId() + " ... ");
+            log("Verifying stylesheet: " + src.getSystemId() + " ... ");
             ErrorsCollector errorListener = new ErrorsCollector();
             try {
                 trFactory.setErrorListener(errorListener);
@@ -149,6 +161,26 @@ public class VerifierImpl implements Verifier {
                 }
             }
         }
+    }
+
+    private TransformerFactory getTransformerFactory() {
+        if (transformerFactoryClassName != null) {
+            try {
+                Class factoryClass = Class.forName(transformerFactoryClassName);
+                if (factoryClass != null)
+                    return (TransformerFactory) factoryClass.newInstance();
+
+            } catch (ClassNotFoundException e) {
+                reportWarning("Failed to load class for specified TransformerFactory: " + transformerFactoryClassName);
+            } catch (IllegalAccessException e) {
+                reportWarning("Failed to instantiate class for specified TransformerFactory: " + transformerFactoryClassName);
+            } catch (InstantiationException e) {
+                reportWarning("Failed to instantiate class for specified TransformerFactory: " + transformerFactoryClassName);
+            }
+        }
+
+        log("Using default TransformerFactory");
+        return TransformerFactory.newInstance();
     }
 
     private void reportTransformerWarnings(TransformerException[] warnings) {
@@ -185,7 +217,7 @@ public class VerifierImpl implements Verifier {
                 if (sinfo.referencesCounter == 0 && urisToVerify.contains(uri))
                     result.add(sinfo.resolvedSource);
             } catch (URISyntaxException e) {
-                debug("Invalid URI: " + sinfo.resolvedSource.getSystemId());
+                log("Invalid URI: " + sinfo.resolvedSource.getSystemId());
             }
         }
 
@@ -247,9 +279,9 @@ public class VerifierImpl implements Verifier {
         er.warning(message);
     }
 
-    private void debug(String message) {
+    private void log(String message) {
         assert er != null;
-        er.debug(message);
+        er.log(message);
     }
 
     class StylesheetInfo {

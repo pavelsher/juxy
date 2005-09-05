@@ -104,7 +104,7 @@ public class UTestVerifierImpl extends TestCase {
     class DummyReporter implements ErrorReporter {
         private List errors = new ArrayList();
 
-        public void debug(String message) {
+        public void log(String message) {
             System.out.println("[DEBUG] " + message);
         }
 

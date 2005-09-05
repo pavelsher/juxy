@@ -8,7 +8,17 @@ import java.util.List;
  * Verifies that all specified stylesheets are successfully compiled by XSLT transformer.
  */
 public interface Verifier {
+    /**
+     * Sets ErrorReporter to use during verification procedure
+     * @param er
+     */
     void setErrorReporter(ErrorReporter er);
+
+    /**
+     * Sets class name of the TRaX TransformerFactory
+     * @param className
+     */
+    void setTransformerFactory(String className);
 
     /**
      * Sets URIResolver to use for imports and includes resolution.

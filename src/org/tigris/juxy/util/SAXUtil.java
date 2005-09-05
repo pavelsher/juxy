@@ -8,7 +8,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * $Id: SAXUtil.java,v 1.1 2005-08-17 17:54:52 pavelsher Exp $
+ * $Id: SAXUtil.java,v 1.2 2005-09-05 17:37:37 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -29,6 +29,7 @@ public class SAXUtil {
         if (parserFactory == null) {
             parserFactory = SAXParserFactory.newInstance();
             parserFactory.setNamespaceAware(true);
+            parserFactory.setValidating(false);
         }
 
         return parserFactory;
