@@ -1,8 +1,8 @@
 24-Aug-2005:
     - fixed bug in XPathFactory: now it correctly processes situation when javax.xml.xpath.XPathFactory
       instance cannot be created
-    - fixed bug in XMLComparator: now it will compare only specified actual node
-      and its children and will not proceed with actual node siblings
+    - fixed bug in XMLComparator: now it will compare only specified node
+      and its children and will not proceed with node siblings
 
 11-Aug-2005: new methods added into the JuxyTestCase:
     - JuxyTestCase.parse(String)
