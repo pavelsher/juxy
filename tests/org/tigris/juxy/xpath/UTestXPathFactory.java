@@ -3,7 +3,7 @@ package org.tigris.juxy.xpath;
 import junit.framework.TestCase;
 
 /**
- * $Id: UTestXPathFactory.java,v 1.2 2005-08-24 08:28:31 pavelsher Exp $
+ * $Id: UTestXPathFactory.java,v 1.3 2005-09-06 16:50:03 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -21,7 +21,7 @@ public class UTestXPathFactory extends TestCase {
     }
 
     public void testCreateJavaXPath() {
-        XPathExpr xpath = XPathFactory.createJava50XPath("/");
+        XPathExpr xpath = XPathFactory.createJavaxXPath("/");
         assertTrue(xpath instanceof JavaxXPathExpr);
     }
 }

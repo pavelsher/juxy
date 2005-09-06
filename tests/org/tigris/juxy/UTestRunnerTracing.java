@@ -177,6 +177,37 @@ public class UTestRunnerTracing extends JuxyTestCase {
         applyTemplates();
     }
 
+    public void testComment() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "<xsl:comment>\n" +
+                "comment!\n" +
+                "</xsl:comment>\n" +
+                "</xsl:template>");
+        context().setDocument("<root/>");
+        applyTemplates();
+    }
+
+    public void testCopy() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "<xsl:copy>\n" +
+                "text to copy!\n" +
+                "</xsl:copy>\n" +
+                "</xsl:template>");
+        context().setDocument("<root/>");
+        applyTemplates();
+    }
+
+    public void testProcessingInstruction() throws Exception {
+        setStylesheet("" +
+                "<xsl:template match='/'>\n" +
+                "<xsl:processing-instruction name='pi'>3.14</xsl:processing-instruction>\n" +
+                "</xsl:template>");
+        context().setDocument("<root/>");
+        applyTemplates();
+    }
+
     private void setStylesheet(final String stylesheet) {
         newContext("stylesheet.xsl", new URIResolver() {
             public Source resolve(String href, String base) {

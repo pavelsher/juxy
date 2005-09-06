@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.xml.xpath.XPathFactoryConfigurationException;
 
 /**
- * $Id: XPathFactory.java,v 1.4 2005-09-05 17:37:37 pavelsher Exp $
+ * $Id: XPathFactory.java,v 1.5 2005-09-06 16:50:03 pavelsher Exp $
  * <p/>
  * Factory for XPath expressions.
  * @author Pavel Sher
@@ -22,7 +22,7 @@ public class XPathFactory {
      */
     public static XPathExpr newXPath(String expression) {
         ArgumentAssert.notEmpty(expression, "XPath expression must not be empty");
-        XPathExpr xpath = createJava50XPath(expression);
+        XPathExpr xpath = createJavaxXPath(expression);
         if (xpath == null)
             xpath = createJaxenXPath(expression);
 
@@ -30,14 +30,13 @@ public class XPathFactory {
         throw new JuxyRuntimeException("Unable to locate XPath implementation");
     }
 
-    protected static XPathExpr createJava50XPath(String expression) {
+    protected static XPathExpr createJavaxXPath(String expression) {
         try {
             if (Class.forName("javax.xml.xpath.XPathFactory") != null) {
                 return new JavaxXPathExpr(expression);
             }
         }
         catch (ClassNotFoundException e) {}
-        catch (NoClassDefFoundError e) {}
         catch (XPathFactoryConfigurationException e) {
             logger.debug("Failed to obtain instance of the javax.xml.xpath.XPathFactory");
         }
@@ -52,7 +51,6 @@ public class XPathFactory {
             }
         }
         catch (ClassNotFoundException e) {}
-        catch (NoClassDefFoundError e) {}
         return null;
     }
 }

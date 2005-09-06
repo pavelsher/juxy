@@ -4,7 +4,7 @@ import org.apache.tools.ant.BuildFileTest;
 import org.apache.tools.ant.BuildException;
 
 /**
- * $Id: UTestVerifierTask.java,v 1.2 2005-09-05 17:37:37 pavelsher Exp $
+ * $Id: UTestVerifierTask.java,v 1.3 2005-09-06 16:50:03 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -75,6 +75,5 @@ public class UTestVerifierTask extends BuildFileTest {
 
     protected void tearDown() throws Exception {
         System.out.println(getLog());
-        System.out.println(getOutput());
     }
 }

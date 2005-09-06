@@ -1,4 +1,4 @@
-package org.tigris.juxy.builder;
+package org.tigris.juxy.util;
 
 import junit.framework.TestCase;
 

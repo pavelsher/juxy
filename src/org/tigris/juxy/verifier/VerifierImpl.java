@@ -52,7 +52,7 @@ public class VerifierImpl implements Verifier {
 
     public boolean verify(boolean failFast) {
         try {
-            log("Searching for stylesheets to verify ...");
+            info("Searching for stylesheets to verify ...");
             Map stylesheets = new HashMap();
             IncludeInstructionsHandler iih = new IncludeInstructionsHandler();
             XMLReader reader = SAXUtil.newXMLReader();
@@ -100,7 +100,7 @@ public class VerifierImpl implements Verifier {
             }
 
             List topStylesheets = getTopStylesheets(stylesheets);
-            log(topStylesheets.size() + " stylesheet(s) were selected for verification");
+            info(topStylesheets.size() + " stylesheet(s) were selected for verification");
             verifyStylesheets(topStylesheets, failFast);
         } catch (VerificationFailedException e) {
             return false;
@@ -133,14 +133,14 @@ public class VerifierImpl implements Verifier {
 
     private void verifyStylesheets(List topStylesheets, boolean failFast) {
         TransformerFactory trFactory = getTransformerFactory();
-        log("Obtained TransformerFactory: " + trFactory.getClass().getName());
+        info("Obtained TransformerFactory: " + trFactory.getClass().getName());
 
         trFactory.setURIResolver(resolver);
 
         Iterator it = topStylesheets.iterator();
         while (it.hasNext()) {
             Source src = (Source) it.next();
-            log("Verifying stylesheet: " + src.getSystemId() + " ... ");
+            info("Verifying stylesheet: " + src.getSystemId() + " ... ");
             ErrorsCollector errorListener = new ErrorsCollector();
             try {
                 trFactory.setErrorListener(errorListener);
@@ -179,7 +179,7 @@ public class VerifierImpl implements Verifier {
             }
         }
 
-        log("Using default TransformerFactory");
+        info("Using default TransformerFactory");
         return TransformerFactory.newInstance();
     }
 
@@ -217,7 +217,7 @@ public class VerifierImpl implements Verifier {
                 if (sinfo.referencesCounter == 0 && urisToVerify.contains(uri))
                     result.add(sinfo.resolvedSource);
             } catch (URISyntaxException e) {
-                log("Invalid URI: " + sinfo.resolvedSource.getSystemId());
+                info("Invalid URI: " + sinfo.resolvedSource.getSystemId());
             }
         }
 
@@ -279,9 +279,9 @@ public class VerifierImpl implements Verifier {
         er.warning(message);
     }
 
-    private void log(String message) {
+    private void info(String message) {
         assert er != null;
-        er.log(message);
+        er.info(message);
     }
 
     class StylesheetInfo {
@@ -294,7 +294,7 @@ public class VerifierImpl implements Verifier {
         }
     }
 
-    class ErrorsCollector implements ErrorHandler, ErrorListener {
+    public static class ErrorsCollector implements ErrorHandler, ErrorListener {
         private List errors = new ArrayList();
         private List warnings = new ArrayList();
 

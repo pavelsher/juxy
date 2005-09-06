@@ -92,6 +92,40 @@ public class UTestVerifierImpl extends TestCase {
         assertTrue(reporter.errors().length > 0);
     }
 
+    public void testTransformerFactoryUnknown_DefaultUsed() {
+        verifier.setFiles(files(new String[] {"root.xsl"}));
+        String className = "org.unknown.TransformerFactory";
+        verifier.setTransformerFactory(className);
+
+        assertTrue(verifier.verify(false));
+        assertTrue(reporter.warnings().length > 0);
+        assertTrue(containsMessage(reporter.warnings(), "Failed to load class for specified TransformerFactory: " + className));
+        assertTrue(containsMessage(reporter.infos(), "Using default TransformerFactory"));
+    }
+
+    public void testSpecifiedTransformerFactoryUsed() {
+        verifier.setFiles(files(new String[] {"root.xsl"}));
+
+        String className = "net.sf.saxon.TransformerFactoryImpl";
+        verifier.setTransformerFactory(className);
+        assertTrue(verifier.verify(false));
+        assertTrue(containsMessage(reporter.infos(), "Obtained TransformerFactory: " + className));
+
+        className = "org.apache.xalan.processor.TransformerFactoryImpl";
+        verifier.setTransformerFactory(className);
+        assertTrue(verifier.verify(false));
+        assertTrue(containsMessage(reporter.infos(), "Obtained TransformerFactory: " + className));
+    }
+
+    private boolean containsMessage(String[] messages, String message) {
+        for (int i=0; i<messages.length; i++) {
+            if (messages[i].equals(message))
+                return true;
+        }
+
+        return false;
+    }
+
     private List files(String[] paths) {
         List files = new ArrayList();
         for (int i=0; i<paths.length; i++) {
@@ -103,9 +137,12 @@ public class UTestVerifierImpl extends TestCase {
 
     class DummyReporter implements ErrorReporter {
         private List errors = new ArrayList();
+        private List warnings = new ArrayList();
+        private List info = new ArrayList();
 
-        public void log(String message) {
-            System.out.println("[DEBUG] " + message);
+        public void info(String message) {
+            System.out.println("[INFO] " + message);
+            info.add(message);
         }
 
         public void error(String message) {
@@ -115,10 +152,19 @@ public class UTestVerifierImpl extends TestCase {
 
         public void warning(String message) {
             System.out.println("[WARN] " + message);
+            warnings.add(message);
         }
 
         public String[] errors() {
             return (String[]) errors.toArray(new String[] {});
+        }
+
+        public String[] warnings() {
+            return (String[]) warnings.toArray(new String[] {});
+        }
+
+        public String[] infos() {
+            return (String[]) info.toArray(new String[] {});
         }
     }
 }

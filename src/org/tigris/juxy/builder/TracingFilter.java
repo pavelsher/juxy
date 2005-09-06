@@ -12,7 +12,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import java.util.*;
 
 /**
- * $Id: TracingFilter.java,v 1.7 2005-09-05 17:37:37 pavelsher Exp $
+ * $Id: TracingFilter.java,v 1.8 2005-09-06 16:50:03 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -352,12 +352,16 @@ public class TracingFilter extends XMLFilterImpl {
         AUGMENTED_AFTER_START.add("otherwise");
         AUGMENTED_AFTER_START.add("template");
         AUGMENTED_AFTER_START.add("when");
+        AUGMENTED_AFTER_START.add("matching-substring");
+        AUGMENTED_AFTER_START.add("non-matching-substring");
+        AUGMENTED_AFTER_START.add("fallback");
     }
 
     private static final Set NOT_AUGMENTED_STATEMENTS = new HashSet();
     static {
         NOT_AUGMENTED_STATEMENTS.add("with-param");
         NOT_AUGMENTED_STATEMENTS.add("param");
+        NOT_AUGMENTED_STATEMENTS.add("sort");
     }
 
     interface Event {

@@ -2,6 +2,7 @@ package org.tigris.juxy.verifier;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.xml.resolver.CatalogManager;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * $Id: VerifierTask.java,v 1.3 2005-09-05 17:37:37 pavelsher Exp $
+ * $Id: VerifierTask.java,v 1.4 2005-09-06 16:50:03 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -97,11 +98,15 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
         this.factory = factory;
     }
 
+    public void info(String message) {
+        log("ERROR: " + message, Project.MSG_INFO);
+    }
+
     public void error(String message) {
-        log("ERROR: " + message);
+        log("ERROR: " + message, Project.MSG_ERR);
     }
 
     public void warning(String message) {
-        log("WARNING: " + message);
+        log("WARNING: " + message, Project.MSG_WARN);
     }
 }
