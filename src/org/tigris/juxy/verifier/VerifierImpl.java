@@ -50,7 +50,7 @@ public class VerifierImpl implements Verifier {
         }
     }
 
-    public boolean verify(boolean failFast) {
+    public boolean verify(boolean failOnError) {
         try {
             info("Searching for stylesheets to verify ...");
             Map stylesheets = new HashMap();
@@ -72,13 +72,13 @@ public class VerifierImpl implements Verifier {
                     parsed = true;
                 } catch (IOException e) {
                     numberOfErrors++;
-                    reportErrorAndProbablyFail("Failed to parse " + fileURI + " due to error: " + e.getMessage(), failFast);
+                    reportErrorAndProbablyFail("Failed to parse " + fileURI + " due to error: " + e.getMessage(), failOnError);
                 } catch (ParseStoppedException e) {
                     // parsing stopped by handler
                     parsed = true;
                 } catch (SAXException e) {
                     numberOfErrors++;
-                    if (failFast)
+                    if (failOnError)
                         return false;
                 } finally {
                     if (ec.hasErrors()) {
@@ -101,7 +101,7 @@ public class VerifierImpl implements Verifier {
 
             List topStylesheets = getTopStylesheets(stylesheets);
             info(topStylesheets.size() + " stylesheet(s) were selected for verification");
-            verifyStylesheets(topStylesheets, failFast);
+            verifyStylesheets(topStylesheets, failOnError);
         } catch (VerificationFailedException e) {
             return false;
         }
@@ -137,10 +137,11 @@ public class VerifierImpl implements Verifier {
 
         trFactory.setURIResolver(resolver);
 
+        info("Verifying files:");
         Iterator it = topStylesheets.iterator();
         while (it.hasNext()) {
             Source src = (Source) it.next();
-            info("Verifying stylesheet: " + src.getSystemId() + " ... ");
+            info(src.getSystemId() + " ... ");
             ErrorsCollector errorListener = new ErrorsCollector();
             try {
                 trFactory.setErrorListener(errorListener);

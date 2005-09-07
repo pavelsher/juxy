@@ -4,7 +4,7 @@ import org.apache.tools.ant.BuildFileTest;
 import org.apache.tools.ant.BuildException;
 
 /**
- * $Id: UTestVerifierTask.java,v 1.3 2005-09-06 16:50:03 pavelsher Exp $
+ * $Id: UTestVerifierTask.java,v 1.4 2005-09-07 08:51:35 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -45,7 +45,7 @@ public class UTestVerifierTask extends BuildFileTest {
 
         assertTrue(getLog().contains("ERROR: Failed to parse file"));
         assertTrue(getLog().contains("not-well-formed.xsl"));
-        assertTrue(getLog().contains("root.xsl"));
+        assertFalse(getLog().contains("root.xsl"));
     }
 
     public void testNoFailOnError() {

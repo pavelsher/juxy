@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * $Id: VerifierTask.java,v 1.4 2005-09-06 16:50:03 pavelsher Exp $
+ * $Id: VerifierTask.java,v 1.5 2005-09-07 08:51:35 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -34,7 +34,7 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
         if (factory != null)
             verifier.setTransformerFactory(factory.getFactoryClassName());
 
-        if (!verifier.verify(false) && failOnError)
+        if (!verifier.verify(failOnError) && failOnError)
             throw new BuildException("Verification failed");
     }
 
@@ -99,7 +99,7 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
     }
 
     public void info(String message) {
-        log("ERROR: " + message, Project.MSG_INFO);
+        log(message, Project.MSG_INFO);
     }
 
     public void error(String message) {

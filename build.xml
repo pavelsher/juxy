@@ -203,7 +203,8 @@
             </manifest>
 
             <fileset dir="${classes.dir}" includes="org/**/verifier/**"/>
-            <fileset dir="${classes.dir}" includes="org/**/util/**"/>
+            <fileset dir="${classes.dir}" includes="org/tigris/juxy/util/SAXUtil.class, org/tigris/juxy/util/FileURIResolver.class"/>
+            <fileset dir="${classes.dir}" includes="org/**/util/SAXUtil.class"/>
             <fileset dir="${classes.dir}" includes="org/tigris/juxy/XSLTKeys.class, org/tigris/juxy/JuxyRuntimeException.class"/>
             <fileset dir="${basedir}" includes="verifier_ant.properties"/>
         </jar>
