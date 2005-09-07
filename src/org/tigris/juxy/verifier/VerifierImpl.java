@@ -141,7 +141,7 @@ public class VerifierImpl implements Verifier {
         Iterator it = topStylesheets.iterator();
         while (it.hasNext()) {
             Source src = (Source) it.next();
-            info(src.getSystemId() + " ... ");
+            info(calculateRelativePath(src.getSystemId()) + " ... ");
             ErrorsCollector errorListener = new ErrorsCollector();
             try {
                 trFactory.setErrorListener(errorListener);
@@ -161,6 +161,15 @@ public class VerifierImpl implements Verifier {
                     reportTransformerWarnings(errorListener.getTransformWarnings());
                 }
             }
+        }
+    }
+
+    private String calculateRelativePath(String systemId) {
+        String userDir = System.getProperty("user.dir");
+        try {
+            return new File(userDir).getAbsoluteFile().toURI().relativize(new URI(systemId)).toString();
+        } catch (URISyntaxException e) {
+            return systemId;
         }
     }
 
