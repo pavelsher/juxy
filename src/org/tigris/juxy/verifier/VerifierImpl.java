@@ -137,7 +137,7 @@ public class VerifierImpl implements Verifier {
 
         trFactory.setURIResolver(resolver);
 
-        info("Verifying files:");
+        info("Verifying found files:");
         Iterator it = topStylesheets.iterator();
         while (it.hasNext()) {
             Source src = (Source) it.next();
