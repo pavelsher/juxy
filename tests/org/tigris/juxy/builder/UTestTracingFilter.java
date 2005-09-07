@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.8 2005-09-05 17:37:37 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.9 2005-09-07 08:16:03 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -35,6 +35,7 @@ public class UTestTracingFilter extends TestCase {
     private String filteredStylesheet;
 
     protected void tearDown() throws Exception {
+        System.out.println(filteredStylesheet);
         // to check that filtered stylesheet is valid
         TransformerFactory.newInstance().
                 newTransformer(new StreamSource(new ByteArrayInputStream(filteredStylesheet.getBytes())));
@@ -211,6 +212,24 @@ public class UTestTracingFilter extends TestCase {
                 "   <xsl:template name='tpl2'>" +
                 "       <xsl:param name='p1'/>" +
                     makeValueOf("<xsl:template name=\"tpl2\">", 7, 1) +
+                "   </xsl:template>" +
+                END_STYLESHEET_TAG);
+    }
+
+    public void testTemplateParamsAndProcessingInstruction() throws Exception {
+        String originalStylesheet = "" +
+                START_STYLESHEET_TAG +
+                "   <xsl:template name='tpl2'><?pi?>\n" +
+                "       <xsl:param name='p1'/>\n" +
+                "   </xsl:template>\n" +
+                END_STYLESHEET_TAG;
+        filter(originalStylesheet);
+        assertFilteredEquals("" +
+                AUGMENTED_STYLESHEET_TAG +
+                "   <xsl:template name='tpl2'><?pi?>" +
+                "       <xsl:param name='p1'/>" +
+                    makeValueOf("<xsl:template name=\"tpl2\">", 2, 1) +
+                    makeValueOf("<?pi?>", 2, 1) +
                 "   </xsl:template>" +
                 END_STYLESHEET_TAG);
     }

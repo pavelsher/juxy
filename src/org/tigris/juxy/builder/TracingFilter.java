@@ -12,318 +12,274 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import java.util.*;
 
 /**
- * $Id: TracingFilter.java,v 1.8 2005-09-06 16:50:03 pavelsher Exp $
+ * $Id: TracingFilter.java,v 1.9 2005-09-07 08:16:03 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
 public class TracingFilter extends XMLFilterImpl {
     private final static Log logger = LogFactory.getLog(TracingFilter.class);
     private Locator locator;
-    private int level = 0;
-    private boolean withinTemplate;
-
-    private List activeQueue = new ArrayList(3);
-    private List templateEvents = new ArrayList(3);
-    private List rawEvents = new ArrayList(3);
-    private List nsStartEvents = new ArrayList(3);
-    private List nsEndEvents = new ArrayList(3);
-
+    private List saxEvents = new ArrayList(20);
+    private Map namespaces = new HashMap();
+    private boolean withinTemplateElement = false;
     private static int MAX_TEXT_LEN = 51;
-    private boolean withinXslText = false;
 
     public void startDocument() throws SAXException {
-        logger.info("Start augmenting stylesheet with tracing code: " + locator.getSystemId() + " ...");
+        logger.debug("Start augmenting stylesheet with tracing code: " + locator.getSystemId() + " ...");
         super.startDocument();
     }
 
     public void endDocument() throws SAXException {
-        logger.info("End augmenting stylesheet with tracing code");
+        logger.debug("End augmenting stylesheet with tracing code");
         super.endDocument();
     }
 
     public void setDocumentLocator(Locator locator) {
-        super.setDocumentLocator(locator);
         this.locator = locator;
-    }
-
-    private void superStartElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-        super.startElement(uri, localName, qName, atts);
-    }
-
-    private void superEndElement(String uri, String localName, String qName) throws SAXException {
-        super.endElement(uri, localName, qName);
-    }
-
-    private void superCharacters(char[] ch, int start, int length) throws SAXException {
-        super.characters(ch, start, length);
-    }
-
-    private void superProcessingInstruction(String target, String data) throws SAXException {
-        super.processingInstruction(target, data);
-    }
-
-    private void superStartPrefixMapping(String prefix, String uri) throws SAXException {
-        super.startPrefixMapping(prefix, uri);
-    }
-
-    private void superEndPrefixMapping(String prefix) throws SAXException {
-        super.endPrefixMapping(prefix);
-    }
-
-    private void pushStartElement(List queue, String uri, String localName, String qName, Attributes atts) {
-        queue.add(new StartElementEvent(uri, localName, qName, atts));
-    }
-
-    private void pushEndElement(List queue, String uri, String localName, String qName) {
-        queue.add(new EndElementEvent(uri, localName, qName));
-    }
-
-    private void pushCharacters(List queue, char[] ch, int start, int length) {
-        queue.add(new CharactersEvent(ch, start, length));
-    }
-
-    private void pushProcessingInstruction(List queue, String target, String data) {
-        queue.add(new PiEvent(target, data));
-    }
-
-    private void pushStartPrefixMapping(List queue, String prefix, String uri) {
-        queue.add(new StartPrefixMappingEvent(prefix, uri));
-    }
-
-    private void pushEndPrefixMapping(List queue, String prefix) {
-        queue.add(new EndPrefixMappingEvent(prefix));
-    }
-
-    private void pushEvents(List queue, List events) {
-        queue.addAll(events);
-    }
-
-    private void flushActiveQueue() throws SAXException {
-        flushQueue(activeQueue);
-    }
-
-    private void flushTemplateEvents() throws SAXException {
-        flushQueue(templateEvents);
-    }
-
-    private void flushQueue(List queue) throws SAXException {
-        for (int i=0; i<queue.size(); i++) {
-            Event e = (Event) queue.get(i);
-            e.generate();
-        }
-        queue.clear();
-    }
-
-    public void startPrefixMapping(String prefix, String uri) throws SAXException {
-        pushStartPrefixMapping(nsStartEvents, prefix, uri);
-    }
-
-    public void endPrefixMapping(String prefix) throws SAXException {
-        pushEndPrefixMapping(nsEndEvents, prefix);
+        super.setDocumentLocator(locator);
     }
 
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         try {
-            if (isStylesheetElement(uri, localName)) {
-                level = 0;
-                activeQueue.addAll(nsStartEvents);
-                pushStartElement(activeQueue, uri, localName, qName, atts);
-            } else {
-                level++;
-                if (isTemplateElement(uri, localName)) {
-                    withinTemplate = true;
-                    pushEvents(templateEvents, generateTracing(tagToString(qName, atts)));
-                    pushStartElement(activeQueue, uri, localName, qName, atts);
-                } else {
-                    if (!isParamElement(localName)) {
-                        flushTemplateEvents();
-                    }
-
-                    String tag = tagToString(qName, atts);
-                    if (isAugmented(localName) && !isAugmentedAfterStart(localName)) {
-                        pushEvents(activeQueue, generateTracing(tag));
-                    }
-
-                    activeQueue.addAll(nsStartEvents);
-                    pushStartElement(activeQueue, uri, localName, qName, atts);
-
-                    if (isAugmented(localName) && isAugmentedAfterStart(localName))
-                        pushEvents(activeQueue, generateTracing(tag));
-                }
-            }
-
-            generateAndFlushRawEvents();
-            flushActiveQueue();
-
-            if (isXslTextElement(uri, localName))
-                withinXslText = true;
-        } finally{
-            nsStartEvents.clear();
-        }
-    }
-
-/*
-    private AttributesImpl attributesWithExcludedPrefixes(Attributes atts) {
-        AttributesImpl a = new AttributesImpl(atts);
-        String excludedPrefixes = a.getValue("exclude-result-prefixes");
-        if (!"#all".equals(excludedPrefixes)) {
-            Set prefixes = new HashSet();
-            prefixes.add(JuxyParams.PREFIX);
-            prefixes.add(JuxyParams.TRACE_PARAM);
-            if (excludedPrefixes != null) {
-                String[] currentPrefixes = excludedPrefixes.split(" ");
-                for (int i=0; i<currentPrefixes.length; i++)
-                    prefixes.add(currentPrefixes[i].trim());
-            }
-
-            StringBuffer attrValue = new StringBuffer(20);
-            Iterator it = prefixes.iterator();
-            while (it.hasNext()) attrValue.append(it.next()).append(' ');
-
-            if (excludedPrefixes != null)
-                a.setValue(a.getIndex("exclude-result-prefixes"), attrValue.toString());
-            else
-                a.addAttribute(null, "exclude-result-prefixes", "exclude-result-prefixes", "CDATA", attrValue.toString());
-        }
-        return a;
-    }
-*/
-
-    private boolean isXslTextElement(String uri, String localName) {
-        return XSLTKeys.XSLT_NS.equals(uri) && localName.equals("text");
-    }
-
-    private boolean isParamElement(String localName) {
-        return localName.equals("param");
-    }
-
-    private boolean isStylesheetElement(String uri, String localName) {
-        return XSLTKeys.XSLT_NS.equals(uri) && localName.equals("stylesheet");
-    }
-
-    private boolean isTemplateElement(String uri, String localName) {
-        return XSLTKeys.XSLT_NS.equals(uri) && localName.equals("template");
-    }
-
-    public void endElement(String uri, String localName, String qName) throws SAXException {
-        try {
-            if (isTemplateElement(uri, localName))
-                flushTemplateEvents();
-
-            if (isXslTextElement(uri, localName)) {
-                withinXslText = false;
-                List result = generateTracingForRawEvents();
-                flushRawEvents();
-                super.endElement(uri, localName, qName);
-                flushQueue(result);
+            if (!isTemplateElement(uri, localName) && !withinTemplateElement) {
+                super.startElement(uri, localName, qName, atts);
                 return;
             }
 
-            generateAndFlushRawEvents();
-
-            super.endElement(uri, localName, qName);
+            withinTemplateElement = true;
+            appendSAXEvent(new StartElementEvent(uri, localName, qName, atts));
         } finally {
-            if (isTemplateElement(uri, localName))
-                withinTemplate = false;
-            level--;
-            flushQueue(nsEndEvents);
+            namespaces.clear();
         }
+    }
+
+    private void startElement0(String uri, String localName, String qName, Attributes atts) throws SAXException {
+        super.startElement(uri, localName, qName, atts);
+    }
+
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        if (!withinTemplateElement) {
+            super.endElement(uri, localName, qName);
+            return;
+        }
+
+        appendSAXEvent(new EndElementEvent(uri, localName, qName));
+
+        if (isTemplateElement(uri, localName)) {
+            withinTemplateElement = false;
+            flushEvents();
+        }
+    }
+
+    private void endElement0(String uri, String localName, String qName) throws SAXException {
+        super.endElement(uri, localName, qName);
+    }
+
+    public void startPrefixMapping(String prefix, String uri) throws SAXException {
+        namespaces.put(prefix, uri);
+        super.startPrefixMapping(prefix, uri);
+    }
+
+    public void endPrefixMapping(String prefix) throws SAXException {
+        namespaces.remove(prefix);
+        super.endPrefixMapping(prefix);
+    }
+
+    public void startPrefixMapping0(String prefix, String uri) throws SAXException {
+        super.startPrefixMapping(prefix, uri);
+    }
+
+    public void endPrefixMapping0(String prefix) throws SAXException {
+        super.endPrefixMapping(prefix);
     }
 
     public void characters(char ch[], int start, int length) throws SAXException {
-        pushCharacters(rawEvents, ch, start, length);
+        appendSAXEvent(new CharactersEvent(ch, start, length));
     }
 
-    public void skippedEntity(String name) throws SAXException {
-        super.skippedEntity(name);
+    private void characters0(char ch[], int start, int length) throws SAXException {
+        super.characters(ch, start, length);
     }
 
     public void processingInstruction(String target, String data) throws SAXException {
-        pushProcessingInstruction(rawEvents, target, data);
+        appendSAXEvent(new PiEvent(target, data));
     }
 
-    private void flushRawEvents() throws SAXException {
-        flushQueue(rawEvents);
+    public void processingInstruction0(String target, String data) throws SAXException {
+        super.processingInstruction(target, data);
     }
 
-    private void generateAndFlushRawEvents() throws SAXException {
-        if (isAugmentationAllowed()) {
-            flushQueue(generateTracingForRawEvents());
-            flushQueue(rawEvents);
-        }
-    }
+    private void flushEvents() throws SAXException {
+        if (saxEvents.size() == 0) return;
+        LinkedList allEvents = new LinkedList();
+        List postponedEvents = new ArrayList(20);
+        int i=0;
+        int level = 0;
+        boolean inXslText = false;
+        while (i<saxEvents.size()) {
+            SAXEvent event = (SAXEvent) saxEvents.get(i);
+            if (event instanceof StartElementEvent) {
+                level++;
+                StartElementEvent startEvent = (StartElementEvent)event;
 
-    private List generateTracingForRawEvents() {
-        List result = new ArrayList(5);
+                inXslText = isXslTextElement(startEvent.uri, startEvent.localName);
 
-        if (isAugmentationAllowed()) {
-            int lineNum = -1;
-            int level = -1;
-            StringBuffer text = new StringBuffer(30);
-            for (int i=0; i<rawEvents.size(); i++) {
-                Event e = (Event) rawEvents.get(i);
-                if (e instanceof PiEvent) {
-                    PiEvent pe = (PiEvent) e;
-                    result.addAll(generateTracing("<?" + pe.target + " " + pe.data + "?>", pe.getStartLineNum(), pe.getLevel()));
+                if (isTemplateElement(startEvent.uri, startEvent.localName)) {
+                    allEvents.add(startEvent);
+                    postponedEvents.addAll(generateTracingEvents(tagName(startEvent), startEvent, level));
+                    i++;
                 } else {
-                    CharactersEvent ce = (CharactersEvent) e;
-                    if (i == 0) {
-                        lineNum = ce.getStartLineNum();
-                        level = ce.getLevel();
+                    if (isParamElement(startEvent.uri, startEvent.localName)) {
+                        allEvents.add(startEvent);
+                        i++;
+                        continue;
+                    } else {
+                        allEvents.addAll(postponedEvents);
+                        postponedEvents.clear();
                     }
-                    String et = ce.toString();
-                    text.append(StringUtil.collapseSpaces(et, StringUtil.SPACE_AND_CARRIAGE_CHARS));
 
-                    if (i+1 >= rawEvents.size() || !(rawEvents.get(i+1) instanceof CharactersEvent)) {
-                        if (text.length() >= MAX_TEXT_LEN) {
-                            text.delete(MAX_TEXT_LEN - 1, text.length());
-                            text.append(" ...");
-                        }
+                    if (isAugmented(startEvent.uri, startEvent.localName) && !isAugmentedAfterStart(startEvent.uri, startEvent.localName))
+                        allEvents.addAll(generateTracingEvents(tagName(startEvent), startEvent, level));
 
-                        String trimmedText = text.toString().trim();
-                        if (trimmedText.length() > 0)
-                            result.addAll(generateTracing(trimmedText, lineNum, level));
+                    allEvents.add(startEvent);
+
+                    if (isAugmented(startEvent.uri, startEvent.localName) && isAugmentedAfterStart(startEvent.uri, startEvent.localName))
+                        allEvents.addAll(generateTracingEvents(tagName(startEvent), startEvent, level));
+
+                    i++;
+                }
+            }
+
+            if (event instanceof EndElementEvent) {
+                EndElementEvent endEvent = (EndElementEvent) event;
+                if (isXslTextElement(endEvent.uri, endEvent.localName)) {
+                    inXslText = false;
+                    allEvents.add(event);
+                }
+
+                if (!isParamElement(endEvent.uri, endEvent.localName) && !inXslText) {
+                    allEvents.addAll(postponedEvents);
+                    postponedEvents.clear();
+                }
+
+                if (!isXslTextElement(endEvent.uri, endEvent.localName))
+                    allEvents.add(event);
+
+                level--;
+                i++;
+            }
+
+            if (event instanceof CharactersEvent) {
+                List generatedEvents = generateCharactersTracingEvents(i, level);
+                if (generatedEvents.size() > 0) {
+                    if (inXslText) {
+                        postponedEvents.addAll(generatedEvents);
+                    } else {
+                        allEvents.addAll(postponedEvents);
+                        postponedEvents.clear();
+                        allEvents.addAll(generatedEvents);
                     }
                 }
+
+                allEvents.add(event);
+                i++;
+                for (; i < saxEvents.size(); i++) {
+                    SAXEvent ev = (SAXEvent) saxEvents.get(i);
+                    if (!(ev instanceof CharactersEvent))
+                        break;
+
+                    allEvents.add(ev);
+                }
+            }
+
+            if (event instanceof PiEvent) {
+                postponedEvents.addAll(generateTracingEvents((PiEvent) event, level));
+                allEvents.add(event);
+
+                i++;
+            }
+        }
+
+        Iterator it = allEvents.iterator();
+        while (it.hasNext()) {
+            SAXEvent event = (SAXEvent) it.next();
+            event.generate();
+        }
+
+        saxEvents.clear();
+    }
+
+    private List generateCharactersTracingEvents(int startIdx, int level) {
+        List result = new ArrayList(5);
+
+        StringBuffer text = new StringBuffer(30);
+        int line = -1;
+        for (int i=startIdx; i<saxEvents.size(); i++) {
+            SAXEvent e = (SAXEvent) saxEvents.get(i);
+            if (!(e instanceof CharactersEvent))
+                break;
+
+            CharactersEvent ce = (CharactersEvent) e;
+            if (line == -1)
+                line = ce.line;
+
+            String et = ce.getString();
+            text.append(StringUtil.collapseSpaces(et, StringUtil.SPACE_AND_CARRIAGE_CHARS));
+
+            if (i+1 >= saxEvents.size() || !(saxEvents.get(i+1) instanceof CharactersEvent)) {
+                if (text.length() >= MAX_TEXT_LEN) {
+                    text.delete(MAX_TEXT_LEN - 1, text.length());
+                    text.append(" ...");
+                }
+
+                String trimmedText = text.toString().trim();
+                if (trimmedText.length() > 0)
+                    result.addAll(generateTracingEvents(trimmedText, line, ce.systemId, level));
             }
         }
 
         return result;
     }
 
-    private List generateTracing(String text) {
-        return generateTracing(text, locator.getLineNumber(), level);
+    private List generateTracingEvents(PiEvent event, int level) {
+        return generateTracingEvents("<?" + event.target + (event.data.length() > 0 ? " " + event.data : "") + "?>", event, level);
     }
 
-    private List generateTracing(String text, int lineNum, int level) {
-        List events = new ArrayList(2);
+    private List generateTracingEvents(String tracingText, SAXEvent event, int level) {
+        return generateTracingEvents(tracingText, event.line, event.systemId, level);
+    }
+
+    private List generateTracingEvents(String tracingText, int line, String systemId, int level) {
+        List events = new ArrayList(6);
         AttributesImpl a = new AttributesImpl();
         a.addAttribute("", "select", "select", "CDATA",
                 "tracer:trace($" + JuxyParams.PREFIX + ":" + JuxyParams.TRACE_PARAM + ", " +
-                            lineNum + ", " +
+                            line + ", " +
                             level + ", '" +
-                            escapeSingleQuot(locator.getSystemId()) + "', '" +
-                            escapeSingleQuot(text) + "')");
+                            escapeSingleQuot(systemId) + "', '" +
+                            escapeSingleQuot(tracingText) + "')");
 
-        pushStartPrefixMapping(events, JuxyParams.PREFIX, JuxyParams.NS);
-        pushStartPrefixMapping(events, JuxyParams.TRACE_PARAM, "java:" + Tracer.class.getName());
-        pushStartElement(events, XSLTKeys.XSLT_NS, "value-of", "xsl:value-of", a);
-        pushEndElement(events, XSLTKeys.XSLT_NS, "value-of", "xsl:value-of");
-        pushEndPrefixMapping(events, JuxyParams.PREFIX);
-        pushEndPrefixMapping(events, JuxyParams.TRACE_PARAM);
+        events.add(new StartPrefixMappingEvent(JuxyParams.PREFIX, JuxyParams.NS));
+        events.add(new StartPrefixMappingEvent(JuxyParams.TRACE_PARAM, "java:" + Tracer.class.getName()));
+        events.add(new StartElementEvent(XSLTKeys.XSLT_NS, "value-of", "xsl:value-of", a));
+        events.add(new EndElementEvent(XSLTKeys.XSLT_NS, "value-of", "xsl:value-of"));
+        events.add(new EndPrefixMappingEvent(JuxyParams.PREFIX));
+        events.add(new EndPrefixMappingEvent(JuxyParams.TRACE_PARAM));
         return events;
     }
 
-    private String tagToString(String qName, Attributes atts) {
+    private String tagName(StartElementEvent startEvent) {
         StringBuffer msg = new StringBuffer(10);
-        msg.append("<").append(qName);
-        Iterator it = nsStartEvents.iterator();
-        while (it.hasNext())
-            msg.append(" ").append(it.next());
+        msg.append("<").append(startEvent.qName);
+        Iterator it = startEvent.elemNamespaces.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry e = (Map.Entry) it.next();
+            msg.append(" xmlns:").append(e.getKey()).append("=\"").append(escapeSingleQuot((String) e.getValue())).append("\"");
+        }
 
-        for (int i=0; i < atts.getLength(); i++) {
-            msg.append(" ").append(atts.getQName(i));
-            msg.append("=\"").append(atts.getValue(i)).append("\"");
+        for (int i=0; i < startEvent.atts.getLength(); i++) {
+            msg.append(" ").append(startEvent.atts.getQName(i));
+            msg.append("=\"").append(startEvent.atts.getValue(i)).append("\"");
         }
         msg.append(">");
         return msg.toString();
@@ -333,16 +289,28 @@ public class TracingFilter extends XMLFilterImpl {
         return StringUtil.replaceCharByEntityRef(str, '\'');
     }
 
-    private boolean isAugmentationAllowed() {
-        return withinTemplate && !withinXslText;
+    private void appendSAXEvent(SAXEvent event) {
+        saxEvents.add(event);
     }
 
-    private boolean isAugmented(String localName) {
-        return isAugmentationAllowed() && !NOT_AUGMENTED_STATEMENTS.contains(localName);
+    private boolean isTemplateElement(String uri, String localName) {
+        return XSLTKeys.XSLT_NS.equals(uri) && localName.equals("template");
     }
 
-    private boolean isAugmentedAfterStart(String localName) {
-        return AUGMENTED_AFTER_START.contains(localName);
+    private boolean isXslTextElement(String uri, String localName) {
+        return XSLTKeys.XSLT_NS.equals(uri) && localName.equals("text");
+    }
+
+    private boolean isParamElement(String uri, String localName) {
+        return XSLTKeys.XSLT_NS.equals(uri) && localName.equals("param");
+    }
+
+    private boolean isAugmented(String uri, String localName) {
+        return !(XSLTKeys.XSLT_NS.equals(uri) && NOT_AUGMENTED_STATEMENTS.contains(localName));
+    }
+
+    private boolean isAugmentedAfterStart(String uri, String localName) {
+        return XSLTKeys.XSLT_NS.equals(uri) && AUGMENTED_AFTER_START.contains(localName);
     }
 
     private static final Set AUGMENTED_AFTER_START = new HashSet();
@@ -364,61 +332,96 @@ public class TracingFilter extends XMLFilterImpl {
         NOT_AUGMENTED_STATEMENTS.add("sort");
     }
 
-    interface Event {
-        void generate() throws SAXException;
+    abstract class SAXEvent {
+        public int line;
+        public int column;
+        public String systemId;
+
+        public SAXEvent() {
+            this.line = locator.getLineNumber();
+            this.column = locator.getColumnNumber();
+            this.systemId = locator.getSystemId();
+        }
+
+        public abstract void generate() throws SAXException;
     }
 
-    class StartElementEvent implements Event {
-        private String uri;
-        private String localName;
-        private String qName;
-        private Attributes atts;
+    abstract class ElementEvent extends SAXEvent {
+        public String uri;
+        public String localName;
+        public String qName;
+
+        public ElementEvent(String uri, String localName, String qName) {
+            this.uri = uri;
+            this.localName = localName;
+            this.qName = qName;
+        }
+    }
+
+    class StartElementEvent extends ElementEvent {
+        public Attributes atts;
+        public Map elemNamespaces = new HashMap();
 
         public StartElementEvent(String uri, String localName, String qName, Attributes atts) {
-            this.uri = uri;
-            this.localName = localName;
-            this.qName = qName;
-            this.atts = atts;
+            super(uri, localName, qName);
+            this.atts = new AttributesImpl(atts);
+            this.elemNamespaces.putAll(namespaces);
         }
 
         public void generate() throws SAXException {
-            superStartElement(uri, localName, qName, atts);
+            startElement0(uri, localName, qName, atts);
         }
     }
 
-    class EndElementEvent implements Event {
-        private String uri;
-        private String localName;
-        private String qName;
-
+    class EndElementEvent extends ElementEvent {
         public EndElementEvent(String uri, String localName, String qName) {
-            this.uri = uri;
-            this.localName = localName;
-            this.qName = qName;
+            super(uri, localName, qName);
         }
 
         public void generate() throws SAXException {
-            superEndElement(uri, localName, qName);
+            endElement0(uri, localName, qName);
         }
     }
 
-    class CharactersEvent implements Event {
-        private char[] chars;
-        private int start;
-        private int length;
-        private int startLine;
-        private int currentLevel;
+    class StartPrefixMappingEvent extends SAXEvent {
+        public String prefix;
+        public String uri;
+
+        public StartPrefixMappingEvent(String prefix, String uri) {
+            this.prefix = prefix;
+            this.uri = uri;
+        }
+
+        public void generate() throws SAXException {
+            startPrefixMapping0(prefix, uri);
+        }
+    }
+
+    class EndPrefixMappingEvent extends SAXEvent {
+        public String prefix;
+
+        public EndPrefixMappingEvent(String prefix) {
+            this.prefix = prefix;
+        }
+
+        public void generate() throws SAXException {
+            endPrefixMapping0(prefix);
+        }
+    }
+
+    class CharactersEvent extends SAXEvent {
+        public char[] chars;
+        public int start;
+        public int length;
 
         public CharactersEvent(char ch[], int start, int length) {
             this.chars = new char[length];
             System.arraycopy(ch, start, chars, 0, length);
             this.start = 0;
             this.length = length;
-            this.startLine = locator.getLineNumber();
-            this.currentLevel = level;
         }
 
-        public String toString() {
+        public String getString() {
             StringBuffer buf = new StringBuffer(20);
             for (int i=start; i<start + length; i++) {
                 buf.append(chars[i]);
@@ -427,96 +430,22 @@ public class TracingFilter extends XMLFilterImpl {
             return buf.toString();
         }
 
-        public int getStartLineNum() {
-            return startLine;
-        }
-
-        public int getLevel() {
-            return currentLevel;
-        }
-
         public void generate() throws SAXException {
-            superCharacters(chars, start, length);
+            characters0(chars, start, length);
         }
     }
 
-    class PiEvent implements Event {
-        private String target;
-        private String data;
-        private int startLine;
-        private int currentLevel;
+    class PiEvent extends SAXEvent {
+        public String target;
+        public String data;
 
         public PiEvent(String target, String data) {
             this.target = target;
             this.data = data;
-            this.startLine = locator.getLineNumber();
-            this.currentLevel = level;
-        }
-
-        public int getStartLineNum() {
-            return startLine;
-        }
-
-        public int getLevel() {
-            return currentLevel;
         }
 
         public void generate() throws SAXException {
-            superProcessingInstruction(target, data);
-        }
-    }
-
-    class StartPrefixMappingEvent implements Event {
-        private String prefix;
-        private String uri;
-        private int startLine;
-        private int currentLevel;
-
-        public StartPrefixMappingEvent(String prefix, String uri) {
-            this.prefix = prefix;
-            this.uri = uri;
-            this.startLine = locator.getLineNumber();
-            this.currentLevel = level;
-        }
-
-        public int getStartLineNum() {
-            return startLine;
-        }
-
-        public int getLevel() {
-            return currentLevel;
-        }
-
-        public void generate() throws SAXException {
-            superStartPrefixMapping(prefix, uri);
-        }
-
-        public String toString() {
-            return "xmlns:" + prefix + "=\"" + escapeSingleQuot(uri) + "\"";
-        }
-    }
-
-    class EndPrefixMappingEvent implements Event {
-        private String prefix;
-        private int startLine;
-        private int currentLevel;
-
-        public EndPrefixMappingEvent(String prefix) {
-            this.prefix = prefix;
-            this.startLine = locator.getLineNumber();
-            this.currentLevel = level;
-        }
-
-        public int getStartLineNum() {
-            return startLine;
-        }
-
-        public int getLevel() {
-            return currentLevel;
-        }
-
-        public void generate() throws SAXException {
-            superEndPrefixMapping(prefix);
+            processingInstruction0(target, data);
         }
     }
 }

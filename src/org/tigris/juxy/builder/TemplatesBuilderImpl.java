@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.11 2005-09-05 17:37:37 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.12 2005-09-07 08:16:03 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -227,11 +227,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
     private void updateCurrentTemplates(Document stylesheet) {
         assert resolver != null;
-        try {
-            DOMUtil.printDOM(stylesheet, System.out);
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
+
         try
         {
             transformerFactory.setURIResolver(tracingEnabled ? new TracingURIResolver(resolver) : resolver);

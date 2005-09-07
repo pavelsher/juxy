@@ -13,7 +13,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 
 /**
- * $Id: TracingURIResolver.java,v 1.1 2005-08-17 17:54:52 pavelsher Exp $
+ * $Id: TracingURIResolver.java,v 1.2 2005-09-07 08:16:03 pavelsher Exp $
  * <p/>
  * This URI resolver will return SAXSource with tracing filter set up into it.
  * @author Pavel Sher
