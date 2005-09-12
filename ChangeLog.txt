@@ -1,3 +1,6 @@
+12-Sep-2005:
+    - Juxy has been tested and is known to work with the latest releases of Xalan (2.7.0), Xerces (2.7.0) and Saxon (8.5.1).
+
 11-Sep-2005:
     - A special node now returned as a result of a transformation instead of DocumentFragment node.
       This node identifies itself like org.w3c.dom.Document, but is able to hold more than one text and element nodes.
