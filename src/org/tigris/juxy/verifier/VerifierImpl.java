@@ -21,7 +21,7 @@ public class VerifierImpl implements Verifier {
     private List urisToVerify = new ArrayList(20);
     private ErrorReporter er;
     private URIResolver resolver = new FileURIResolver();
-    private int numberOfErrors = 0;
+    private int numberOfFilesWithErrors = 0;
     private int numberOfVerifiedFiles = 0;
     private String transformerFactoryClassName;
 
@@ -51,62 +51,56 @@ public class VerifierImpl implements Verifier {
     }
 
     public boolean verify(boolean failOnError) {
-        try {
-            info("Searching for stylesheets to verify ...");
-            Map stylesheets = new HashMap();
-            IncludeInstructionsHandler iih = new IncludeInstructionsHandler();
-            XMLReader reader = SAXUtil.newXMLReader();
-            reader.setContentHandler(iih);
+        info("Searching for stylesheets to verify ...");
+        Map stylesheets = new HashMap();
+        IncludeInstructionsHandler iih = new IncludeInstructionsHandler();
+        XMLReader reader = SAXUtil.newXMLReader();
+        reader.setContentHandler(iih);
 
-            Iterator it = urisToVerify.iterator();
-            while (it.hasNext()) {
-                URI fileURI = (URI) it.next();
-                boolean parsed = false;
-                Source src = new StreamSource(fileURI.toString());
-                registerStylesheet(fileURI, src, stylesheets);
-                iih.reset();
-                ErrorsCollector ec = new ErrorsCollector();
-                try {
-                    reader.setErrorHandler(ec);
-                    reader.parse(fileURI.toString());
-                    parsed = true;
-                } catch (IOException e) {
-                    numberOfErrors++;
-                    reportErrorAndProbablyFail("Failed to parse " + fileURI + " due to error: " + e.getMessage(), failOnError);
-                } catch (ParseStoppedException e) {
-                    // parsing stopped by handler
-                    parsed = true;
-                } catch (SAXException e) {
-                    numberOfErrors++;
-                    if (failOnError)
-                        return false;
-                } finally {
-                    if (ec.hasErrors()) {
-                        numberOfErrors++;
-                        reportError("Failed to parse file " + fileURI);
-                        reportParserErrors(ec.getParseErrors());
-                        reportParserWarnings(ec.getParseWarnings());
-                    } else if (ec.hasWarnings()) {
-                        reportWarning("There were warnings while parsing file " + fileURI);
-                        reportParserWarnings(ec.getParseWarnings());
-                    }
-                }
-
-                if (!parsed) {
-                    it.remove();
-                } else {
-                    processIncludes(fileURI, stylesheets, iih.getHrefs());
+        Iterator it = urisToVerify.iterator();
+        while (it.hasNext()) {
+            URI fileURI = (URI) it.next();
+            boolean parsed = false;
+            Source src = new StreamSource(fileURI.toString());
+            registerStylesheet(fileURI, src, stylesheets);
+            iih.reset();
+            ErrorsCollector ec = new ErrorsCollector();
+            try {
+                reader.setErrorHandler(ec);
+                reader.parse(fileURI.toString());
+                parsed = true;
+            } catch (IOException e) {
+                reportError("Failed to parse " + fileURI + " due to error: " + e.getMessage());
+            } catch (ParseStoppedException e) {
+                // parsing stopped by handler
+                parsed = true;
+            } catch (SAXException e) {
+            } finally {
+                if (ec.hasErrors()) {
+                    reportError("Failed to parse file " + fileURI);
+                    reportParserErrors(ec.getParseErrors());
+                    reportParserWarnings(ec.getParseWarnings());
+                } else if (ec.hasWarnings()) {
+                    reportWarning("There were warnings while parsing file " + fileURI);
+                    reportParserWarnings(ec.getParseWarnings());
                 }
             }
 
-            List topStylesheets = getTopStylesheets(stylesheets);
-            info(topStylesheets.size() + " stylesheet(s) were selected for verification");
-            verifyStylesheets(topStylesheets, failOnError);
-        } catch (VerificationFailedException e) {
-            return false;
+            if (!parsed || ec.hasErrors()) {
+                it.remove();
+                numberOfFilesWithErrors++;
+                if (failOnError)
+                    return false;
+            } else {
+                processIncludes(fileURI, stylesheets, iih.getHrefs());
+            }
         }
 
-        return numberOfErrors == 0;
+        List topStylesheets = getTopStylesheets(stylesheets);
+        info(topStylesheets.size() + " stylesheet(s) were selected for verification");
+        verifyStylesheets(topStylesheets, failOnError);
+
+        return numberOfFilesWithErrors == 0;
     }
 
     private void reportParserWarnings(SAXParseException[] warnings) {
@@ -131,7 +125,11 @@ public class VerifierImpl implements Verifier {
         return numberOfVerifiedFiles;
     }
 
-    private void verifyStylesheets(List topStylesheets, boolean failFast) {
+    public int getNumberOfFilesWithErrors() {
+        return numberOfFilesWithErrors;
+    }
+
+    private void verifyStylesheets(List topStylesheets, boolean failOnError) {
         TransformerFactory trFactory = getTransformerFactory();
         info("Obtained TransformerFactory: " + trFactory.getClass().getName());
 
@@ -142,17 +140,15 @@ public class VerifierImpl implements Verifier {
         while (it.hasNext()) {
             Source src = (Source) it.next();
             info(calculateRelativePath(src.getSystemId()) + " ... ");
+            boolean verified = false;
             ErrorsCollector errorListener = new ErrorsCollector();
             try {
                 trFactory.setErrorListener(errorListener);
                 trFactory.newTransformer(src);
-                if (errorListener.hasErrors())
-                    throw new VerificationFailedException();
-
-                numberOfVerifiedFiles++;
+                if (!errorListener.hasErrors())
+                    verified = true;
             } catch (TransformerConfigurationException e) {
-                if (failFast)
-                    throw new VerificationFailedException();
+                // do nothing here
             } finally {
                 if (errorListener.hasErrors()) {
                     reportTransformerErrors(errorListener.getTransformErrors());
@@ -161,6 +157,14 @@ public class VerifierImpl implements Verifier {
                     reportTransformerWarnings(errorListener.getTransformWarnings());
                 }
             }
+
+            if (!verified && failOnError) {
+                numberOfFilesWithErrors++;
+                throw new VerificationFailedException();
+            }
+
+            if (verified)
+                numberOfVerifiedFiles++;
         }
     }
 
@@ -272,16 +276,10 @@ public class VerifierImpl implements Verifier {
         sinfo.referencesCounter++;
     }
 
-    private void reportErrorAndProbablyFail(String message, boolean fail) {
-        reportError(message);
-        if (fail)
-            throw new VerificationFailedException();
-    }
-
     private void reportError(String message) {
         assert er != null;
         er.error(message);
-        numberOfErrors++;
+        numberOfFilesWithErrors++;
     }
 
     private void reportWarning(String message) {

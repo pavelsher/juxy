@@ -44,4 +44,10 @@ public interface Verifier {
      * @return number of successfully verified files
      */
     int getNumberOfVerifiedFiles();
+
+    /**
+     * Returns number of files with errors, i.e. files which were not successfully verified
+     * @return number of files with errors
+     */
+    int getNumberOfFilesWithErrors();
 }

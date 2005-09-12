@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * $Id: VerifierTask.java,v 1.5 2005-09-07 08:51:35 pavelsher Exp $
+ * $Id: VerifierTask.java,v 1.6 2005-09-12 09:04:48 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -36,6 +36,11 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
 
         if (!verifier.verify(failOnError) && failOnError)
             throw new BuildException("Verification failed");
+
+        int errorsNum = verifier.getNumberOfFilesWithErrors();
+        int verifiedFilesNum = verifier.getNumberOfVerifiedFiles();
+        if (errorsNum > 0)
+            info(errorsNum + " of " + verifiedFilesNum + " stylesheet(s) were not verified due to errors");
     }
 
     private URIResolver createCatalogResolver() {
