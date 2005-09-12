@@ -2,10 +2,10 @@ package org.tigris.juxy.xpath;
 
 import org.w3c.dom.Node;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
- * $Id: XPathExpr.java,v 1.6 2005-08-10 08:57:18 pavelsher Exp $
+ * $Id: XPathExpr.java,v 1.7 2005-09-12 07:43:48 pavelsher Exp $
  * <p/>
  * Simple XPath expressions evaluator. You can evaluate XPath expression to string, int, double, boolean, nodeset or node.
  *
@@ -59,7 +59,7 @@ public interface XPathExpr {
      * @return a collection of nodes
      * @throws XPathExpressionException thrown if error occurs during XPath evaluation
      */
-    Collection toNodeSet(Node node) throws XPathExpressionException;
+    List toNodeList(Node node) throws XPathExpressionException;
 
     /**
      * Evaluates expression and returns node as its result.
@@ -71,7 +71,7 @@ public interface XPathExpr {
 
     /**
      * Returns this XPath expression as a String
-     * @return
+     * @return expression
      */
     String getExpression();
 }

@@ -115,7 +115,7 @@ public class UTestRunnerImpl extends JuxyTestCase
         Node result = runner.callTemplate(ctx, "getGlobalParamValue");
         assertNotNull(result);
 
-        assertEquals("", xpath("/root").toString(result));
+        assertEquals("", xpath("root").toString(result));
 
         ctx.setGlobalParamValue("aparam", "avalue");
         result = runner.callTemplate(ctx, "getGlobalParamValue");

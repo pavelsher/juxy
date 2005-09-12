@@ -5,10 +5,10 @@ import org.jaxen.dom.DOMXPath;
 import org.tigris.juxy.util.ArgumentAssert;
 import org.w3c.dom.Node;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
- * $Id: JaxenXPathExpr.java,v 1.1 2005-08-10 08:57:18 pavelsher Exp $
+ * $Id: JaxenXPathExpr.java,v 1.2 2005-09-12 07:43:48 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -16,7 +16,7 @@ public class JaxenXPathExpr implements XPathExpr {
     private String expression;
     private DOMXPath xpath;
 
-    protected JaxenXPathExpr(final String expression)
+    public JaxenXPathExpr(final String expression)
     {
         assert expression != null;
         this.expression = expression;
@@ -104,7 +104,7 @@ public class JaxenXPathExpr implements XPathExpr {
         }
     }
 
-    public Collection toNodeSet(Node node) throws XPathExpressionException
+    public List toNodeList(Node node) throws XPathExpressionException
     {
         ArgumentAssert.notNull(node, "Node must not be null");
         try

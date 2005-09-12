@@ -54,11 +54,11 @@ public class UTestJaxenXPathExpr extends TestCase
         assertEquals(3.5, new JaxenXPathExpr("1 + 2.5").toDouble(DOMUtil.parse("<source/>")), 0.001);
     }
 
-    public void testToNodeSet() throws XPathExpressionException, SAXException
+    public void testToNodeList() throws XPathExpressionException, SAXException
     {
-        assertEquals(0, new JaxenXPathExpr("root").toNodeSet(DOMUtil.parse("<source/>")).size() );
-        assertEquals(1, new JaxenXPathExpr("source").toNodeSet(DOMUtil.parse("<source/>")).size() );
-        assertEquals(2, new JaxenXPathExpr("//source").toNodeSet(DOMUtil.parse("<root><source/><source/></root>")).size() );
+        assertEquals(0, new JaxenXPathExpr("root").toNodeList(DOMUtil.parse("<source/>")).size() );
+        assertEquals(1, new JaxenXPathExpr("source").toNodeList(DOMUtil.parse("<source/>")).size() );
+        assertEquals(2, new JaxenXPathExpr("//source").toNodeList(DOMUtil.parse("<root><source/><source/></root>")).size() );
     }
 
     public void testToNode() throws XPathExpressionException, SAXException

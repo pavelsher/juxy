@@ -9,7 +9,7 @@ import org.xml.sax.SAXException;
 import java.util.*;
 
 /**
- * $Id: XMLComparator.java,v 1.7 2005-08-24 08:28:30 pavelsher Exp $
+ * $Id: XMLComparator.java,v 1.8 2005-09-12 07:43:47 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -28,12 +28,14 @@ public class XMLComparator {
         TreeWalker expTw = ((DocumentTraversal)expectedDoc).createTreeWalker(expectedDoc, NodeFilter.SHOW_ALL, new ComparatorNodeFilter(), true);
         Document actualDoc = actual.getNodeType() == Node.DOCUMENT_NODE ? (Document)actual : actual.getOwnerDocument();
         TreeWalker actualTw = ((DocumentTraversal)actualDoc).createTreeWalker(actualDoc, NodeFilter.SHOW_ALL,  new ComparatorNodeFilter(), true);
-        expTw.setCurrentNode(expectedDoc);
-        actualTw.setCurrentNode(actual);
-        skipNodes(expTw);
-        skipNodes(actualTw);
-        Node enode = expTw.getCurrentNode();
-        Node anode = actualTw.getCurrentNode();
+        Node enode = skipDocumentIfNeeded(expectedDoc);
+        Node anode = skipDocumentIfNeeded(actual);
+        if (enode == null && anode == null) return;
+        if (enode == null || anode == null)
+            throw new DocumentsAssertionError(expTw, actualTw);
+
+        expTw.setCurrentNode(enode);
+        actualTw.setCurrentNode(anode);
 
         while(true) {
             if (enode == null && (anode == null || anode == actual.getNextSibling())) return;
@@ -76,12 +78,16 @@ public class XMLComparator {
         }
     }
 
-    private static void skipNodes(TreeWalker tw) {
-        Node currentNode = tw.getCurrentNode();
-        switch (currentNode.getNodeType()) {
-            case Node.DOCUMENT_NODE:
-            case Node.DOCUMENT_FRAGMENT_NODE:
-                tw.firstChild();
+    private static Node skipDocumentIfNeeded(Node startFrom) {
+        while (true) {
+            switch(startFrom.getNodeType()) {
+                case Node.DOCUMENT_NODE:
+                case Node.DOCUMENT_FRAGMENT_NODE:
+                    startFrom = startFrom.getFirstChild();
+                    break;
+                default:
+                    return startFrom;
+            }
         }
     }
 
@@ -111,7 +117,7 @@ public class XMLComparator {
 
     /**
      * Removes all xmlns attributes
-     * @return
+     * @return Map
      */
     private static Map filterAttributes(NamedNodeMap attrs) {
         Map filtered = new HashMap();

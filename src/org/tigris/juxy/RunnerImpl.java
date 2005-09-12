@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.9 2005-08-24 08:28:30 pavelsher Exp $
+ * $Id: RunnerImpl.java,v 1.10 2005-09-12 07:43:48 pavelsher Exp $
  * <p/>
  * This runner uses only standard features. It does not use any xslt engine - specific extensions.
  *
@@ -161,17 +161,16 @@ class RunnerImpl implements Runner
         }
 
         Document document = DOMUtil.newDocument();
-        DocumentFragment parentNode = document.createDocumentFragment();
-        document.appendChild(parentNode);
-        DOMResult result = new DOMResult(parentNode);
+        DocumentFragment fragment = document.createDocumentFragment();
+        DOMResult result = new DOMResult(fragment);
         transformer.transform(sourceDoc, result);
-        parentNode.normalize();
+        fragment.normalize();
 
         if (traceLogger != null)
             traceLogger.stopTracing();
 
-        DOMUtil.logDocument("Transformation result:", parentNode);
+        DOMUtil.logDocument("Transformation result:", fragment);
 
-        return parentNode;
+        return (Document) ResultDocumentProxy.newInstance(document, fragment);
     }
 }

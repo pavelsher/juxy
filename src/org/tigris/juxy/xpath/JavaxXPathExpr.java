@@ -10,7 +10,7 @@ import javax.xml.namespace.QName;
 import java.util.*;
 
 /**
- * $Id: JavaxXPathExpr.java,v 1.1 2005-08-24 08:28:30 pavelsher Exp $
+ * $Id: JavaxXPathExpr.java,v 1.2 2005-09-12 07:43:48 pavelsher Exp $
  *
  * @author Pavel Sher
 1 */
@@ -19,7 +19,7 @@ public class JavaxXPathExpr implements XPathExpr {
     private String expression;
     private Map namespaces;
 
-    protected JavaxXPathExpr(String expression) throws XPathFactoryConfigurationException {
+    public JavaxXPathExpr(String expression) throws XPathFactoryConfigurationException {
         assert expression != null;
 
         this.xpath = javax.xml.xpath.XPathFactory.newInstance(javax.xml.xpath.XPathConstants.DOM_OBJECT_MODEL).newXPath();
@@ -61,7 +61,7 @@ public class JavaxXPathExpr implements XPathExpr {
         return result.doubleValue();
     }
 
-    public Collection toNodeSet(Node node) throws XPathExpressionException {
+    public List toNodeList(Node node) throws XPathExpressionException {
         checkNode(node);
         NodeList nodes = (NodeList) evaluateXPath(node, XPathConstants.NODESET);
         List nodeList = new ArrayList(nodes.getLength());

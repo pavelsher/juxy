@@ -5,7 +5,7 @@ import org.tigris.juxy.XSLTKeys;
 import org.tigris.juxy.util.DOMUtil;
 
 /**
- * $Id: UTestJavaxXPathExpr.java,v 1.1 2005-08-24 08:28:31 pavelsher Exp $
+ * $Id: UTestJavaxXPathExpr.java,v 1.2 2005-09-12 07:43:48 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -57,11 +57,11 @@ public class UTestJavaxXPathExpr extends TestCase {
         assertEquals(3.5, new JavaxXPathExpr("1 + 2.5").toDouble(DOMUtil.parse("<source/>")), 0.001);
     }
 
-    public void testToNodeSet() throws Exception
+    public void testToNodeList() throws Exception
     {
-        assertEquals(0, new JavaxXPathExpr("root").toNodeSet(DOMUtil.parse("<source/>")).size() );
-        assertEquals(1, new JavaxXPathExpr("source").toNodeSet(DOMUtil.parse("<source/>")).size() );
-        assertEquals(2, new JavaxXPathExpr("//source").toNodeSet(DOMUtil.parse("<root><source/><source/></root>")).size() );
+        assertEquals(0, new JavaxXPathExpr("root").toNodeList(DOMUtil.parse("<source/>")).size() );
+        assertEquals(1, new JavaxXPathExpr("source").toNodeList(DOMUtil.parse("<source/>")).size() );
+        assertEquals(2, new JavaxXPathExpr("//source").toNodeList(DOMUtil.parse("<root><source/><source/></root>")).size() );
     }
 
     public void testToNode() throws Exception

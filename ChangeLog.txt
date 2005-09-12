@@ -1,3 +1,8 @@
+11-Sep-2005:
+    - A special node now returned as a result of a transformation instead of DocumentFragment node.
+      This node identifies itself like org.w3c.dom.Document, but is able to hold more than one text and element nodes.
+    - Changed method signature Set XPathExpr.toNodeSet() -> List XPathExpr.toNodeList()
+
 6-Sep-2005:
     - XSLT execution tracing added
     - Verifier task added
