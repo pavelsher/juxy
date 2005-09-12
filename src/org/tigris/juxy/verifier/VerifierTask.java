@@ -2,11 +2,11 @@ package org.tigris.juxy.verifier;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.xml.resolver.CatalogManager;
 import org.apache.xml.resolver.tools.CatalogResolver;
+import org.tigris.juxy.Version;
 
 import javax.xml.transform.URIResolver;
 import java.io.File;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * $Id: VerifierTask.java,v 1.6 2005-09-12 09:04:48 pavelsher Exp $
+ * $Id: VerifierTask.java,v 1.7 2005-09-12 17:52:24 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -25,6 +25,7 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
     private Factory factory;
 
     public void execute() throws BuildException {
+        info("XSLT Verifier version " + Version.VERSION + " by Pavel Sher");
         List files = findFiles();
         Verifier verifier = new VerifierImpl();
         verifier.setFiles(files);
@@ -38,9 +39,8 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
             throw new BuildException("Verification failed");
 
         int errorsNum = verifier.getNumberOfFilesWithErrors();
-        int verifiedFilesNum = verifier.getNumberOfVerifiedFiles();
         if (errorsNum > 0)
-            info(errorsNum + " of " + verifiedFilesNum + " stylesheet(s) were not verified due to errors");
+            info(errorsNum + " stylesheet(s) were not verified due to errors");
     }
 
     private URIResolver createCatalogResolver() {
@@ -104,14 +104,14 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
     }
 
     public void info(String message) {
-        log(message, Project.MSG_INFO);
+        log(message);
     }
 
     public void error(String message) {
-        log("ERROR: " + message, Project.MSG_ERR);
+        log("ERROR: " + message);
     }
 
     public void warning(String message) {
-        log("WARNING: " + message, Project.MSG_WARN);
+        log("WARNING: " + message);
     }
 }

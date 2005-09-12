@@ -162,11 +162,14 @@
     </target>
 
     <target name="build" description="Creates Juxy build">
+        <property file="${basedir}/build.properties"/>
+        <replace file="${src.dir}/org/tigris/juxy/Version.java" token="@@version" value="${version}"/>
+
+<!--
         <antcall target="clean"/>
         <antcall target="test-all"/>
         <antcall target="verify-samples"/>
-
-        <property file="${basedir}/build.properties"/>
+-->
 
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${build.dir}/lib"/>
