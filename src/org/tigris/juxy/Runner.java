@@ -7,7 +7,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
 /**
- * $Id: Runner.java,v 1.7 2005-08-17 17:54:52 pavelsher Exp $
+ * $Id: Runner.java,v 1.8 2005-09-12 07:45:10 pavelsher Exp $
  * <p/>
  * Interface represents Runner. Runner instance can be obtained from the RunnerFactory.
  * <br>
@@ -94,6 +94,14 @@ public interface Runner
      */
     Node applyTemplates(RunnerContext ctx, XPathExpr xpath, String mode) throws TransformerException;
 
+    /**
+     * Enables tracing of the XSLT stylesheet execution (disabled by default).
+     * Tracing information is dumped on stdout.
+     */
     void enableTracing();
+
+    /**
+     * Disables tracing of the XSLT stylesheet execution
+     */
     void disableTracing();
 }
