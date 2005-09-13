@@ -1,6 +1,5 @@
 package org.tigris.juxy.util;
 
-import junit.framework.AssertionFailedError;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -9,11 +8,11 @@ import org.w3c.dom.traversal.TreeWalker;
 import java.util.Arrays;
 
 /**
- * $Id: DocumentsAssertionError.java,v 1.6 2005-09-12 07:43:47 pavelsher Exp $
+ * $Id: DocumentsAssertionError.java,v 1.7 2005-09-13 08:32:02 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
-public class DocumentsAssertionError extends AssertionFailedError {
+public class DocumentsAssertionError extends Error {
     private TreeWalker etw;
     private TreeWalker atw;
     private String message;

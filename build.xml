@@ -163,13 +163,12 @@
 
     <target name="build" description="Creates Juxy build">
         <property file="${basedir}/build.properties"/>
+        <copy file="${src.dir}/org/tigris/juxy/Version.tpl" tofile="${src.dir}/org/tigris/juxy/Version.java"/>
         <replace file="${src.dir}/org/tigris/juxy/Version.java" token="@@version" value="${version}"/>
 
-<!--
         <antcall target="clean"/>
         <antcall target="test-all"/>
         <antcall target="verify-samples"/>
--->
 
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${build.dir}/lib"/>
@@ -245,9 +244,9 @@
 
         <taskdef name="javancss" classname="javancss.JavancssAntTask">
             <classpath>
-                 <pathelement location="${tools.dir}/javancss/javancss.jar"/>
-                 <pathelement location="${tools.dir}/javancss/ccl.jar"/>
-                 <pathelement location="${tools.dir}/javancss/jhbasic.jar"/>
+                 <pathelement location="${tools.dir}/javancss.jar"/>
+                 <pathelement location="${tools.dir}/ccl.jar"/>
+                 <pathelement location="${tools.dir}/jhbasic.jar"/>
             </classpath>
         </taskdef>
 

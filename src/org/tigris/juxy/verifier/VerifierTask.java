@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * $Id: VerifierTask.java,v 1.7 2005-09-12 17:52:24 pavelsher Exp $
+ * $Id: VerifierTask.java,v 1.8 2005-09-13 08:32:03 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -25,7 +25,7 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
     private Factory factory;
 
     public void execute() throws BuildException {
-        info("XSLT Verifier version " + Version.VERSION + " by Pavel Sher");
+        info("XSLT Verifier version " + Version.VERSION + " by Pavel Sher (pavelsher@tigris.org)");
         List files = findFiles();
         Verifier verifier = new VerifierImpl();
         verifier.setFiles(files);
@@ -38,9 +38,9 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
         if (!verifier.verify(failOnError) && failOnError)
             throw new BuildException("Verification failed");
 
-        int errorsNum = verifier.getNumberOfFilesWithErrors();
-        if (errorsNum > 0)
-            info(errorsNum + " stylesheet(s) were not verified due to errors");
+        int notVerifiedNum = verifier.getNumberOfNotVerifierFiles();
+        if (notVerifiedNum > 0)
+            info(notVerifiedNum + " stylesheet(s) were not verified due to errors");
     }
 
     private URIResolver createCatalogResolver() {

@@ -21,8 +21,9 @@ public class VerifierImpl implements Verifier {
     private List urisToVerify = new ArrayList(20);
     private ErrorReporter er;
     private URIResolver resolver = new FileURIResolver();
-    private int numberOfFilesWithErrors = 0;
     private int numberOfVerifiedFiles = 0;
+    private int numberOfNotVerifiedFiles = 0;
+    private boolean wereParseErrors = false;
     private String transformerFactoryClassName;
 
     public void setErrorReporter(ErrorReporter er) {
@@ -88,7 +89,7 @@ public class VerifierImpl implements Verifier {
 
             if (!parsed || ec.hasErrors()) {
                 it.remove();
-                numberOfFilesWithErrors++;
+                wereParseErrors = true;
                 if (failOnError)
                     return false;
             } else {
@@ -100,7 +101,7 @@ public class VerifierImpl implements Verifier {
         info(topStylesheets.size() + " stylesheet(s) were selected for verification");
         verifyStylesheets(topStylesheets, failOnError);
 
-        return numberOfFilesWithErrors == 0;
+        return numberOfNotVerifiedFiles == 0 && !wereParseErrors;
     }
 
     private void reportParserWarnings(SAXParseException[] warnings) {
@@ -125,11 +126,13 @@ public class VerifierImpl implements Verifier {
         return numberOfVerifiedFiles;
     }
 
-    public int getNumberOfFilesWithErrors() {
-        return numberOfFilesWithErrors;
+    public int getNumberOfNotVerifierFiles() {
+        return numberOfNotVerifiedFiles;
     }
 
     private void verifyStylesheets(List topStylesheets, boolean failOnError) {
+        Collections.sort(topStylesheets, new SourceComparator());
+
         TransformerFactory trFactory = getTransformerFactory();
         info("Obtained TransformerFactory: " + trFactory.getClass().getName());
 
@@ -139,7 +142,7 @@ public class VerifierImpl implements Verifier {
         Iterator it = topStylesheets.iterator();
         while (it.hasNext()) {
             Source src = (Source) it.next();
-            info(calculateRelativePath(src.getSystemId()) + " ... ");
+            info(calculateRelativePath(src.getSystemId()) + " ...");
             boolean verified = false;
             ErrorsCollector errorListener = new ErrorsCollector();
             try {
@@ -158,13 +161,13 @@ public class VerifierImpl implements Verifier {
                 }
             }
 
-            if (!verified && failOnError) {
-                numberOfFilesWithErrors++;
-                throw new VerificationFailedException();
-            }
-
-            if (verified)
+            if (!verified) {
+                numberOfNotVerifiedFiles++;
+                if (failOnError)
+                    throw new VerificationFailedException();
+            } else {
                 numberOfVerifiedFiles++;
+            }
         }
     }
 
@@ -279,7 +282,6 @@ public class VerifierImpl implements Verifier {
     private void reportError(String message) {
         assert er != null;
         er.error(message);
-        numberOfFilesWithErrors++;
     }
 
     private void reportWarning(String message) {
@@ -290,6 +292,14 @@ public class VerifierImpl implements Verifier {
     private void info(String message) {
         assert er != null;
         er.info(message);
+    }
+
+    class SourceComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            Source s1 = (Source) o1;
+            Source s2 = (Source) o2;
+            return s1.getSystemId().compareTo(s2.getSystemId());
+        }
     }
 
     class StylesheetInfo {

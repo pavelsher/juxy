@@ -10,6 +10,7 @@
         <fileset dir="${lib.dir}" >
             <include name="*.jar"/>
         </fileset>
+        <pathelement path="${basedir}/juxy.jar"/>
     </path>
 
     <path id="run.classpath">

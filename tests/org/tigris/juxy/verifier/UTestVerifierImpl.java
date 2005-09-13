@@ -58,6 +58,7 @@ public class UTestVerifierImpl extends TestCase {
         assertFalse(verifier.verify(false));
         assertEquals(0, verifier.getNumberOfVerifiedFiles());
         assertTrue(reporter.errors()[0].endsWith("an exception"));
+        assertEquals(1, verifier.getNumberOfNotVerifierFiles());
     }
 
     public void testNotExistentFileIgnored() {
@@ -115,6 +116,16 @@ public class UTestVerifierImpl extends TestCase {
         verifier.setTransformerFactory(className);
         assertTrue(verifier.verify(false));
         assertTrue(containsMessage(reporter.infos(), "Obtained TransformerFactory: " + className));
+    }
+
+    public void testStylesheetsSorted() {
+        verifier.setFiles(files(new String[] {"3.xsl", "1.xsl", "2.xsl"}));
+        assertTrue(verifier.verify(false));
+
+        String[] infos = reporter.infos();
+        assertEquals("tests/xml/verifier/3.xsl ...", infos[infos.length - 1]);
+        assertEquals("tests/xml/verifier/2.xsl ...", infos[infos.length - 2]);
+        assertEquals("tests/xml/verifier/1.xsl ...", infos[infos.length - 3]);
     }
 
     private boolean containsMessage(String[] messages, String message) {
