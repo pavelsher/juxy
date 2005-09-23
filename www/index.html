@@ -5,7 +5,14 @@
 @import "http://www.tigris.org/branding/css/tigris.css";
 @import "http://www.tigris.org/branding/css/inst.css";
 /*  ]]> */
-
+ </style>
+  <link rel="stylesheet" type="text/css" href="http://www.tigris.org/branding/css/print.css" media="print" />
+<script src="http://www.tigris.org/branding/scripts/tigris.js" type="text/javascript">
+</script>
+ <title>Juxy - XSLT unit testing from Java</title>
+</head>
+<body>
+    <style type="text/css">
     .toc {
         padding: 5 5 5 5;
     }
@@ -23,12 +30,12 @@
         padding: 3 3 3 3;
     }
 
-    h1 {
+    .h1 {
         font-size: 16pt;
         color: #000000;
     }
 
-    h2 {
+    .h2 {
         font-size: 12pt;
         color: #000000;
     }
@@ -118,13 +125,7 @@
     a:hover {
         text-decoration: none;
     }
- </style>
-  <link rel="stylesheet" type="text/css" href="http://www.tigris.org/branding/css/print.css" media="print" />
-<script src="http://www.tigris.org/branding/scripts/tigris.js" type="text/javascript">
-</script>
- <title>Juxy - XSLT unit testing from Java</title>
-</head>
-<body>
+    </style>
 
     <script language="Javascript">
         function generateToc() {
@@ -166,7 +167,7 @@
 
 <div id="toc" class="toc"></div>
 
-<a name="c10"></a><h1>Juxy Overview</h1>
+<a name="c10"></a><div class="h1">Juxy Overview</div>
 
 <p>
     Juxy is a Java library for unit testing XSLT stylesheets from Java. It is best suited for the projects where
@@ -191,7 +192,7 @@
     <li>Ant task for batch verification of XSLT stylesheets.</li>
 </ul>
 
-<a name="c20"></a><h1>Examples</h1>
+<a name="c20"></a><div class="h1">Examples</div>
 
 <p>
     You can use Juxy alone, in conjunction with JUnit, or with any other testing framework that you like.
@@ -287,7 +288,7 @@
     More samples are available in the Juxy <a href="http://juxy.tigris.org/source/browse/juxy/samples/">samples</a> directory.
 </p>
 
-<a name="c30"></a><h2>How does it work?</h2>
+<a name="c30"></a><div class="h2">How does it work?</div>
 
 <p>
     Juxy works by dynamically creating XSLT stylesheet. From that stylesheet the tested stylesheet is imported via
@@ -312,9 +313,9 @@
     templates are also supported.
 </p>
 
-<a name="c40"></a><h1>Other features</h1>
+<a name="c40"></a><div class="h1">Other features</div>
 
-<a name="c50"></a><h2>Other ways to start transformation</h2>
+<a name="c50"></a><div class="h2">Other ways to start transformation</div>
 
 <p>
     In the examples above we invoked the transformation by calling method <span class="code">Runner.applyTemplates()</span>.
@@ -330,7 +331,7 @@
 </p>
 
 
-<a name="c60"></a><h2>Assertions</h2>
+<a name="c60"></a><div class="h2">Assertions</div>
 
 <p>
     With XPath you can apply different assertions on the transformation result. However, in most cases it
@@ -354,7 +355,7 @@ Actual document:
     to collapse spaces and remove trailing spaces. They are useful if spaces between words are insignificant for you.
 </p>
 
-<a name="c70"></a><h2>Tracing</h2>
+<a name="c70"></a><div class="h2">Tracing</div>
 
 <p>
     In some situations it is hard to understand why transformation does not work as you expected.
@@ -378,7 +379,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
     Global variables, parameters, keys and imports / inclusions are not traced at all.
 </p>
 
-<a name="c80"></a><h2>XSLT Verification</h2>
+<a name="c80"></a><div class="h2">XSLT Verification</div>
 
 <p>
     Starting from version 0.7 Juxy package contains Ant task which allows to verify syntax of a number of
@@ -466,7 +467,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 </tr>
 </table>
 
-<a name="c90"></a><h2>Logging</h2>
+<a name="c90"></a><div class="h2">Logging</div>
 
 <p>
     Juxy produces some log messages which might be helpful for discovering problems.
@@ -474,7 +475,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
     must be in the classpath.
 </p>
 
-<a name="c100"></a><h1>Requirements</h1>
+<a name="c100"></a><div class="h1">Requirements</div>
 
 <p>
     Juxy requires Java 1.4 and will not work with earlier versions. A number of required libraries depends on a version of Java you are using.
@@ -530,7 +531,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
     juxy.jar is not required for Ant task.
 </p>
 
-<a name="c110"></a><h1>Download package</h1>
+<a name="c110"></a><div class="h1">Download package</div>
 <p>
     Juxy is distributed under the terms of the Apache License 2.0.
 </p>
@@ -552,7 +553,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 </p>
 
 
-<a name="c120"></a><h1>Whom to contact?</h1>
+<a name="c120"></a><div class="h1">Whom to contact?</div>
 
 <p>
     My name is Pavel Sher, and I am the author of this project and its sole developer.
@@ -564,7 +565,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
     If you found a bug, you can report it into the <a href="http://juxy.tigris.org/servlets/ProjectMailingListList">issues</a> mailing list or to me directly.
 </p>
 
-<a name="c130"></a><h1>Related projects</h1>
+<a name="c130"></a><div class="h1">Related projects</div>
 <p>
     Here are the projects I do know about:
 </p>
