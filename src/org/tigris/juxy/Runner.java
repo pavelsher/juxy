@@ -7,7 +7,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
 /**
- * $Id: Runner.java,v 1.8 2005-09-12 07:45:10 pavelsher Exp $
+ * $Id: Runner.java,v 1.9 2005-09-23 09:37:01 pavelsher Exp $
  * <p/>
  * Interface represents Runner. Runner instance can be obtained from the RunnerFactory.
  * <br>
@@ -49,7 +49,7 @@ public interface Runner
      * </pre>
      * @param ctx the context in which called template should work
      * @param name the name of called template
-     * @return result Node of type DOCUMENT_FRAGMENT, containing the results of the transformation
+     * @return result Node, containing the results of the transformation
      */
     Node callTemplate(RunnerContext ctx, String name) throws TransformerException;
 
@@ -61,7 +61,7 @@ public interface Runner
      * &lt;/xsl:apply-templates>
      * </pre>
      * @param ctx the context in which applied template should work
-     * @return result Node of type {@link org.w3c.dom.DocumentFragment}, containing the results of the transformation
+     * @return result Node, containing the results of the transformation
      */
     Node applyTemplates(RunnerContext ctx) throws TransformerException;
 
@@ -75,7 +75,7 @@ public interface Runner
      * </pre>
      * @param ctx the context in which applied template should work
      * @param xpath the XPath expression to use as the select attribute value
-     * @return result Node of type {@link org.w3c.dom.DocumentFragment}, containing the results of the transformation
+     * @return result Node, containing the results of the transformation
      */
     Node applyTemplates(RunnerContext ctx, XPathExpr xpath) throws TransformerException;
 
@@ -90,7 +90,7 @@ public interface Runner
      * @param ctx the context in which applied template should work
      * @param xpath the XPath expression to use as the select attribute value
      * @param mode the value of mode attribute
-     * @return result Node of type {@link org.w3c.dom.DocumentFragment}, containing the results of the transformation
+     * @return result Node, containing the results of the transformation
      */
     Node applyTemplates(RunnerContext ctx, XPathExpr xpath, String mode) throws TransformerException;
 

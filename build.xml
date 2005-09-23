@@ -173,8 +173,11 @@
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${build.dir}/lib"/>
 
+        <mkdir dir="${build.dir}/doc"/>
+        <copy file="${basedir}/www/index.html" todir="${build.dir}/doc" />
+
         <antcall target="doc">
-            <param name="doc.dir" location="${build.dir}/doc"/>
+            <param name="doc.dir" location="${build.dir}/doc/javadoc"/>
         </antcall>
 
         <copy file="${basedir}/samples-build.xml" tofile="${build.dir}/build.xml" />
@@ -199,16 +202,15 @@
             </manifest>
         </jar>
 
-        <jar destfile="${build.dir}/juxy_verifier.jar">
+        <jar destfile="${build.dir}/juxy_ant.jar">
             <manifest>
                 <attribute name="Version" value="${version}"/>
             </manifest>
 
             <fileset dir="${classes.dir}" includes="org/**/verifier/**"/>
             <fileset dir="${classes.dir}" includes="org/tigris/juxy/util/SAXUtil.class, org/tigris/juxy/util/FileURIResolver.class"/>
-            <fileset dir="${classes.dir}" includes="org/**/util/SAXUtil.class"/>
             <fileset dir="${classes.dir}" includes="org/tigris/juxy/XSLTKeys.class, org/tigris/juxy/JuxyRuntimeException.class"/>
-            <fileset dir="${basedir}" includes="verifier_ant.properties"/>
+            <fileset dir="${basedir}" includes="juxy_ant.properties"/>
         </jar>
 
         <zip file="juxy-${version}.zip">
@@ -230,7 +232,7 @@
         <javadoc sourcefiles="${api-files}"
                     destdir="${doc.dir}"
                     packagenames="org.tigris.juxy.*"
-                    windowtitle="Juxy - Java Unit testing library for XSLT"
+                    windowtitle="Juxy - XSLT unit testing from Java"
                     package="true" >
             <classpath refid="compile.classpath" />
         </javadoc>
