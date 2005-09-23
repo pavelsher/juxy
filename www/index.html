@@ -1,173 +1,157 @@
 <html>
 <head>
- <style type="text/css">
-/* <![CDATA[ */
-@import "http://www.tigris.org/branding/css/tigris.css";
-@import "http://www.tigris.org/branding/css/inst.css";
-/*  ]]> */
- </style>
-  <link rel="stylesheet" type="text/css" href="http://www.tigris.org/branding/css/print.css" media="print" />
-<script src="http://www.tigris.org/branding/scripts/tigris.js" type="text/javascript">
-</script>
  <title>Juxy - XSLT unit testing from Java</title>
+
 </head>
 <body>
-    <style type="text/css">
-    .toc {
-        padding: 5 5 5 5;
-    }
 
-    .toc_level1 {
-        font-size: 10pt;
-        font-family: Arial, sans-serif;
-        padding: 3 3 3 3;
-    }
+<style type="text/css">
+.toc {
+    padding: 5 5 5 5;
+}
 
-    .toc_level2 {
-        font-size: 10pt;
-        font-family: Arial, sans-serif;
-        text-indent: 30px;
-        padding: 3 3 3 3;
-    }
+.toc_level1 {
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+    padding: 3 3 3 3;
+}
 
-    .h1 {
-        font-size: 16pt;
-        color: #000000;
-    }
+.toc_level2 {
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+    text-indent: 30px;
+    padding: 3 3 3 3;
+}
 
-    .h2 {
-        font-size: 12pt;
-        color: #000000;
-    }
+body {
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    margin: 10 20 10 20;
+    color: #202020;
+}
 
-    body {
-        font-family: Arial, sans-serif;
-        font-size: 10pt;
-        margin: 10 20 10 20;
-        color: #202020;
-    }
+.code_block {
+    padding: 5 5 5 5;
+    font-family: monospace;
+    border: 1px solid #8fbc8f;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 80%;
+    background-color: #f5f5dc;
+}
 
-    .code_block {
-        padding: 5 5 5 5;
-        font-family: monospace;
-        border: 1px solid #8fbc8f;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        width: 80%;
-        background-color: #f5f5dc;
-    }
+.code {
+    font-family: monospace;
+    color: #000000;
+}
 
-    .code {
-        font-family: monospace;
-        color: #000000;
-    }
+.code_comment {
+    color: #606060;
+    font-style: italic;
+}
 
-    .code_comment {
-        color: #606060;
-        font-style: italic;
-    }
+.code_constants {
+    color: #228b22;
+}
 
-    .code_constants {
-        color: #228b22;
-    }
+.output_block {
+    padding: 5 5 5 5;
+    font-family: monospace;
+    border: 1px solid #8fbc8f;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 70%;
+    background-color: #f5f5dc;
+}
 
-    .output_block {
-        padding: 5 5 5 5;
-        font-family: monospace;
-        border: 1px solid #8fbc8f;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        width: 70%;
-        background-color: #f5f5dc;
-    }
+.output {
+    font-family: monospace;
+}
 
-    .output {
-        font-family: monospace;
-    }
+.note {
+    font-size: 9pt;
+    width: 80%;
+    border: 1px solid #e9967a;
+    padding: 5 5 5 5;
+    background-color: #ffebcd;
+}
 
-    .note {
-        font-size: 9pt;
-        width: 80%;
-        border: 1px solid #e9967a;
-        padding: 5 5 5 5;
-        background-color: #ffebcd;
-    }
+.ant_attributes {
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+    width: 80%;
+    border: 1px #a1b68d solid;
+}
 
-    .ant_attributes {
-        font-size: 10pt;
-        font-family: Arial, sans-serif;
-        width: 80%;
-        border: 1px #a1b68d solid;
-    }
+th {
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    text-align: left;
+    border: 1px #a1b68d solid;
+    padding: 4 4 4 4;
+    background-color: #c1e6ad;
+}
 
-    th {
-        font-size: 10pt;
-        font-family: Arial, sans-serif;
-        font-weight: bold;
-        text-align: left;
-        border: 1px #a1b68d solid;
-        padding: 4 4 4 4;
-        background-color: #c1e6ad;
-    }
+td {
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+    text-align: left;
+    border: 1px #a1b68d solid;
+    padding: 4 4 4 4;
+}
 
-    td {
-        font-size: 10pt;
-        font-family: Arial, sans-serif;
-        text-align: left;
-        border: 1px #a1b68d solid;
-        padding: 4 4 4 4;
-    }
+a {
+    color: #556b2f;
+}
 
-    a {
-        color: #556b2f;
-    }
+a:hover {
+    text-decoration: none;
+}
+</style>
 
-    a:hover {
-        text-decoration: none;
-    }
-    </style>
+<script language="Javascript">
+    function generateToc() {
+        var tocDiv = document.getElementById("toc");
+        var body = document.body;
+        var num = 0;
+        var subNum = 0;
+        for (i=0; i<body.childNodes.length; i++) {
+            var child = body.childNodes[i];
+            var level = -1;
+            if (child.tagName == 'H2')
+                level = 1;
+            else if (child.tagName == 'H3')
+                level = 2;
 
-    <script language="Javascript">
-        function generateToc() {
-            var tocDiv = document.getElementById("toc");
-            var body = document.body;
-            var num = 0;
-            var subNum = 0;
-            for (i=0; i<body.childNodes.length; i++) {
-                var child = body.childNodes[i];
-                var level = -1;
-                if (child.tagName == 'H1')
-                    level = 1;
-                else if (child.tagName == 'H2')
-                    level = 2;
-
-                if (level > 0) {
-                    if (level == 1) {
-                        num++;
-                        subNum = 0;
-                    }
-                    if (level > 1)
-                        subNum++;
-                    var anchor = body.childNodes[i-1];
-                    if (anchor) {
-                        var div = document.createElement("div");
-                        div.className = "toc_level" + level;
-                        tocDiv.appendChild(div);
-                        var a = document.createElement("a");
-                        a.href = '#' + anchor.name;
-                        var headerText = num + (subNum > 0 ? '.' + subNum : '') + '. ' + child.innerHTML
-                        a.innerHTML = headerText;
-                        child.innerHTML = headerText;
-                        div.appendChild(a);
-                    }
+            if (level > 0) {
+                if (level == 1) {
+                    num++;
+                    subNum = 0;
+                }
+                if (level > 1)
+                    subNum++;
+                var anchor = body.childNodes[i-1];
+                if (anchor) {
+                    var div = document.createElement("div");
+                    div.className = "toc_level" + level;
+                    tocDiv.appendChild(div);
+                    var a = document.createElement("a");
+                    a.href = '#' + anchor.name;
+                    var headerText = num + (subNum > 0 ? '.' + subNum : '') + '. ' + child.innerHTML
+                    a.innerHTML = headerText;
+                    child.innerHTML = headerText;
+                    div.appendChild(a);
                 }
             }
         }
-    </script>
+    }
+</script>
+
 
 <div id="toc" class="toc"></div>
 
-<a name="c10"></a><div class="h1">Juxy Overview</div>
+<a name="c10"></a><h2>Juxy Overview</h2>
 
 <p>
     Juxy is a Java library for unit testing XSLT stylesheets from Java. It is best suited for the projects where
@@ -192,7 +176,7 @@
     <li>Ant task for batch verification of XSLT stylesheets.</li>
 </ul>
 
-<a name="c20"></a><div class="h1">Examples</div>
+<a name="c20"></a><h2>Examples</h2>
 
 <p>
     You can use Juxy alone, in conjunction with JUnit, or with any other testing framework that you like.
@@ -288,7 +272,7 @@
     More samples are available in the Juxy <a href="http://juxy.tigris.org/source/browse/juxy/samples/">samples</a> directory.
 </p>
 
-<a name="c30"></a><div class="h2">How does it work?</div>
+<a name="c30"></a><h3>How does it work?</h3>
 
 <p>
     Juxy works by dynamically creating XSLT stylesheet. From that stylesheet the tested stylesheet is imported via
@@ -313,9 +297,9 @@
     templates are also supported.
 </p>
 
-<a name="c40"></a><div class="h1">Other features</div>
+<a name="c40"></a><h2>Other features</h2>
 
-<a name="c50"></a><div class="h2">Other ways to start transformation</div>
+<a name="c50"></a><h3>Other ways to start transformation</h3>
 
 <p>
     In the examples above we invoked the transformation by calling method <span class="code">Runner.applyTemplates()</span>.
@@ -331,7 +315,7 @@
 </p>
 
 
-<a name="c60"></a><div class="h2">Assertions</div>
+<a name="c60"></a><h3>Assertions</h3>
 
 <p>
     With XPath you can apply different assertions on the transformation result. However, in most cases it
@@ -355,7 +339,7 @@ Actual document:
     to collapse spaces and remove trailing spaces. They are useful if spaces between words are insignificant for you.
 </p>
 
-<a name="c70"></a><div class="h2">Tracing</div>
+<a name="c70"></a><h3>Tracing</h3>
 
 <p>
     In some situations it is hard to understand why transformation does not work as you expected.
@@ -379,7 +363,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
     Global variables, parameters, keys and imports / inclusions are not traced at all.
 </p>
 
-<a name="c80"></a><div class="h2">XSLT Verification</div>
+<a name="c80"></a><h3>XSLT Verification</h3>
 
 <p>
     Starting from version 0.7 Juxy package contains Ant task which allows to verify syntax of a number of
@@ -467,7 +451,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 </tr>
 </table>
 
-<a name="c90"></a><div class="h2">Logging</div>
+<a name="c90"></a><h3>Logging</h3>
 
 <p>
     Juxy produces some log messages which might be helpful for discovering problems.
@@ -475,7 +459,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
     must be in the classpath.
 </p>
 
-<a name="c100"></a><div class="h1">Requirements</div>
+<a name="c100"></a><h2>Requirements</h2>
 
 <p>
     Juxy requires Java 1.4 and will not work with earlier versions. A number of required libraries depends on a version of Java you are using.
@@ -531,7 +515,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
     juxy.jar is not required for Ant task.
 </p>
 
-<a name="c110"></a><div class="h1">Download package</div>
+<a name="c110"></a><h2>Download package</h2>
 <p>
     Juxy is distributed under the terms of the Apache License 2.0.
 </p>
@@ -553,7 +537,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 </p>
 
 
-<a name="c120"></a><div class="h1">Whom to contact?</div>
+<a name="c120"></a><h2>Whom to contact?</h2>
 
 <p>
     My name is Pavel Sher, and I am the author of this project and its sole developer.
@@ -565,7 +549,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
     If you found a bug, you can report it into the <a href="http://juxy.tigris.org/servlets/ProjectMailingListList">issues</a> mailing list or to me directly.
 </p>
 
-<a name="c130"></a><div class="h1">Related projects</div>
+<a name="c130"></a><h2>Related projects</h2>
 <p>
     Here are the projects I do know about:
 </p>
