@@ -227,14 +227,14 @@ a:hover {
     <span class="code">String resultText = xpath.toString(result);</span>
 </pre>
 
-<div class="note">
+<p class="note">
     Note: DOM Document in our case actually contains not well formed XML document,
     which consists of one text node only. Usually it is impossible to create such a document,
     however Juxy applies a simple workaround for that: internally Juxy holds transformation results
     in a DocumentFragment node, but from the <span class="code">Runner</span>
     you will receive a proxy object, which will behave like a Document node containing all the
     child nodes of the DocumentFragment node.
-</div>
+</p>
 
 <p>
     With JUnit it is possible to write more compact tests. For that you should extend your test cases from
