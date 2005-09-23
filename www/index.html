@@ -22,13 +22,13 @@
     text-indent: 30px;
     padding: 3 3 3 3;
 }
-
+/*
 body {
     font-family: Arial, sans-serif;
     font-size: 10pt;
     margin: 10 20 10 20;
     color: #202020;
-}
+} */
 
 .code_block {
     padding: 5 5 5 5;
@@ -83,7 +83,7 @@ body {
     border: 1px #a1b68d solid;
 }
 
-th {
+.th {
     font-size: 10pt;
     font-family: Arial, sans-serif;
     font-weight: bold;
@@ -93,7 +93,7 @@ th {
     background-color: #c1e6ad;
 }
 
-td {
+.td {
     font-size: 10pt;
     font-family: Arial, sans-serif;
     text-align: left;
@@ -101,13 +101,13 @@ td {
     padding: 4 4 4 4;
 }
 
-a {
+/*a {
     color: #556b2f;
 }
 
 a:hover {
     text-decoration: none;
-}
+} */
 </style>
 
 <script language="Javascript">
@@ -399,29 +399,29 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 <p>Task can have the following attributes:</p>
 <table class="ant_attributes" cellpadding="0" cellspacing="0">
 <tr>
-    <th>Attribute</th>
-    <th>Description</th>
-    <th>Required</th>
+    <th class="th">Attribute</th>
+    <th class="th">Description</th>
+    <th class="th">Required</th>
 </tr>
 <tr>
-    <td>dir</td>
-    <td>Directory where to search for xsl files</td>
-    <td>No, if nested <span class="code">&lt;fileset></span> specified.</td>
+    <td class="td">dir</td>
+    <td class="td">Directory where to search for xsl files</td>
+    <td class="td">No, if nested <span class="code">&lt;fileset></span> specified.</td>
 </tr>
 <tr>
-    <td>includes</td>
-    <td>Comma- or space-separated list of files (may be specified using wildcard patterns) that must be included.</td>
-    <td>No</td>
+    <td class="td">includes</td>
+    <td class="td">Comma- or space-separated list of files (may be specified using wildcard patterns) that must be included.</td>
+    <td class="td">No</td>
 </tr>
 <tr>
-    <td>excludes</td>
-    <td>Comma- or space-separated list of files (may be specified using wildcard patterns) that must be excluded.</td>
-    <td>No</td>
+    <td class="td">excludes</td>
+    <td class="td">Comma- or space-separated list of files (may be specified using wildcard patterns) that must be excluded.</td>
+    <td class="td">No</td>
 </tr>
 <tr>
-    <td>failonerror</td>
-    <td>Whether to fail on first error or not. True by default.</td>
-    <td>No</td>
+    <td class="td">failonerror</td>
+    <td class="td">Whether to fail on first error or not. True by default.</td>
+    <td class="td">No</td>
 </tr>
 </table>
 
@@ -438,14 +438,14 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 
 <table class="ant_attributes" cellpadding="0" cellspacing="0">
 <tr>
-    <th>Attribute</th>
-    <th>Description</th>
-    <th>Required</th>
+    <th class="th">Attribute</th>
+    <th class="th">Description</th>
+    <th class="th">Required</th>
 </tr>
 <tr>
-    <td>catalogfiles</td>
-    <td>Comma separated paths to the catalog files.</td>
-    <td>Yes</td>
+    <td class="td">catalogfiles</td>
+    <td class="td">Comma separated paths to the catalog files.</td>
+    <td class="td">Yes</td>
 </tr>
 </table>
 
