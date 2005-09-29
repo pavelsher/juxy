@@ -2,6 +2,7 @@ package org.tigris.juxy.verifier;
 
 import org.tigris.juxy.util.FileURIResolver;
 import org.tigris.juxy.util.SAXUtil;
+import org.tigris.juxy.util.ExceptionUtil;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -106,20 +107,12 @@ public class VerifierImpl implements Verifier {
 
     private void reportParserWarnings(SAXParseException[] warnings) {
         for (int i=0; i<warnings.length; i++)
-            reportWarning(exceptionToString(warnings[i]));
+            reportWarning(ExceptionUtil.exceptionToString(warnings[i], false));
     }
 
     private void reportParserErrors(SAXParseException[] errors) {
         for (int i=0; i<errors.length; i++)
-            reportError(exceptionToString(errors[i]));
-    }
-
-    private String exceptionToString(SAXParseException exception) {
-        StringBuffer message = new StringBuffer(20);
-        message.append("line#: ").append(exception.getLineNumber())
-                .append(", col#: ").append(exception.getColumnNumber())
-                .append(": ").append(exception.getMessage());
-        return message.toString();
+            reportError(ExceptionUtil.exceptionToString(errors[i], false));
     }
 
     public int getNumberOfVerifiedFiles() {
@@ -202,25 +195,12 @@ public class VerifierImpl implements Verifier {
 
     private void reportTransformerWarnings(TransformerException[] warnings) {
         for (int i=0; i<warnings.length; i++)
-            reportWarning(exceptionToString(warnings[i]));
+            reportWarning(ExceptionUtil.exceptionToString(warnings[i], false));
     }
 
     private void reportTransformerErrors(TransformerException[] errors) {
         for (int i=0; i<errors.length; i++)
-            reportError(exceptionToString(errors[i]));
-    }
-
-    private String exceptionToString(TransformerException exception) {
-        StringBuffer message = new StringBuffer(20);
-        if (exception.getLocator() != null) {
-            SourceLocator locator = exception.getLocator();
-            message.append("line#: ").append(locator.getLineNumber())
-                    .append(", col#: ").append(locator.getColumnNumber())
-                    .append(": ");
-        }
-
-        message.append(exception.getMessage());
-        return message.toString();
+            reportError(ExceptionUtil.exceptionToString(errors[i], false));
     }
 
     private List getTopStylesheets(Map links) {
