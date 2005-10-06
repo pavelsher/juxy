@@ -113,11 +113,11 @@ a:hover {
 <script language="Javascript">
     function generateToc() {
         var tocDiv = document.getElementById("toc");
-        var body = document.body;
+        var divContent = document.getElementById("juxy_content");
         var num = 0;
         var subNum = 0;
-        for (i=0; i<body.childNodes.length; i++) {
-            var child = body.childNodes[i];
+        for (i=0; i<divContent.childNodes.length; i++) {
+            var child = divContent.childNodes[i];
             var level = -1;
             if (child.tagName == 'H2')
                 level = 1;
@@ -131,7 +131,7 @@ a:hover {
                 }
                 if (level > 1)
                     subNum++;
-                var anchor = body.childNodes[i-1];
+                var anchor = divContent.childNodes[i-1];
                 if (anchor) {
                     var div = document.createElement("div");
                     div.className = "toc_level" + level;
@@ -147,8 +147,6 @@ a:hover {
         }
     }
 </script>
-
-<div id="toc" class="toc"></div>
 
 <p>
     Juxy is a library for unit testing XSLT stylesheets from Java. It is best suited for the projects where
@@ -174,6 +172,10 @@ a:hover {
 </ul>
 
 <p>&nbsp;</p>
+
+<div id="toc" class="toc"></div>
+
+<div id="juxy_content">
 
 <a name="c20"></a><h2>Examples</h2>
 
@@ -565,6 +567,12 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 </ul>
 
 <p>&nbsp;</p>
+
+<script language="JavaScript">
+generateToc();
+</script>
+
+</div>
 
 </body>
 </html>
