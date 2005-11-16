@@ -178,9 +178,8 @@ a:hover {
     To become familiar with Juxy, in the first example, we will show how to use Juxy without JUnit.
 </p>
 <p>
-    We will assume here, that there is a stylesheet with a template taking a list of xml tags on its
-    input and transforming it to a comma separated list of strings. For example, let it be a transformation
-    of something like:
+    We will assume here, that there is a stylesheet with a template taking a list of xml tags and transforming it
+    to a comma separated list of strings. For example, let it be a transformation of something like:
 </p>
 <pre class="output_block">
     &lt;list>
@@ -301,8 +300,8 @@ a:hover {
 <p>
     In the examples above we invoked the transformation by calling method <span class="code">Runner.applyTemplates()</span>.
     But it is also possible to get the results of the transformation produced by individual templates.
-    You can apply individual templates by specifying select XPath expression and mode, or you can call
-    templates by their name. Refer to the <span class="code">Runner</span>’s Javadoc for more details.
+    You can apply individual templates by specifying XPath expression and mode, or you can call
+    templates by their name. Refer to the <span class="code">Runner</span>'s Javadoc for more details.
 </p>
 <p>
     Often template requires current node to be set up. By default, it is a root node of the input document,
@@ -342,7 +341,7 @@ Actual document:
     For that purposes Juxy provides you with an ability to trace execution of the XSLT instructions.
     You can enable or disable tracing by calling methods <span class="code">JuxyTestCase.enableTracing</span> and
     <span class="code">JuxyTestCase.disableTracing</span> correspondingly (or you can call these methods from
-    <span class="code">Runner</span> instance). The tracing output looks like:
+    the <span class="code">Runner</span> instance). The tracing output looks like:
 </p>
 <pre class="output_block">
 Started tracing of the stylesheet: file://some/path/stylesheet.xsl
