@@ -367,10 +367,10 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 </p>
 
 <p>
-    Juxy verifier task verifies only parent stylesheets, i.e. the stylesheets which are not included or imported
-    from any other stylesheets, because included stylesheets might use global variables and parameters
-    defined in the parent, thus preventing their verification. So imported and included stylesheets will be skipped
-    automatically.
+    Juxy verifier task checks only parent stylesheets, i.e. the stylesheets which are not included or imported
+    from any other stylesheets, because included stylesheets can use global variables and parameters
+    defined in the parent and cannot be compiled without parent. Juxy will automatically filter out all imported and 
+    included stylesheets from the specified file set.
 </p>
 
 <p>An example of task usage:</p>
