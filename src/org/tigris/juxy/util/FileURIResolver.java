@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 import java.io.File;
 
 /**
- * $Id: FileURIResolver.java,v 1.1 2005-09-05 17:44:08 pavelsher Exp $
+ * $Id: FileURIResolver.java,v 1.2 2006-03-14 16:24:25 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -43,7 +43,7 @@ public class FileURIResolver implements URIResolver {
             file = new File(href).getAbsoluteFile();
 
         if (file != null && file.exists())
-            return new StreamSource(file);
+            return new StreamSource(file.toURI().toString());
 
         return null;
     }

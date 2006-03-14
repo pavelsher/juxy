@@ -39,7 +39,7 @@ public class UTestVerifierImpl extends TestCase {
         verifier.setURIResolver(new URIResolver() {
             public Source resolve(String href, String base) {
                 if ("some:uri".equals(href))
-                    return new StreamSource(new File("tests/xml/verifier/imported.xsl"));
+                    return new StreamSource(new File("tests/xml/verifier/imported.xsl").toURI().toString());
 
                 return null;
             }

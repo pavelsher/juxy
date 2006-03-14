@@ -1,9 +1,9 @@
 package org.tigris.juxy.builder;
 
 import junit.framework.TestCase;
-import org.tigris.juxy.XSLTKeys;
-import org.tigris.juxy.Tracer;
 import org.tigris.juxy.TestUtil;
+import org.tigris.juxy.Tracer;
+import org.tigris.juxy.XSLTKeys;
 import org.tigris.juxy.util.SAXSerializer;
 import org.tigris.juxy.util.SAXUtil;
 import org.tigris.juxy.util.StringUtil;
@@ -17,9 +17,10 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.net.MalformedURLException;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.9 2005-09-07 08:16:03 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.10 2006-03-14 16:24:25 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -387,7 +388,7 @@ public class UTestTracingFilter extends TestCase {
         XMLComparator.assertEquals(expectedStylesheet, filteredStylesheet);
     }
 
-    private String makeValueOf(String statement, int line, int col) {
+    private String makeValueOf(String statement, int line, int col) throws MalformedURLException {
         String escapedStatement = StringUtil.escapeQuoteCharacter(
                 StringUtil.escapeXMLText(StringUtil.replaceCharByEntityRef(statement, '\'')));
         return "<xsl:value-of select=\"tracer:trace($juxy:tracer, " + line + ", " + col + ", '" + getSystemId() + "', '" + escapedStatement + "')\" " + JUXY_XMLNS + " " + TRACER_XMLNS + "/>";
@@ -409,7 +410,15 @@ public class UTestTracingFilter extends TestCase {
         filteredStylesheet = bos.toString();
     }
 
-    private String getSystemId() {
-        return new StreamSource(new File("stylesheet.xsl")).getSystemId();
+    private String getSystemId() throws MalformedURLException {
+      String absPath = new File("stylesheet.xsl").getAbsolutePath().replace('\\', '/');
+      if (!absPath.startsWith("/"))
+        return "file:///" + escapeSpaces(absPath);
+
+      return "file://" + escapeSpaces(absPath);
     }
+
+  private String escapeSpaces(String path) {
+    return path.replace(" ", "%20");
+  }
 }
