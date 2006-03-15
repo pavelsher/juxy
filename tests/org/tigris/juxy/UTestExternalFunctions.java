@@ -3,15 +3,16 @@ package org.tigris.juxy;
 import org.w3c.dom.Node;
 
 import java.util.TimeZone;
+import java.io.File;
 
 /**
- * $Id: UTestExternalFunctions.java,v 1.1 2005-08-11 08:24:37 pavelsher Exp $
+ * $Id: UTestExternalFunctions.java,v 1.2 2006-03-15 09:56:26 pavelsher Exp $
  *
  * @author Pavel Sher
  */
 public class UTestExternalFunctions extends JuxyTestCase {
     protected void setUp() throws Exception {
-        newContext("tests/xml/extfunc.xsl");
+        newContext(new File("tests/xml/extfunc.xsl").toURI().toString());
     }
 
     public void testCallNamedTemplateWithGlobalParamsAndExtObject() throws Exception
