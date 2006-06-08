@@ -9,7 +9,7 @@ import org.xml.sax.SAXException;
 import java.util.*;
 
 /**
- * $Id: XMLComparator.java,v 1.8 2005-09-12 07:43:47 pavelsher Exp $
+ * $Id: XMLComparator.java,v 1.9 2006-06-08 13:56:55 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -152,7 +152,7 @@ public class XMLComparator {
         if (estr != null && astr != null) {
             if (!estr.equals(astr))
                 throw new DocumentsAssertionError(expTw, actualTw);
-        } else if (estr != null || astr != null)
+        } else if ((estr != null && estr.length() > 0) || (astr != null && astr.length() > 0))
             throw new DocumentsAssertionError(expTw, actualTw);
     }
 

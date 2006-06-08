@@ -5,7 +5,7 @@ import org.xml.sax.SAXException;
 import org.w3c.dom.Document;
 
 /**
- * $Id: UTestXMLComparator.java,v 1.2 2005-08-24 08:28:31 pavelsher Exp $
+ * $Id: UTestXMLComparator.java,v 1.3 2006-06-08 13:56:55 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -110,13 +110,15 @@ public class UTestXMLComparator extends TestCase {
         }
     }
 
-    public void testAssertionFailed_Namespaces() throws SAXException {
+    public void testNamespacesAssertion() throws SAXException {
         try {
             XMLComparator.assertEquals("<root/>", DOMUtil.parse("<root xmlns='urn:some:ns'/>"));
             fail("An exception expected");
         } catch (DocumentsAssertionError e) {
             System.out.println(e.getMessage());
         }
+
+        XMLComparator.assertEquals("<root/>", DOMUtil.parse("<root xmlns=''/>"));
 
         try {
             XMLComparator.assertEquals("<root xmlns:ns1='urn:some:ns' ns1:attr1='val1' attr2='val2'/>", DOMUtil.parse("<root xmlns:ns1='urn:some:ns2' attr2=\"val2\" ns1:attr1=\"val1\"></root>"));
