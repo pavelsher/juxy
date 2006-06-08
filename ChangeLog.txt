@@ -1,3 +1,6 @@
+8-Jun-2006:
+   - Juxy 0.7.1 released
+
 3-Jun-2006:
    - Handling of namespaces fixed in the XMLComparator class. Thanks to Gunther Doernen.
 
@@ -24,4 +27,5 @@
     - JuxyTestCase.print(org.w3c.dom.Document)
     - JuxyTestCase.assertXMLEquals(String, String)
 
-10-Aug-2005: Juxy 0.6.7 released
+10-Aug-2005:
+    - Juxy 0.6.7 released
