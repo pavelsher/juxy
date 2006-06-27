@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * $Id: RunnerContextImpl.java,v 1.7 2005-08-10 18:42:15 pavelsher Exp $
+ * $Id: RunnerContextImpl.java,v 1.8 2006-06-27 17:15:11 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */

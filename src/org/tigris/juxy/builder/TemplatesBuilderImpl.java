@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.13 2005-09-12 07:43:47 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.14 2006-06-27 17:15:10 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -232,7 +232,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
         {
             transformerFactory.setURIResolver(tracingEnabled ? new TracingURIResolver(resolver) : resolver);
 
-            DOMSource source = new DOMSource(stylesheet.getDocumentElement());
+            DOMSource source = new DOMSource(stylesheet);
             // Setting system id to be in the current directory (we are using some file for that,
             // but it does not matter whether this file exists or not).
             // This system id is required to be able to resolve paths to

@@ -108,6 +108,13 @@
         <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
 
+    <fileset id="all.tests.for.xsltc" dir="${tests.dir}">
+        <include name="org/**/UTest*.java" />
+        <exclude name="org/**/UTest*20.java" />
+        <exclude name="org/**/UTestVerifierTask.java" />
+        <exclude name="org/**/UTestExternalFunctions.java" />
+    </fileset>
+
     <fileset id="verifier.task.tests" dir="${tests.dir}">
         <include name="org/**/UTestVerifierTask.java" />
     </fileset>
@@ -129,6 +136,14 @@
     </target>
 
     <target name="test-all" depends="compile" description="Runs all tests under the Xalan and Saxon engines" >
+        <!-- run unit tests with xalan XSLTC -->
+<!--
+        <antcall target="ut">
+            <param name="files" value="all.tests.for.xsltc"/>
+            <param name="transformerFactory" value="com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl"/>
+            <param name="classpath" value="test.classpath"/>
+        </antcall>
+-->
         <!-- run unit tests with xalan -->
         <antcall target="ut">
             <param name="files" value="all.tests.except.xslt20.and.verifier"/>
