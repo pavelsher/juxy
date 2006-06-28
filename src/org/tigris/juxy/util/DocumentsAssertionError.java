@@ -8,7 +8,7 @@ import org.w3c.dom.traversal.TreeWalker;
 import java.util.Arrays;
 
 /**
- * $Id: DocumentsAssertionError.java,v 1.7 2005-09-13 08:32:02 pavelsher Exp $
+ * $Id: DocumentsAssertionError.java,v 1.8 2006-06-28 09:16:23 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */

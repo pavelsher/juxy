@@ -1,20 +1,19 @@
 package org.tigris.juxy;
 
 import junit.framework.TestCase;
-import org.tigris.juxy.util.ArgumentAssert;
-import org.tigris.juxy.util.DOMUtil;
-import org.tigris.juxy.util.StringUtil;
-import org.tigris.juxy.util.XMLComparator;
+import junit.framework.AssertionFailedError;
+import org.tigris.juxy.util.*;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import javax.xml.transform.URIResolver;
 import java.io.ByteArrayOutputStream;
 
 /**
- * $Id: JuxyTestCase.java,v 1.9 2005-08-17 17:54:52 pavelsher Exp $
+ * $Id: JuxyTestCase.java,v 1.10 2006-06-28 09:16:23 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -103,11 +102,28 @@ public abstract class JuxyTestCase extends TestCase {
 
     /**
      * Asserts that two documents are equal. Meaningless spaces will be ignored during this assertion.
+     * @param expected XML document which is expected
+     * @param actual document root node of actual transformation result
+     */
+    public static void assertXMLEquals(Node expected, Node actual) throws Exception {
+      try {
+        XMLComparator.assertEquals(expected, actual);
+      } catch (DocumentsAssertionError error) {
+        throw new AssertionFailedError(error.getMessage());
+      }
+    }
+
+    /**
+     * Asserts that two documents are equal. Meaningless spaces will be ignored during this assertion.
      * @param expectedDocument XML document which is expected
      * @param actual document root node of actual transformation result
      */
     public static void assertXMLEquals(String expectedDocument, Node actual) throws Exception {
+      try {
         XMLComparator.assertEquals(expectedDocument, actual);
+      } catch (DocumentsAssertionError error) {
+        throw new AssertionFailedError(error.getMessage());
+      }
     }
 
     /**
@@ -117,7 +133,11 @@ public abstract class JuxyTestCase extends TestCase {
      * @throws Exception
      */
     public static void assertXMLEquals(String expectedDocument, String actualDocument) throws Exception {
+      try {
         XMLComparator.assertEquals(expectedDocument, actualDocument);
+      } catch (DocumentsAssertionError error) {
+        throw new AssertionFailedError(error.getMessage());
+      }
     }
 
     /**

@@ -9,26 +9,35 @@ import org.xml.sax.SAXException;
 import java.util.*;
 
 /**
- * $Id: XMLComparator.java,v 1.9 2006-06-08 13:56:55 pavelsher Exp $
+ * $Id: XMLComparator.java,v 1.10 2006-06-28 09:16:23 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
 public class XMLComparator {
 
     public static void assertEquals(String expected, String actual) throws DocumentsAssertionError, SAXException {
+        ArgumentAssert.notNull(expected, "Expected document must not be null");
         ArgumentAssert.notEmpty(actual, "Actual document must not be empty");
-        assertEquals(expected, DOMUtil.parse(actual));
+
+        assertEquals(DOMUtil.parse(expected), DOMUtil.parse(actual));
     }
 
     public static void assertEquals(String expected, Node actual) throws DocumentsAssertionError, SAXException {
         ArgumentAssert.notNull(expected, "Expected document must not be null");
         ArgumentAssert.notNull(actual, "Actual document must not be null");
 
-        Document expectedDoc = DOMUtil.parse(expected);
+        assertEquals(DOMUtil.parse(expected), actual);
+    }
+
+    public static void assertEquals(Node expected, Node actual) throws DocumentsAssertionError, SAXException {
+        ArgumentAssert.notNull(expected, "Expected document must not be null");
+        ArgumentAssert.notNull(actual, "Actual document must not be null");
+
+        Document expectedDoc = expected.getNodeType() == Node.DOCUMENT_NODE ? (Document)expected : expected.getOwnerDocument();
         TreeWalker expTw = ((DocumentTraversal)expectedDoc).createTreeWalker(expectedDoc, NodeFilter.SHOW_ALL, new ComparatorNodeFilter(), true);
         Document actualDoc = actual.getNodeType() == Node.DOCUMENT_NODE ? (Document)actual : actual.getOwnerDocument();
         TreeWalker actualTw = ((DocumentTraversal)actualDoc).createTreeWalker(actualDoc, NodeFilter.SHOW_ALL,  new ComparatorNodeFilter(), true);
-        Node enode = skipDocumentIfNeeded(expectedDoc);
+        Node enode = skipDocumentIfNeeded(expected);
         Node anode = skipDocumentIfNeeded(actual);
         if (enode == null && anode == null) return;
         if (enode == null || anode == null)

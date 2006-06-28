@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.14 2006-06-27 17:15:10 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.15 2006-06-28 09:16:23 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
