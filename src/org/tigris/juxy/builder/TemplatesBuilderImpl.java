@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.15 2006-06-28 09:16:23 pavelsher Exp $
+ * $Id: TemplatesBuilderImpl.java,v 1.16 2006-09-27 17:13:50 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -230,7 +230,20 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
 
         try
         {
-            transformerFactory.setURIResolver(tracingEnabled ? new TracingURIResolver(resolver) : resolver);
+            boolean buggyXSLT = transformerFactory.getClass().getName().
+                    equals("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl") &&
+                    System.getProperty("java.vm.version").startsWith("1.5.");
+
+            if (!buggyXSLT) {
+                transformerFactory.setURIResolver(tracingEnabled ? new TracingURIResolver(resolver) : resolver);
+            } else {
+                if (tracingEnabled) {
+                    logger.warn("Tracing is not supported for XSLT transformer bundled with Java 1.5.");
+                }
+                if (!(resolver instanceof FileURIResolver)) {
+                    logger.warn("Custom URI resolver is not supported for XSLT transformer bundled with Java 1.5.");
+                }
+            }
 
             DOMSource source = new DOMSource(stylesheet);
             // Setting system id to be in the current directory (we are using some file for that,

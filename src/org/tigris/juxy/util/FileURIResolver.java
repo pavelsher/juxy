@@ -1,6 +1,8 @@
 package org.tigris.juxy.util;
 
 import org.xml.sax.InputSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -14,12 +16,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 /**
- * $Id: FileURIResolver.java,v 1.3 2006-06-28 09:16:23 pavelsher Exp $
+ * $Id: FileURIResolver.java,v 1.4 2006-09-27 17:13:50 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
 public class FileURIResolver implements URIResolver {
+    private static final Log logger = LogFactory.getLog(FileURIResolver.class);
+
     public Source resolve(String href, String base) throws TransformerException {
+        logger.debug("Resolving URI: " + href + " against base URI: " + base);
         if (href == null) return null;
 
         URI hrefURI = null;
@@ -48,9 +53,12 @@ public class FileURIResolver implements URIResolver {
             file = new File(href).getAbsoluteFile();
 
         if (file != null && file.exists()) {
+            String systemId = file.toURI().toString();
+            logger.debug("Resolved URI: " + systemId);
             return new StreamSource(file.toURI().toString());
         }
 
+        logger.debug("Failed to resolve URI");
         return null;
     }
 }

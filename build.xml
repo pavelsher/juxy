@@ -108,17 +108,25 @@
         <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
 
-    <fileset id="all.tests.for.xsltc" dir="${tests.dir}">
+    <fileset id="all.tests.for.java.xsltc" dir="${tests.dir}">
         <include name="org/**/UTest*.java" />
         <exclude name="org/**/UTest*20.java" />
+        <exclude name="org/**/UTestExternalFunctions.java" />
+        <exclude name="org/**/UTestRunnerTracing.java" />
+        <exclude name="org/**/UTestTracingFilter.java" />
+        <exclude name="org/**/UTestURIResolver.java" />
+        <exclude name="org/**/UTestVerifierImpl.java" />
         <exclude name="org/**/UTestVerifierTask.java" />
+    </fileset>
+
+    <fileset id="all.tests.for.xalan.xsltc" dir="${tests.dir}">
+        <include name="org/**/UTest*.java" />
+        <exclude name="org/**/UTest*20.java" />
         <exclude name="org/**/UTestExternalFunctions.java" />
         <exclude name="org/**/UTestRunnerTracing.java" />
         <exclude name="org/**/UTestTracingFilter.java" />
         <exclude name="org/**/UTestVerifierImpl.java" />
-<!--
-        <exclude name="org/**/UTestURIResolver.java" />
--->
+        <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
 
     <fileset id="verifier.task.tests" dir="${tests.dir}">
@@ -142,18 +150,31 @@
     </target>
 
     <target name="test-all" depends="compile" description="Runs all tests under the Xalan and Saxon engines" >
+        <echo message="Running tests against Java 1.5 XSLTC ..."/>
+        <!-- run unit tests with Java 1.5 xalan XSLTC -->
+        <antcall target="ut">
+            <param name="files" value="all.tests.for.java.xsltc"/>
+            <param name="transformerFactory" value="com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl"/>
+            <param name="classpath" value="test.classpath"/>
+        </antcall>
+
+        <echo message="Running tests against Xalan XSLTC ..."/>
         <!-- run unit tests with xalan XSLTC -->
         <antcall target="ut">
-            <param name="files" value="all.tests.for.xsltc"/>
+            <param name="files" value="all.tests.for.xalan.xsltc"/>
             <param name="transformerFactory" value="org.apache.xalan.xsltc.trax.TransformerFactoryImpl"/>
             <param name="classpath" value="test.classpath"/>
         </antcall>
+
+        <echo message="Running tests against Xalan XSLT ..."/>
         <!-- run unit tests with xalan -->
         <antcall target="ut">
             <param name="files" value="all.tests.except.xslt20.and.verifier"/>
             <param name="transformerFactory" value="org.apache.xalan.processor.TransformerFactoryImpl"/>
             <param name="classpath" value="test.classpath"/>
         </antcall>
+
+        <echo message="Running tests against Saxon XSLT ..."/>
         <!-- run unit tests with saxon -->
         <antcall target="ut">
             <param name="files" value="all.tests.except.verifier"/>
