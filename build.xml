@@ -201,7 +201,7 @@
         </junit>
     </target>
 
-    <target name="build" description="Creates Juxy build">
+    <target name="build" description="Creates Juxy build" >
         <property file="${basedir}/build.properties"/>
         <copy file="${src.dir}/org/tigris/juxy/Version.tpl" tofile="${src.dir}/org/tigris/juxy/Version.java"/>
         <replace file="${src.dir}/org/tigris/juxy/Version.java" token="@@version" value="${version}"/>
