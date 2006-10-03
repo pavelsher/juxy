@@ -5,11 +5,9 @@ import org.tigris.juxy.JuxyTestCase;
 import org.w3c.dom.Node;
 
 /**
- * $Id: CustomResolverTestCase.java,v 1.1 2005-08-07 16:43:15 pavelsher Exp $
- * <p/>
- * This test case demonstrates how we can use custom URIResolver
- * in the tests. We will use CatalogResolver to resolve
- * xsl paths against XML catalog.
+ * This test case demonstrates how to use custom URIResolver
+ * in tests. We will set up CatalogResolver to resolve
+ * paths to XSLT stylesheets using XML catalog.
  *
  * @author Pavel Sher
  */

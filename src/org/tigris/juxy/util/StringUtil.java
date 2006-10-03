@@ -1,7 +1,7 @@
 package org.tigris.juxy.util;
 
 /**
- * $Id: StringUtil.java,v 1.5 2005-08-24 08:28:30 pavelsher Exp $
+ * $Id: StringUtil.java,v 1.6 2006-10-03 14:31:01 pavelsher Exp $
  * <p/>
  * Various utility methods.
  *
@@ -12,7 +12,7 @@ public class StringUtil
     /**
      * Method normalizes all spaces in the string including new line characters:
      * it replaces '\r' and '\n' chars with space char, then collapses sequences
-     * of space characters to one character and finally trims spaces.
+     * of space characters into the one character and finally trims spaces.
      * @param text the string to normalize
      * @return normalized string
      */
@@ -21,7 +21,7 @@ public class StringUtil
     }
 
     /**
-     * Method collapses spaces: converts series of spaces to one space character and finally trims the specified string.
+     * Method collapses spaces: converts series of spaces into the one space character and trims result.
      * @param text text to collapse spaces in
      * @return text with collapsed spaces
      */

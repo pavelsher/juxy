@@ -253,6 +253,14 @@
             <fileset dir="${basedir}" includes="juxy_ant.properties"/>
         </jar>
 
+        <jar destfile="${build.dir}/juxy_src.jar">
+            <manifest>
+                <attribute name="Version" value="${version}"/>
+            </manifest>
+
+            <fileset dir="${src.dir}" includes="org/**"/>
+        </jar>
+
         <zip file="juxy-${version}.zip">
             <fileset dir="${build.dir}">
                 <include name="**/*"/>

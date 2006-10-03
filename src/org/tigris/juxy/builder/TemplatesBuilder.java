@@ -8,8 +8,6 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilder.java,v 1.5 2005-08-17 17:54:51 pavelsher Exp $
- * <p/>
  * @author Pavel Sher
  */
 public interface TemplatesBuilder

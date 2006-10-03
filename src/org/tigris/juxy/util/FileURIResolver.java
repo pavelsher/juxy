@@ -1,23 +1,17 @@
 package org.tigris.juxy.util;
 
-import org.xml.sax.InputSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 /**
- * $Id: FileURIResolver.java,v 1.4 2006-09-27 17:13:50 pavelsher Exp $
- * <p/>
  * @author Pavel Sher
  */
 public class FileURIResolver implements URIResolver {

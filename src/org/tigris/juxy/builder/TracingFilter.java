@@ -12,8 +12,6 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import java.util.*;
 
 /**
- * $Id: TracingFilter.java,v 1.9 2005-09-07 08:16:03 pavelsher Exp $
- * <p/>
  * @author Pavel Sher
  */
 public class TracingFilter extends XMLFilterImpl {

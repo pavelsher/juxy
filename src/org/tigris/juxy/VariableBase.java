@@ -5,7 +5,6 @@ import org.tigris.juxy.xpath.XPathExpr;
 import org.w3c.dom.Document;
 
 /**
- * $Id: VariableBase.java,v 1.5 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */

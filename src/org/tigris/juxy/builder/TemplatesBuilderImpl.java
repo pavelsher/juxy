@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: TemplatesBuilderImpl.java,v 1.16 2006-09-27 17:13:50 pavelsher Exp $
- * <p/>
  * @author Pavel Sher
  */
 public class TemplatesBuilderImpl implements TemplatesBuilder

@@ -3,7 +3,6 @@ package org.tigris.juxy;
 import java.io.PrintStream;
 
 /**
- * $Id: Tracer.java,v 1.2 2005-08-24 08:28:30 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */

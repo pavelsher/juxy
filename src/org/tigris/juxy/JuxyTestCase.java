@@ -1,19 +1,17 @@
 package org.tigris.juxy;
 
-import junit.framework.TestCase;
 import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
 import org.tigris.juxy.util.*;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import javax.xml.transform.URIResolver;
 import java.io.ByteArrayOutputStream;
 
 /**
- * $Id: JuxyTestCase.java,v 1.10 2006-06-28 09:16:23 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */
@@ -22,9 +20,10 @@ public abstract class JuxyTestCase extends TestCase {
     private RunnerContext context;
 
     /**
-     * Creates new RunnerContext from the specified system id
-     * @param systemId stylesheet system id
-     * @return new RunnerContext
+     * Creates a new RunnerContext object. RunnerContext holds all information required
+     * for calling / applying templates.
+     * @param systemId system id of the stylesheet (path to a stylesheet file)
+     * @return new RunnerContext object
      */
     public RunnerContext newContext(String systemId) {
         context = getRunner().newRunnerContext(systemId);
@@ -32,11 +31,11 @@ public abstract class JuxyTestCase extends TestCase {
     }
 
     /**
-     * Creates new RunnerContext from the system id. Uses specified
-     * resolver to resolve system id.
-     * @param systemId stylesheet system id
-     * @param resolver URIResolver to use for system id resolution during transformation
-     * @return new RunnerContext
+     * Creates a new RunnerContext object. RunnerContext holds all information required
+     * for calling / applying templates.
+     * @param systemId system id of the stylesheet
+     * @param resolver URIResolver to use for URI resolution during transformation
+     * @return new RunnerContext object
      */
     public RunnerContext newContext(String systemId, URIResolver resolver) {
         context = getRunner().newRunnerContext(systemId, resolver);
@@ -73,35 +72,35 @@ public abstract class JuxyTestCase extends TestCase {
     }
 
     /**
-     * For method description see {@link Runner#applyTemplates(RunnerContext)}
+     * See {@link Runner#applyTemplates(RunnerContext)}
      */
     public Node applyTemplates() throws Exception {
         return getRunner().applyTemplates(getContext());
     }
 
     /**
-     * For method description see {@link Runner#applyTemplates(RunnerContext, org.tigris.juxy.xpath.XPathExpr)}
+     * See {@link Runner#applyTemplates(RunnerContext, org.tigris.juxy.xpath.XPathExpr)}
      */
     public Node applyTemplates(XPathExpr xpath) throws Exception {
         return getRunner().applyTemplates(getContext(), xpath);
     }
 
     /**
-     * For method description see {@link Runner#applyTemplates(RunnerContext, org.tigris.juxy.xpath.XPathExpr, String)}
+     * See {@link Runner#applyTemplates(RunnerContext, org.tigris.juxy.xpath.XPathExpr, String)}
      */
     public Node applyTemplates(XPathExpr xpath, String mode) throws Exception {
         return getRunner().applyTemplates(getContext(), xpath, mode);
     }
 
     /**
-     * For method description see {@link Runner#callTemplate(RunnerContext, String)}
+     * See {@link Runner#callTemplate(RunnerContext, String)}
      */
     public Node callTemplate(String name) throws Exception {
         return getRunner().callTemplate(getContext(), name);
     }
 
     /**
-     * Asserts that two documents are equal. Meaningless spaces will be ignored during this assertion.
+     * Asserts two documents are equal. Meaningless spaces will be ignored during this assertion.
      * @param expected XML document which is expected
      * @param actual document root node of actual transformation result
      */
@@ -114,7 +113,7 @@ public abstract class JuxyTestCase extends TestCase {
     }
 
     /**
-     * Asserts that two documents are equal. Meaningless spaces will be ignored during this assertion.
+     * Asserts two documents are equal. Meaningless spaces will be ignored during this assertion.
      * @param expectedDocument XML document which is expected
      * @param actual document root node of actual transformation result
      */
@@ -127,7 +126,7 @@ public abstract class JuxyTestCase extends TestCase {
     }
 
     /**
-     * Asserts that two documents are equal. Meaningless spaces will be ignored during this assertion.
+     * Asserts two documents are equal. Meaningless spaces will be ignored during this assertion.
      * @param expectedDocument XML document which is expected
      * @param actualDocument actual xml document
      * @throws Exception
@@ -141,7 +140,7 @@ public abstract class JuxyTestCase extends TestCase {
     }
 
     /**
-     * For method description see {@link StringUtil#normalizeSpaces(String)}
+     * See {@link StringUtil#normalizeSpaces(String)}
      * @param str string to normalize
      * @return normalized string
      */
@@ -150,7 +149,7 @@ public abstract class JuxyTestCase extends TestCase {
     }
 
     /**
-     * For method description see {@link StringUtil#normalizeAll(String)}
+     * See {@link StringUtil#normalizeAll(String)}
      * @param str string to normalize
      * @return normalized string
      */
@@ -180,7 +179,7 @@ public abstract class JuxyTestCase extends TestCase {
     }
 
     /**
-     * Parses specified string into the DOM Document.
+     * Parses specified string into org.w3c.dom.Document.
      * @param document xml document
      * @return DOM Document
      */
@@ -190,14 +189,14 @@ public abstract class JuxyTestCase extends TestCase {
     }
 
     /**
-     * Enables XSLT stylesheet execution tracing (disabled by default).
+     * See {@link Runner#enableTracing()}.
      */
     public void enableTracing() {
         getRunner().enableTracing();
     }
 
     /**
-     * Disables XSLT stylesheet execution tracing.
+     * See {@link Runner#disableTracing()}.
      */
     public void disableTracing() {
         getRunner().disableTracing();

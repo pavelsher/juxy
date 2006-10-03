@@ -10,8 +10,6 @@ import javax.xml.namespace.QName;
 import java.util.*;
 
 /**
- * $Id: JavaxXPathExpr.java,v 1.2 2005-09-12 07:43:48 pavelsher Exp $
- *
  * @author Pavel Sher
 1 */
 public class JavaxXPathExpr implements XPathExpr {

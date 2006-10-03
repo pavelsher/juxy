@@ -9,9 +9,7 @@ import java.io.PrintWriter;
 import java.util.*;
 
 /**
- * $Id: SAXSerializer.java,v 1.1 2005-08-17 17:54:52 pavelsher Exp $
- * <p/>
- * Serializes incoming SAX events to the specified output stream.
+ * Serializes incoming SAX events into the specified output stream.
  * <p/>
  * Serializer does not support internal DTD subset, doctypes and notations.
  *

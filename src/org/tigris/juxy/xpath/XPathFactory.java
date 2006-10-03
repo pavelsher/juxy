@@ -1,15 +1,11 @@
 package org.tigris.juxy.xpath;
 
-import org.tigris.juxy.JuxyRuntimeException;
-import org.tigris.juxy.util.ArgumentAssert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.xml.xpath.XPathFactoryConfigurationException;
+import org.tigris.juxy.JuxyRuntimeException;
+import org.tigris.juxy.util.ArgumentAssert;
 
 /**
- * $Id: XPathFactory.java,v 1.6 2005-09-12 07:43:48 pavelsher Exp $
- * <p/>
  * Factory for XPath expressions.
  * @author Pavel Sher
  */
@@ -21,6 +17,7 @@ public class XPathFactory {
     /**
      * Constructs new XPath expression.
      * @param expression an XPath expression
+     * @return newly created XPathExpr object
      */
     public static XPathExpr newXPath(String expression) {
         ArgumentAssert.notEmpty(expression, "XPath expression must not be empty");

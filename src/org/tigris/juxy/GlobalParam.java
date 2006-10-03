@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Iterator;
 
 /**
- * $Id: GlobalParam.java,v 1.4 2005-08-10 08:57:18 pavelsher Exp $
  * <p/>
  * @author Pavel Sher
  */

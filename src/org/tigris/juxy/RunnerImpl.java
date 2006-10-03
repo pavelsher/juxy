@@ -17,9 +17,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.10 2005-09-12 07:43:48 pavelsher Exp $
+ * $Id: RunnerImpl.java,v 1.11 2006-10-03 14:31:02 pavelsher Exp $
  * <p/>
- * This runner uses only standard features. It does not use any xslt engine - specific extensions.
+ * This runner uses only standard features. It does not use any XSLT engine-specific extensions.
  *
  * @author Pavel Sher
  */

@@ -8,8 +8,6 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 /**
- * $Id: JaxenXPathExpr.java,v 1.2 2005-09-12 07:43:48 pavelsher Exp $
- * <p/>
  * @author Pavel Sher
  */
 public class JaxenXPathExpr implements XPathExpr {

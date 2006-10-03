@@ -7,9 +7,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
 /**
- * $Id: Runner.java,v 1.9 2005-09-23 09:37:01 pavelsher Exp $
- * <p/>
- * Interface represents Runner. Runner instance can be obtained from the RunnerFactory.
+ * Interface represents Runner. Runner instance can be obtained from the {@link RunnerFactory}.
  * <br>
  * An example of Runner usage:<br>
  * <pre>
@@ -17,91 +15,94 @@ import javax.xml.transform.URIResolver;
  * ctx.setDocument("&lt;source/>");
  * Node result = runner.callTemplate(ctx, "templatename");
  * </pre>
- * From this point the result can be verified.
+ * From this point the received result node can be verified.
  *
  * @author Pavel Sher
  */
 public interface Runner
 {
     /**
-     * Creates new RunnerContext object. RunnerContext is used for setup of the context
-     * in which the called template will be running.
-     * @param systemId system id of the stylesheet
+     * Creates a new RunnerContext object. RunnerContext holds all information required
+     * for calling / applying templates.
+     * @param systemId system id of the stylesheet (path to a stylesheet file)
      * @return new RunnerContext object
      */
     RunnerContext newRunnerContext(String systemId);
 
     /**
-     * Creates new RunnerContext object. RunnerContext is used for setup of the context
-     * in which the called template will be running.
+     * Creates a new RunnerContext object. RunnerContext holds all information required
+     * for calling / applying templates.
      * @param systemId system id of the stylesheet
-     * @param resolver URIResolver to use for system id resolution during transformation
+     * @param resolver URIResolver to use for URI resolution during transformation
      * @return new RunnerContext object
      */
     RunnerContext newRunnerContext(String systemId, URIResolver resolver);
 
     /**
-     * Calls specified template by its name. This is equivalent to xslt construction:
+     * Invokes specified named template. This is the same as to have the following XSLT construction:
      * <pre>
      * &lt;xsl:call-template name="name">
      *  &lt;xsl:with-param name="param" select="value"/>
      * &lt;/xsl:call-template>
      * </pre>
-     * @param ctx the context in which called template should work
-     * @param name the name of called template
-     * @return result Node, containing the results of the transformation
+     * @param ctx context in which the template will be called
+     * @param name name of the template to call
+     * @return result result of the transformation
+     * @throws javax.xml.transform.TransformerException if transformation failed
      */
     Node callTemplate(RunnerContext ctx, String name) throws TransformerException;
 
     /**
-     * Applies all templates starting from specified context. This is equivalent to xslt construction:
+     * Applies templates in the specified context. Same as:
      * <pre>
      * &lt;xsl:apply-templates>
      *  &lt;xsl:with-param name="param" select="value"/>
      * &lt;/xsl:apply-templates>
      * </pre>
-     * @param ctx the context in which applied template should work
-     * @return result Node, containing the results of the transformation
+     * @param ctx context in which the templates are applied
+     * @return result result of the transformation
+     * @throws javax.xml.transform.TransformerException if transformation failed
      */
     Node applyTemplates(RunnerContext ctx) throws TransformerException;
 
     /**
-     * Applies template matching specified xpath expression starting from specified context.
-     * This is equivalent to xslt construction:
+     * Applies templates for specified xpath expression. Same as:
      * <pre>
      * &lt;xsl:apply-templates select="xpathexpression">
      *  &lt;xsl:with-param name="param" select="value"/>
      * &lt;/xsl:apply-templates>
      * </pre>
-     * @param ctx the context in which applied template should work
-     * @param xpath the XPath expression to use as the select attribute value
-     * @return result Node, containing the results of the transformation
+     * @param ctx context in which the templates are applied
+     * @param xpath XPath expression to use as the select attribute value
+     * @return result result of the transformation
+     * @throws javax.xml.transform.TransformerException if transformation failed
      */
     Node applyTemplates(RunnerContext ctx, XPathExpr xpath) throws TransformerException;
 
     /**
-     * Applies templates matching specified xpath expression and mode starting from specified context.
-     * This is equivalent to xslt construction:
+     * Applies templates for specified xpath expression and mode.
+     * Same as:
      * <pre>
      * &lt;xsl:apply-templates select="xpathexpression" mode="mode">
      *  &lt;xsl:with-param name="param" select="value"/>
      * &lt;/xsl:apply-templates>
      * </pre>
-     * @param ctx the context in which applied template should work
-     * @param xpath the XPath expression to use as the select attribute value
-     * @param mode the value of mode attribute
-     * @return result Node, containing the results of the transformation
+     * @param ctx context in which the templates are applied
+     * @param xpath XPath expression to use as the select attribute value
+     * @param mode mode attribute value
+     * @return result results of the transformation
+     * @throws javax.xml.transform.TransformerException if transformation failed
      */
     Node applyTemplates(RunnerContext ctx, XPathExpr xpath, String mode) throws TransformerException;
 
     /**
-     * Enables tracing of the XSLT stylesheet execution (disabled by default).
-     * Tracing information is dumped on stdout.
+     * Enables tracing of XSLT instructions (disabled by default).
+     * Tracing output will be passed to stdout.
      */
     void enableTracing();
 
     /**
-     * Disables tracing of the XSLT stylesheet execution
+     * Disables tracing of XSLT instructions.
      */
     void disableTracing();
 }

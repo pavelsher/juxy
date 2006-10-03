@@ -5,15 +5,13 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 /**
- * $Id: XPathExpr.java,v 1.7 2005-09-12 07:43:48 pavelsher Exp $
- * <p/>
  * Simple XPath expressions evaluator. You can evaluate XPath expression to string, int, double, boolean, nodeset or node.
  *
  * @author Pavel Sher
  */
 public interface XPathExpr {
     /**
-     * Registers new namespace in the XPath expression context. The function returns the same XPathExpr object.
+     * Registers new namespace in the XPath expression context. Function returns the same XPathExpr object.
      * @param prefix namespace prefix
      * @param uri namespace uri
      * @return XPathExpr object
@@ -70,7 +68,7 @@ public interface XPathExpr {
     Node toNode(Node node) throws XPathExpressionException;
 
     /**
-     * Returns this XPath expression as a String
+     * Converts this XPath expression to string
      * @return expression
      */
     String getExpression();

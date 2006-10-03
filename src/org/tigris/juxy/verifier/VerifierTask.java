@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * $Id: VerifierTask.java,v 1.8 2005-09-13 08:32:03 pavelsher Exp $
- *
  * @author Pavel Sher
  */
 public class VerifierTask extends MatchingTask implements ErrorReporter {

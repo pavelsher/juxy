@@ -8,8 +8,6 @@ import javax.xml.transform.ErrorListener;
 import javax.xml.transform.TransformerException;
 
 /**
- * $Id: BuilderErrorListener.java,v 1.4 2005-09-29 07:31:42 pavelsher Exp $
- * <p/>
  * @author Pavel Sher
  */
 public class BuilderErrorListener implements ErrorListener {
