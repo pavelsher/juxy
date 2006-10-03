@@ -20,7 +20,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.10 2006-03-14 16:24:25 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.11 2006-10-03 15:24:15 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -104,8 +104,8 @@ public class UTestTracingFilter extends TestCase {
                         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
                         makeValueOf("<xsl:element name=\"root\">", 3, 2) +
                 "       <xsl:element name='root'>" +
-                            makeValueOf("<xsl:attribute name=\"id\">", 4, 3) +
                 "           <xsl:attribute name='id'>" +
+                                makeValueOf("<xsl:attribute name=\"id\">", 4, 3) +
                                 makeValueOf("<xsl:value-of select=\"5\">", 5, 4) +
                 "               <xsl:value-of select=\"5\"/>" +
                 "           </xsl:attribute>" +

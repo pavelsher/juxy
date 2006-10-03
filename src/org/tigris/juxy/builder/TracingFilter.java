@@ -321,6 +321,8 @@ public class TracingFilter extends XMLFilterImpl {
         AUGMENTED_AFTER_START.add("matching-substring");
         AUGMENTED_AFTER_START.add("non-matching-substring");
         AUGMENTED_AFTER_START.add("fallback");
+        AUGMENTED_AFTER_START.add("attribute");
+        AUGMENTED_AFTER_START.add("namespace");
     }
 
     private static final Set NOT_AUGMENTED_STATEMENTS = new HashSet();
