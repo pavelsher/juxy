@@ -1,10 +1,11 @@
 package org.tigris.juxy;
 
-import org.w3c.dom.Node;
+import org.tigris.juxy.validator.ValidationFailedException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
- * $Id: UTestJuxyTestCase.java,v 1.3 2005-08-11 08:24:37 pavelsher Exp $
+ * $Id: UTestJuxyTestCase.java,v 1.4 2006-10-16 14:43:05 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -60,4 +61,20 @@ public class UTestJuxyTestCase extends JuxyTestCase {
         assertEquals("bb aa cc", normalizeAll("\n\n   bb\naa  \n\tcc"));
         assertEquals("bb\naa \n cc", normalizeSpaces("\n\n   bb\naa  \n\tcc"));
     }
+
+  public void testValidation() throws Exception {
+    RunnerContext ctx = newContext("tests/xml/templates.xsl");
+    ctx.setDocument("<root/>");
+    Node result = callTemplate("getRoot");
+    validateWithXPath(result,
+        xpathAssert("/result", true),
+        xpathAssert("/result/root", true),
+        xpathAssert("count(/result/root)", 1)
+    );
+
+    try {
+      validateWithSchema(result, "tests/xml/validator/schema1.xml");
+      fail("An exception expected");
+    } catch (ValidationFailedException e) {}
+  }
 }

@@ -14,22 +14,23 @@ public class Tracer {
 
     public Tracer(PrintStream traceOs) {
         this.traceOs = traceOs;
-        this.buf = new StringBuffer(20);
-        this.lastLine = -1;
+        buf = new StringBuffer(20);
+        lastLine = -1;
     }
 
     public void trace(int line, int level, String systemId, String statement) {
         boolean sameSystemId = systemId.equals(currentSystemid);
         if (!sameSystemId) {
-            traceOs.println("Started tracing of the stylesheet: " + systemId);
+            traceOs.println("Tracing of the stylesheet " + systemId + " started");
             lastLine = -1;
         }
 
         if (line == lastLine)
-            traceOs.print(unescapeMessage(statement));
+          traceOs.print(unescapeMessage(statement));
         else {
-            if (lastLine != -1)
-                traceOs.println();
+            if (lastLine != -1) {
+              traceOs.println();
+            }
             traceOs.print(messageAndLocation(line, level, unescapeMessage(statement)));
         }
 
@@ -37,7 +38,7 @@ public class Tracer {
         lastLine = line;
     }
 
-    /**
+  /**
      * Should be called when transformation is completed
      */
     public void stopTracing() {
@@ -50,7 +51,8 @@ public class Tracer {
 
     private String messageAndLocation(int line, int level, String message) {
         buf.delete(0, buf.length());
-        buf.append(line).append(":\t");
+        buf.append(line);
+        buf.append(":\t");
         for (int i=0; i<level*TABSTOP; i++) {
             buf.append(' ');
         }
