@@ -2,9 +2,10 @@ package org.tigris.juxy.verifier;
 
 import org.apache.tools.ant.BuildFileTest;
 import org.apache.tools.ant.BuildException;
+import org.apache.xml.resolver.CatalogManager;
 
 /**
- * $Id: UTestVerifierTask.java,v 1.4 2005-09-07 08:51:35 pavelsher Exp $
+ * $Id: UTestVerifierTask.java,v 1.5 2006-10-19 07:23:23 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -75,5 +76,7 @@ public class UTestVerifierTask extends BuildFileTest {
 
     protected void tearDown() throws Exception {
         System.out.println(getLog());
+        // reset catalog files
+        CatalogManager.getStaticManager().setCatalogFiles(null);
     }
 }

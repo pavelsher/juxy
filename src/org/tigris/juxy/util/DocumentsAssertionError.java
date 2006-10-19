@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * @author Pavel Sher
  */
-public class DocumentsAssertionError extends Error {
+public class DocumentsAssertionError extends AssertionError {
     private TreeWalker etw;
     private TreeWalker atw;
     private String message;
