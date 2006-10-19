@@ -20,6 +20,6 @@ public class CustomResolverTestCase extends JuxyTestCase {
         context().setDocument("<root/>");
 
         Node result = callTemplate("getResult");
-        assertEquals("The result is this text.", xpath("text()").toString(result).trim());
+        xpathAssert("text()", "The result is this text.", true).eval(result);
     }
 }

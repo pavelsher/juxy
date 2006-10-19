@@ -20,49 +20,49 @@ public class XPathFactory {
      * @return newly created XPathExpr object
      */
     public static XPathExpr newXPath(String expression) {
-        ArgumentAssert.notEmpty(expression, "XPath expression must not be empty");
+      ArgumentAssert.notEmpty(expression, "XPath expression must not be empty");
 
-        XPathExpr xpath = createJavaxXPath(expression);
-        if (xpath != null) return xpath;
+      XPathExpr xpath = createJavaxXPath(expression);
+      if (xpath != null) return xpath;
 
-        xpath = createJaxenXPath(expression);
-        if (xpath != null) return xpath;
+      xpath = createJaxenXPath(expression);
+      if (xpath != null) return xpath;
 
-        throw new JuxyRuntimeException("Unable to locate XPath implementation");
+      throw new JuxyRuntimeException("Unable to locate XPath implementation");
     }
 
     protected static XPathExpr createJavaxXPath(String expression) {
-        if (Boolean.TRUE.equals(JAVAX_XPATH_NOT_AVAILABLE)) return null;
+      if (Boolean.TRUE.equals(JAVAX_XPATH_NOT_AVAILABLE)) return null;
 
-        try {
-            if (Class.forName("javax.xml.xpath.XPathFactory") != null)
-                return new JavaxXPathExpr(expression);
-        }
-        catch (Throwable t) {
-            logger.debug("Failed to obtain instance of the javax.xml.xpath.XPathFactory");
-            JAVAX_XPATH_NOT_AVAILABLE = Boolean.TRUE;
-        }
+      try {
+        Class.forName("javax.xml.xpath.XPathFactory");
+        return new JavaxXPathExpr(expression);
+      }
+      catch (Throwable t) {
+        logger.debug("Failed to obtain instance of the javax.xml.xpath.XPathFactory");
+        JAVAX_XPATH_NOT_AVAILABLE = Boolean.TRUE;
+      }
 
-        return null;
+      return null;
     }
 
     protected static XPathExpr createJaxenXPath(String expression) {
-        if (Boolean.TRUE.equals(JAXEN_XPATH_NOT_AVAILABLE)) return null;
+      if (Boolean.TRUE.equals(JAXEN_XPATH_NOT_AVAILABLE)) return null;
 
-        try {
-            if (Class.forName("org.jaxen.dom.DOMXPath") != null)
-                return new JaxenXPathExpr(expression);
-        }
-        catch (Throwable t) {
-            logger.debug("Failed to obtain instance of the org.jaxen.dom.DOMXPath");
-            JAXEN_XPATH_NOT_AVAILABLE = Boolean.TRUE;
-        }
+      try {
+        Class.forName("org.jaxen.dom.DOMXPath");
+        return new JaxenXPathExpr(expression);
+      }
+      catch (Throwable t) {
+        logger.debug("Failed to obtain instance of the org.jaxen.dom.DOMXPath");
+        JAXEN_XPATH_NOT_AVAILABLE = Boolean.TRUE;
+      }
 
-        return null;
+      return null;
     }
 
     protected static void reset() {
-        JAVAX_XPATH_NOT_AVAILABLE = null;
-        JAXEN_XPATH_NOT_AVAILABLE = null;
+      JAVAX_XPATH_NOT_AVAILABLE = null;
+      JAXEN_XPATH_NOT_AVAILABLE = null;
     }
 }

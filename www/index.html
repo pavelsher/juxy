@@ -4,21 +4,21 @@
 
 <style type="text/css">
 .toc {
-    padding: 10 10 10 10;
+    padding: 10px 10px 10px 10px;
 }
 
 .toc_level1 {
-    padding: 3 3 3 3;
+    padding: 3px 3px 3px 3px;
 }
 
 .toc_level2 {
     text-indent: 30px;
-    padding: 3 3 3 3;
+    padding: 3px 3px 3px 3px;
 }
 
 
 .code_block {
-    padding: 5 5 5 5;
+    padding: 5px 5px 5px 5px;
     font-family: monospace;
     border: 1px solid #8fbc8f;
     padding-top: 5px;
@@ -42,7 +42,7 @@
 }
 
 .output_block {
-    padding: 5 5 5 5;
+    padding: 5px 5px 5px 5px;
     font-family: monospace;
     border: 1px solid #8fbc8f;
     padding-top: 5px;
@@ -59,7 +59,7 @@
     font-size: 9pt;
     width: 80%;
     border: 1px solid #e9967a;
-    padding: 5 5 5 5;
+    padding: 5px 5px 5px 5px;
     background-color: #ffebcd;
 }
 
@@ -76,7 +76,7 @@
     font-weight: bold;
     text-align: left;
     border: 1px #a1b68d solid;
-    padding: 4 4 4 4;
+    padding: 4px 4px 4px 4px;
     background-color: #c1e6ad;
 }
 
@@ -85,7 +85,7 @@
     font-family: Arial, sans-serif;
     text-align: left;
     border: 1px #a1b68d solid;
-    padding: 4 4 4 4;
+    padding: 4px 4px 4px 4px;
 }
 
 /*a {
@@ -256,9 +256,8 @@ a:hover {
         <span class="code_comment">/* We do not need to know about Runner here. We can simply invoke applyTemplates()
            method. Runner will be instantiated automatically within JuxyTestCase. */</span>
         <span class="code">Node result = applyTemplates();</span>
-        <span class="code_comment">/* With JuxyTestCase it is much easier to obtain XPathExpr object and
-           to verify the result. */</span>
-        <span class="code">assertEquals("<span class="code_constants">item 1, item 2, item 3</span>", xpath("<span class="code_constants">text()</span>").toString(result));</span>
+        <span class="code_comment">/* With JuxyTestCase verification of the result is much simpler. */</span>
+        <span class="code">xpathAssert("<span class="code_constants">text()</span>", "<span class="code_constants">item 1, item 2, item 3</span>").eval(result);</span>
     }
 }
 </pre>
@@ -345,7 +344,7 @@ Actual document:
     the <span class="code">Runner</span> instance). The tracing output looks like:
 </p>
 <pre class="output_block">
-Started tracing of the stylesheet: file://some/path/stylesheet.xsl
+Tracing of the stylesheet file://some/path/stylesheet.xsl started
 2:  &lt;xsl:template match="/">
 3:      &lt;xsl:for-each select="//*">
 4:          &lt;xsl:value-of select=".">
@@ -354,17 +353,17 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 </pre>
 <p>
     In the tracing output you can see both, the line numbers and corresponding XSLT instructions.
-    Juxy does not use any specific API for this feature to work. There are limitations, and the most essential
+    Juxy does not use any specific API for this feature. There are limitations, and the most essential
     is that for now only instructions within templates and template instructions itself are traced.
-    Global variables, parameters, keys and imports / inclusions are not traced at all.
+    Global variables, parameters and keys are not traced.
 </p>
 
 <a name="c80"></a><h3>XSLT Verification</h3>
 
 <p>
-    Starting from version 0.7 Juxy package contains Ant task which allows verification of the syntax of a number of
-    stylesheets at once. This task tries to create JAXP Transformer object from every stylesheet and
-    reports all the errors and warnings occurred.
+    Starting from version 0.7 Juxy package contains Ant task which allows syntax verification of a number of
+    stylesheets at once. This task tries to create JAXP Transformer object for every stylesheet and
+    reports all the found errors and warnings.
 </p>
 
 <p>
@@ -394,7 +393,7 @@ Started tracing of the stylesheet: file://some/path/stylesheet.xsl
 &lt;/target>
 </pre>
 
-<p>Task can have the following attributes:</p>
+<p>Task supports the following attributes:</p>
 <table class="ant_attributes" cellpadding="0" cellspacing="0">
 <tr>
     <th class="th">Attribute</th>

@@ -1,11 +1,13 @@
 package org.tigris.juxy;
 
-import org.tigris.juxy.validator.ValidationFailedException;
+import junit.framework.AssertionFailedError;
+import org.tigris.juxy.util.DOMUtil;
+import org.tigris.juxy.xpath.XPathAssert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
- * $Id: UTestJuxyTestCase.java,v 1.4 2006-10-16 14:43:05 pavelsher Exp $
+ * $Id: UTestJuxyTestCase.java,v 1.5 2006-10-19 07:15:10 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -62,19 +64,56 @@ public class UTestJuxyTestCase extends JuxyTestCase {
         assertEquals("bb\naa \n cc", normalizeSpaces("\n\n   bb\naa  \n\tcc"));
     }
 
-  public void testValidation() throws Exception {
+  public void testXMLSchemaValidation() throws Exception {
     RunnerContext ctx = newContext("tests/xml/templates.xsl");
     ctx.setDocument("<root/>");
     Node result = callTemplate("getRoot");
-    validateWithXPath(result,
-        xpathAssert("/result", true),
-        xpathAssert("/result/root", true),
-        xpathAssert("count(/result/root)", 1)
-    );
 
     try {
       validateWithSchema(result, "tests/xml/validator/schema1.xml");
       fail("An exception expected");
-    } catch (ValidationFailedException e) {}
+    } catch (AssertionFailedError e) {}
+  }
+
+  public void testEvalXPathAssertions() throws Exception {
+      final XPathAssert[] asserts = new XPathAssert[]{
+              xpathAssert("count(//li)", 3),
+              xpathAssert("count(//ul)", 1),
+      };
+
+      evalAssertions(
+              DOMUtil.parse("<ul><li/><li/><li/></ul>"),
+              asserts);
+
+      try {
+          evalAssertions(
+              DOMUtil.parse("<root><ul><li/><li/><li/></ul><ul/></root>"),
+              asserts);
+          fail("An exception expected");
+      } catch (AssertionFailedError e) {
+      }
+  }
+
+  public void testXPathAssertionsExceptions() throws Exception {
+    XPathAssert explicitlyCreated = new XPathAssert("count(tag)", 10);
+    XPathAssert createdByTestCase = xpathAssert("count(tag)", 10);
+
+      try {
+          explicitlyCreated.eval(DOMUtil.parse("<ul><li/><li/><li/></ul>"));
+          fail("An exception expected");
+      } catch (AssertionError error) {
+      }
+
+      try {
+          createdByTestCase.eval(DOMUtil.parse("<ul><li/><li/><li/></ul>"));
+          fail("An exception expected");
+      } catch (AssertionFailedError error) {
+      }
+
+      try {
+          evalAssertions(DOMUtil.parse("<ul><li/><li/><li/></ul>"), new XPathAssert[] {explicitlyCreated});
+          fail("An exception expected");
+      } catch (AssertionFailedError error) {
+      }
   }
 }

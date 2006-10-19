@@ -1,8 +1,7 @@
 package org.tigris.juxy.xpath;
 
-import org.tigris.juxy.xpath.XPathExpr;
-import org.tigris.juxy.xpath.XPathExpressionException;
-import org.tigris.juxy.xpath.XPathFactory;
+import org.tigris.juxy.util.ArgumentAssert;
+import org.tigris.juxy.util.StringUtil;
 import org.w3c.dom.Node;
 
 /**
@@ -11,11 +10,16 @@ import org.w3c.dom.Node;
  */
 public class XPathAssert {
   private XPathExpr xpath;
-  private AssertionEvaluator assertion;
+  private AssertionEvaluator evaluator;
 
+    /**
+     * Constructs assertion from the XPath expression with specified expected result.
+     * @param xpathExpr XPath expression
+     * @param expectedResult expected result
+     */
   public XPathAssert(String xpathExpr, final int expectedResult) {
     xpath = XPathFactory.newXPath(xpathExpr);
-    assertion = new AssertionEvaluator() {
+    evaluator = new AssertionEvaluator() {
       public void eval(Node node) throws XPathExpressionException {
         int actual = xpath.toInt(node);
         if (expectedResult != actual) {
@@ -25,9 +29,14 @@ public class XPathAssert {
     };
   }
 
+    /**
+     * Constructs assertion from the XPath expression with specified expected result.
+     * @param xpathExpr XPath expression
+     * @param expectedResult expected result
+     */
   public XPathAssert(String xpathExpr, final boolean expectedResult) {
     xpath = XPathFactory.newXPath(xpathExpr);
-    assertion = new AssertionEvaluator() {
+    evaluator = new AssertionEvaluator() {
       public void eval(Node node) throws XPathExpressionException {
         boolean actual = xpath.toBoolean(node);
         if (expectedResult != actual) {
@@ -37,9 +46,15 @@ public class XPathAssert {
     };
   }
 
+    /**
+     * Constructs assertion from the XPath expression with specified expected result.
+     * @param xpathExpr XPath expression
+     * @param expectedResult expected result
+     * @param error error value
+     */
   public XPathAssert(String xpathExpr, final double expectedResult, final double error) {
     xpath = XPathFactory.newXPath(xpathExpr);
-    assertion = new AssertionEvaluator() {
+    evaluator = new AssertionEvaluator() {
       public void eval(Node node) throws XPathExpressionException {
         double actual = xpath.toDouble(node);
         if (Math.abs(actual - expectedResult) > error) {
@@ -49,9 +64,14 @@ public class XPathAssert {
     };
   }
 
+    /**
+     * Constructs assertion from the XPath expression with specified expected result.
+     * @param xpathExpr XPath expression
+     * @param expectedResult expected result
+     */
   public XPathAssert(String xpathExpr, final String expectedResult) {
     xpath = XPathFactory.newXPath(xpathExpr);
-    assertion = new AssertionEvaluator() {
+    evaluator = new AssertionEvaluator() {
       public void eval(Node node) throws XPathExpressionException {
         String actual = xpath.toString(node);
         if (!expectedResult.equals(actual)) {
@@ -61,8 +81,29 @@ public class XPathAssert {
     };
   }
 
+    /**
+     * Constructs assertion from the XPath expression with specified expected result.
+     * @param xpathExpr XPath expression
+     * @param expectedResult expected result
+     * @param normalizeBeforeAssert indicates whether normalization of the XPath expression result
+     * should be performed before comparing with expected value (see {@link org.tigris.juxy.util.StringUtil#normalizeAll})
+     */
+  public XPathAssert(String xpathExpr, final String expectedResult, final boolean normalizeBeforeAssert) {
+    xpath = XPathFactory.newXPath(xpathExpr);
+    evaluator = new AssertionEvaluator() {
+      public void eval(Node node) throws XPathExpressionException {
+        String actual = xpath.toString(node);
+        actual = normalizeBeforeAssert ? StringUtil.normalizeAll(actual) : actual;
+        if (!expectedResult.equals(actual)) {
+          throw assertionError(actual, expectedResult);
+        }
+      }
+    };
+  }
+
   public void eval(Node node) throws XPathExpressionException, AssertionError {
-    assertion.eval(node);
+    ArgumentAssert.notNull(node, "Node must not be null");
+    evaluator.eval(node);
   }
 
   private AssertionError assertionError(final String actual, final String expectedResult) {

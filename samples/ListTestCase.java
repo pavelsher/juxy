@@ -15,7 +15,7 @@ public class ListTestCase extends JuxyTestCase {
         context().setCurrentNode(xpath("/list"));
         context().setDocument("<list/>");
         Node result = callTemplate("makeList");
-        assertFalse(xpath("text()").toBoolean(result));
+        xpathAssert("text()", false).eval(result);
     }
 
     public void testOneElementInTheList() throws Exception {
@@ -25,7 +25,7 @@ public class ListTestCase extends JuxyTestCase {
                 "<item>one item</item>" +
                 "</list>");
         Node result = callTemplate("makeList");
-        assertEquals("one item", xpath("text()").toString(result).trim());
+        xpathAssert("text()", "one item").eval(result);
     }
 
     public void testMoreThanOneElementInTheList() throws Exception {
@@ -37,7 +37,7 @@ public class ListTestCase extends JuxyTestCase {
                 "<item>third item</item>" +
                 "</list>");
         Node result = callTemplate("makeList");
-        assertEquals("first item, second item, third item", xpath("text()").toString(result).trim());
+        xpathAssert("text()", "first item, second item, third item").eval(result);
     }
 
     public void testMoreThanOneElementInTheList_ApplyTemplates() throws Exception {
@@ -48,6 +48,6 @@ public class ListTestCase extends JuxyTestCase {
                 "<item>third item</item>" +
                 "</list>");
         Node result = applyTemplates(xpath("/list"));
-        assertEquals("first item, second item, third item", xpath("text()").toString(result).trim());
+        xpathAssert("text()", "first item, second item, third item").eval(result);
     }
 }

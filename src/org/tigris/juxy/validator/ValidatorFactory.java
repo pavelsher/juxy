@@ -1,7 +1,6 @@
 package org.tigris.juxy.validator;
 
 import org.tigris.juxy.JuxyRuntimeException;
-import org.tigris.juxy.xpath.XPathAssert;
 
 /**
  * User: pavel
@@ -29,9 +28,5 @@ public class ValidatorFactory {
     }
 
     throw new JuxyRuntimeException("W3C XML Schema validator is not available");
-  }
-
-  public static Validator createXPathValidator(final XPathAssert[] assertions) {
-    return new XPathValidator(assertions);
   }
 }

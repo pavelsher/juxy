@@ -3,11 +3,12 @@ package org.tigris.juxy;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.tigris.juxy.util.*;
-import org.tigris.juxy.xpath.XPathExpr;
-import org.tigris.juxy.xpath.XPathFactory;
-import org.tigris.juxy.xpath.XPathAssert;
 import org.tigris.juxy.validator.ValidationFailedException;
 import org.tigris.juxy.validator.ValidatorFactory;
+import org.tigris.juxy.xpath.XPathExpr;
+import org.tigris.juxy.xpath.XPathExpressionException;
+import org.tigris.juxy.xpath.XPathFactory;
+import org.tigris.juxy.xpath.XPathAssert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -214,75 +215,105 @@ public abstract class JuxyTestCase extends TestCase {
   * Validates specified node using XML schema with specified path.
   * @param node node to validate
   * @param pathToSchema path to W3C XML schema
-  * @throws ValidationFailedException if validation failed
   */
-  public void validateWithSchema(Node node, String pathToSchema)
-      throws ValidationFailedException 
-  {
-    ValidatorFactory.createXMLSchemaValidator(pathToSchema).validate(node);
+  public void validateWithSchema(Node node, String pathToSchema) {
+    try {
+      ValidatorFactory.createXMLSchemaValidator(pathToSchema).validate(node);
+    } catch (ValidationFailedException e) {
+      throw new AssertionFailedError(e.getMessage());
+    }
   }
 
   /**
-   * Validates specified node using a number of provided XPath assertions.
-   * During validation all assertions will be evaluated even if it is already known
-   * that document is invalid.
-   * @param node node to validate
-   * @param assertions XPath assertions to evaluate against specified node
-   * @throws ValidationFailedException if validation failed (i.e. if at least one assertion failed)
+   * Evaluates XPath assertions.
+   * @param node node to evaluate assertions on
+   * @param assertions XPath assertions to evaluate
+   * @throws XPathExpressionException
    */
-    public void validateWithXPath(Node node, XPathAssert[] assertions)
-        throws ValidationFailedException
-    {
-      ValidatorFactory.createXPathValidator(assertions).validate(node);
-    }
+    public void evalAssertions(Node node, XPathAssert[] assertions) throws XPathExpressionException {
+    ArgumentAssert.notNull(assertions, "Assertions must not be null");
+      try {
+          for(int i=0; i<assertions.length; i++) {
+            assertions[i].eval(node);
+          }
+      } catch (AssertionError error) {
+          throw new AssertionFailedError(error.getMessage());
+      }
+  }
 
-  /**
-   * See {@link #validateWithXPath(org.w3c.dom.Node, org.tigris.juxy.xpath.XPathAssert[])}
-   */
-    public void validateWithXPath(Node node, XPathAssert assertion1, XPathAssert assertion2)
-        throws ValidationFailedException
-    {
-      validateWithXPath(node, new XPathAssert[] {assertion1, assertion2});
-    }
-
-  /**
-   * See {@link #validateWithXPath(org.w3c.dom.Node, org.tigris.juxy.xpath.XPathAssert[])}
-   */
-    public void validateWithXPath(Node node, XPathAssert assertion1, XPathAssert assertion2, XPathAssert assertion3)
-        throws ValidationFailedException
-    {
-      validateWithXPath(node, new XPathAssert[] {assertion1, assertion2, assertion3});
-    }
-
-  /**
-   * Creates new XPath assertion
-   * @param xpathExpr XPath expression
-   * @param expectedResult expected result of the XPath expression
-   * @return
-   */
+    /**
+     * See {@link XPathAssert#XPathAssert(String, int)}
+     */
     public XPathAssert xpathAssert(String xpathExpr, int expectedResult) {
-      return new XPathAssert(xpathExpr, expectedResult);
+      return new XPathAssert(xpathExpr, expectedResult) {
+          public void eval(Node node) throws XPathExpressionException {
+              try {
+                  super.eval(node);
+              } catch (AssertionError error) {
+                  throw new AssertionFailedError(error.getMessage());
+              }
+          }
+      };
     }
 
-  /**
-   * See {@link #xpathAssert(String, int)}
-   */
+    /**
+     * See {@link XPathAssert#XPathAssert(String, boolean)}
+     */
     public XPathAssert xpathAssert(String xpathExpr, boolean expectedResult) {
-      return new XPathAssert(xpathExpr, expectedResult);
+        return new XPathAssert(xpathExpr, expectedResult) {
+            public void eval(Node node) throws XPathExpressionException {
+                try {
+                    super.eval(node);
+                } catch (AssertionError error) {
+                    throw new AssertionFailedError(error.getMessage());
+                }
+            }
+        };
     }
 
-  /**
-   * See {@link #xpathAssert(String, int)}
-   */
+    /**
+     * See {@link XPathAssert#XPathAssert(String, String)}
+     */
     public XPathAssert xpathAssert(String xpathExpr, String expectedResult) {
-      return new XPathAssert(xpathExpr, expectedResult);
+        return new XPathAssert(xpathExpr, expectedResult) {
+            public void eval(Node node) throws XPathExpressionException {
+                try {
+                    super.eval(node);
+                } catch (AssertionError error) {
+                    throw new AssertionFailedError(error.getMessage());
+                }
+            }
+        };
     }
 
   /**
-   * See {@link #xpathAssert(String, int)}
+   * See {@link XPathAssert#XPathAssert(String, String, boolean)}
    */
+    public XPathAssert xpathAssert(String xpathExpr, String expectedResult, boolean normalize) {
+      return new XPathAssert(xpathExpr, expectedResult, normalize) {
+            public void eval(Node node) throws XPathExpressionException {
+                try {
+                    super.eval(node);
+                } catch (AssertionError error) {
+                    throw new AssertionFailedError(error.getMessage());
+                }
+            }
+        };
+    }
+
+    /**
+     * See {@link org.tigris.juxy.xpath.XPathAssert#XPathAssert(String, double, double)}
+     */
     public XPathAssert xpathAssert(String xpathExpr, double expectedResult, double error) {
-      return new XPathAssert(xpathExpr, expectedResult, error);
+      return new XPathAssert(xpathExpr, expectedResult, error) {
+            public void eval(Node node) throws XPathExpressionException {
+                try {
+                    super.eval(node);
+                } catch (AssertionError error) {
+                    throw new AssertionFailedError(error.getMessage());
+                }
+            }
+        };
     }
 
     private RunnerContext getContext() {
