@@ -1,11 +1,10 @@
 package org.tigris.juxy.verifier;
 
-import org.apache.tools.ant.BuildFileTest;
 import org.apache.tools.ant.BuildException;
-import org.apache.xml.resolver.CatalogManager;
+import org.apache.tools.ant.BuildFileTest;
 
 /**
- * $Id: UTestVerifierTask.java,v 1.6 2006-10-19 07:31:07 pavelsher Exp $
+ * $Id: UTestVerifierTask.java,v 1.7 2006-10-19 07:31:17 pavelsher Exp $
  *
  * @author Pavel Sher
  */
