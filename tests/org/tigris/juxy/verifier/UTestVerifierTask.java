@@ -5,7 +5,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.xml.resolver.CatalogManager;
 
 /**
- * $Id: UTestVerifierTask.java,v 1.5 2006-10-19 07:23:23 pavelsher Exp $
+ * $Id: UTestVerifierTask.java,v 1.6 2006-10-19 07:31:07 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -76,7 +76,5 @@ public class UTestVerifierTask extends BuildFileTest {
 
     protected void tearDown() throws Exception {
         System.out.println(getLog());
-        // reset catalog files
-        CatalogManager.getStaticManager().setCatalogFiles(null);
     }
 }
