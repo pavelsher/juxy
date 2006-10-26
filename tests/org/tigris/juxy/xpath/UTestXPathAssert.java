@@ -40,4 +40,16 @@ public class UTestXPathAssert extends TestCase {
         new XPathAssert("/value/text()", "\t\nsome text   with  spaces  \n").eval(node);
         new XPathAssert("/value/text()", "\t\nsome text   with  spaces  \n", false).eval(node);
     }
+
+    public void testNamespaces() throws SAXException, XPathExpressionException {
+        Node doc = DOMUtil.parse("" +
+                "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n" +
+                "    <xsl:template name=\"foo\">\n" +
+                "        <xsl:call-template name=\"foo\"></xsl:call-template>\n" +
+                "    </xsl:template>\n" +
+                "</xsl:stylesheet>");
+        XPathAssert xp =
+                new XPathAssert("count(/xsl:stylesheet/xsl:template[@name='foo']/xsl:call-template[@name='foo'])", 1);
+        xp.addNamespace("xsl", "http://www.w3.org/1999/XSL/Transform").eval(doc);
+    }
 }

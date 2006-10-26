@@ -113,6 +113,12 @@ public class XPathAssert {
     return this;
   }
 
+    /**
+     * Evaluates this assertion.
+     * @param node node to evaluate assertion on
+     * @throws XPathExpressionException
+     * @throws AssertionError if assertion failed
+     */
   public void eval(Node node) throws XPathExpressionException, AssertionError {
     ArgumentAssert.notNull(node, "Node must not be null");
     evaluator.eval(node);
