@@ -2,7 +2,10 @@ package org.tigris.juxy.xpath;
 
 import org.tigris.juxy.util.ArgumentAssert;
 import org.tigris.juxy.util.StringUtil;
+import org.tigris.juxy.util.XMLComparator;
+import org.tigris.juxy.util.DocumentsAssertionError;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 /**
  * User: pavel
@@ -96,6 +99,28 @@ public class XPathAssert {
         actual = normalizeBeforeAssert ? StringUtil.normalizeAll(actual) : actual;
         if (!expectedResult.equals(actual)) {
           throw assertionError(actual, expectedResult);
+        }
+      }
+    };
+  }
+
+    /**
+     * Constructs assertion that evaluates XPath expression to node and compares it with expected node using {@link org.tigris.juxy.util.XMLComparator} class.
+     * @param xpathExpr XPath expression
+     * @param expectedNode node to compare result with
+     */
+  public XPathAssert(String xpathExpr, final Node expectedNode) {
+    xpath = XPathFactory.newXPath(xpathExpr);
+    evaluator = new AssertionEvaluator() {
+      public void eval(Node node) throws XPathExpressionException {
+        Node actual = xpath.toNode(node);
+        if (actual == null) {
+            throw new AssertionError("XPath expression " + xpath.getExpression() + " returned null");
+        }
+        try {
+            XMLComparator.assertEquals(expectedNode, actual);
+        } catch (DocumentsAssertionError error) {
+            throw new AssertionError(error.getMessage());
         }
       }
     };

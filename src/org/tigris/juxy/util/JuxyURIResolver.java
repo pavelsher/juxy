@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.xml.transform.Source;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
@@ -18,7 +17,7 @@ import java.net.URL;
 public class JuxyURIResolver implements URIResolver {
     private static final Log logger = LogFactory.getLog(JuxyURIResolver.class);
 
-    public Source resolve(String href, String base) throws TransformerException {
+    public Source resolve(String href, String base) {
         logger.debug("Resolving URI: " + href + " against base URI: " + base);
         if (href == null) return null;
 

@@ -3,8 +3,9 @@ package org.tigris.juxy.validator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.tigris.juxy.JuxyRuntimeException;
-import org.tigris.juxy.util.ExceptionUtil;
 import org.tigris.juxy.util.ArgumentAssert;
+import org.tigris.juxy.util.ExceptionUtil;
+import org.tigris.juxy.util.JuxyURIResolver;
 import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -14,7 +15,6 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -36,7 +36,9 @@ public class XMLSchemaValidator implements Validator {
     SchemaErrorHandler schemaErrorHandler = new SchemaErrorHandler();
     schemaFactory.setErrorHandler(schemaErrorHandler);
     try {
-      validator = schemaFactory.newSchema(new File(pathToSchema)).newValidator();
+      JuxyURIResolver resolver = new JuxyURIResolver();
+      Source schemaSrc = resolver.resolve(pathToSchema, "");
+      validator = schemaFactory.newSchema(schemaSrc).newValidator();
       if (schemaErrorHandler.wereErrors()) {
         throw new JuxyRuntimeException(
             exceptionMessage("Failed to compile schema", schemaErrorHandler));

@@ -52,4 +52,22 @@ public class UTestXPathAssert extends TestCase {
                 new XPathAssert("count(/xsl:stylesheet/xsl:template[@name='foo']/xsl:call-template[@name='foo'])", 1);
         xp.addNamespace("xsl", "http://www.w3.org/1999/XSL/Transform").eval(doc);
     }
+
+    public void testAssertNode() throws SAXException, XPathExpressionException {
+        Node node = DOMUtil.parse("" +
+                "<ul>" +
+                "   <li>" +
+                "       <p>some text</p>" +
+                "   </li>" +
+                "</ul>");
+        new XPathAssert("//p", DOMUtil.parse("<p>some text</p>")).eval(node);
+        new XPathAssert("//p", DOMUtil.parse("<p>\nsome text\n</p>")).eval(node);
+
+        try {
+            new XPathAssert("//p", DOMUtil.parse("<p>different text</p>")).eval(node);
+        } catch (AssertionError error) {
+//            error.printStackTrace();
+        }
+
+    }
 }

@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Contains utility methods easing DOM creation and transformation.
+ * Contains utility methods simplifying DOM creation and transformation.
  *
  * @author Pavel Sher
  */

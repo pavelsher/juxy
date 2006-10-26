@@ -316,6 +316,21 @@ public abstract class JuxyTestCase extends TestCase {
         };
     }
 
+    /**
+     * See {@link XPathAssert#XPathAssert(String, Node)}
+     */
+      public XPathAssert xpathAssert(String xpathExpr, Node expectedResult) {
+        return new XPathAssert(xpathExpr, expectedResult) {
+              public void eval(Node node) throws XPathExpressionException {
+                  try {
+                      super.eval(node);
+                  } catch (AssertionError error) {
+                      throw new AssertionFailedError(error.getMessage());
+                  }
+              }
+          };
+      }
+
     private RunnerContext getContext() {
         if (context == null)
             throw new IllegalStateException("Call newContext method first");

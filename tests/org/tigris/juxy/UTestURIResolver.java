@@ -12,8 +12,6 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 
 /**
- * $Id: UTestURIResolver.java,v 1.1 2005-08-07 16:43:16 pavelsher Exp $
- *
  * @author Pavel Sher
  */
 public class UTestURIResolver extends JuxyTestCase {

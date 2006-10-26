@@ -27,7 +27,7 @@ public class XMLComparator {
         assertEquals(DOMUtil.parse(expected), actual);
     }
 
-    public static void assertEquals(Node expected, Node actual) throws DocumentsAssertionError, SAXException {
+    public static void assertEquals(Node expected, Node actual) throws DocumentsAssertionError {
         ArgumentAssert.notNull(expected, "Expected document must not be null");
         ArgumentAssert.notNull(actual, "Actual document must not be null");
 

@@ -21,6 +21,12 @@ public class UTestValidator extends TestCase {
     }
   }
 
+  public void testLoadSchemaFromResources() throws Exception {
+    Validator validator =
+        ValidatorFactory.createXMLSchemaValidator("/xml/validator/schema1.xml");
+    validator.validate(DOMUtil.parse("<name>some text</name>"));
+  }
+
   public void testBadSchema() throws Exception {
     try {
       ValidatorFactory.createXMLSchemaValidator("tests/xml/validator/badSchema.xml");
