@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.tigris.juxy.*;
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.util.SAXUtil;
-import org.tigris.juxy.util.FileURIResolver;
+import org.tigris.juxy.util.JuxyURIResolver;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathFactory;
 import org.w3c.dom.Document;
@@ -64,9 +64,9 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
     {
         assert systemId != null && systemId.length() > 0;
         if (resolver == null)
-            resolver = new FileURIResolver();
+            resolver = new JuxyURIResolver();
 
-        Source src = null;
+        Source src;
         try {
             src = resolver.resolve(systemId, "");
             if (src == null)
@@ -194,7 +194,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
                 doc = (Document) node;
             if (doc == null)
                 throw new JuxyRuntimeException("Failed to obtain Document from the DOMSource Node for system id: " + importSystemId);
-            NodeList nodes = (NodeList) doc.getElementsByTagNameNS(XSLTKeys.XSLT_NS, "stylesheet");
+            NodeList nodes = doc.getElementsByTagNameNS(XSLTKeys.XSLT_NS, "stylesheet");
             if (nodes.getLength() == 0)
                 logger.warn("Element xsl:stylesheet was not found in the system id: " + importSystemId);
             else {
@@ -238,7 +238,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder
                 if (tracingEnabled) {
                     logger.warn("Tracing is not supported for XSLT transformer bundled with Java 1.5.");
                 }
-                if (!(resolver instanceof FileURIResolver)) {
+                if (!(resolver instanceof JuxyURIResolver)) {
                     logger.warn("Custom URI resolver is not supported for XSLT transformer bundled with Java 1.5.");
                 }
             }

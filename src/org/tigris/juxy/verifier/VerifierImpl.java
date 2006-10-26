@@ -1,6 +1,6 @@
 package org.tigris.juxy.verifier;
 
-import org.tigris.juxy.util.FileURIResolver;
+import org.tigris.juxy.util.JuxyURIResolver;
 import org.tigris.juxy.util.SAXUtil;
 import org.tigris.juxy.util.ExceptionUtil;
 import org.xml.sax.ErrorHandler;
@@ -21,7 +21,7 @@ import java.util.*;
 public class VerifierImpl implements Verifier {
     private List urisToVerify = new ArrayList(20);
     private ErrorReporter er;
-    private URIResolver resolver = new FileURIResolver();
+    private URIResolver resolver = new JuxyURIResolver();
     private int numberOfVerifiedFiles = 0;
     private int numberOfNotVerifiedFiles = 0;
     private boolean wereParseErrors = false;

@@ -32,6 +32,7 @@
     <path id="test.classpath">
         <pathelement path="${test.classes.dir}"/>
         <path refid="compile-tests.classpath"/>
+        <pathelement path="${tests.dir}/xml/resolver/resources.jar"/> <!-- for testing of URI resolution -->
     </path>
 
     <path id="instr.classpath">
@@ -44,6 +45,7 @@
         <fileset dir="${lib.dir}" >
             <include name="*.jar"/>
         </fileset>
+        <pathelement path="${tests.dir}/xml/resolver/resources.jar"/> <!-- for testing of URI resolution -->
         <pathelement path="${tools.dir}/junit.jar"/>
         <path refid="emma.lib"/>
     </path>
@@ -91,6 +93,12 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
+
+        <copy todir="${test.classes.dir}/xml">
+            <fileset dir="${tests.dir}/xml">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="compile" depends="init, compile-src, compile-tests" />
@@ -102,10 +110,11 @@
         <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
 
-    <fileset id="all.tests.except.xslt20.and.verifier" dir="${tests.dir}">
+    <fileset id="all.tests.for.xalan" dir="${tests.dir}">
         <include name="org/**/UTest*.java" />
         <exclude name="org/**/UTest*20.java" />
         <exclude name="org/**/UTestVerifierTask.java" />
+        <exclude name="org/**/UTestRunnerResourcesResolving.java" />
     </fileset>
 
     <fileset id="all.tests.for.java.xsltc" dir="${tests.dir}">
@@ -113,6 +122,7 @@
         <exclude name="org/**/UTest*20.java" />
         <exclude name="org/**/UTestExternalFunctions.java" />
         <exclude name="org/**/UTestRunnerTracing.java" />
+        <exclude name="org/**/UTestRunnerResourcesResolving.java" />
         <exclude name="org/**/UTestTracingFilter.java" />
         <exclude name="org/**/UTestURIResolver.java" />
         <exclude name="org/**/UTestVerifierImpl.java" />
@@ -124,6 +134,7 @@
         <exclude name="org/**/UTest*20.java" />
         <exclude name="org/**/UTestExternalFunctions.java" />
         <exclude name="org/**/UTestRunnerTracing.java" />
+        <exclude name="org/**/UTestRunnerResourcesResolving.java" />
         <exclude name="org/**/UTestTracingFilter.java" />
         <exclude name="org/**/UTestVerifierImpl.java" />
         <exclude name="org/**/UTestVerifierTask.java" />
@@ -169,7 +180,7 @@
         <echo message="Running tests against Xalan XSLT ..."/>
         <!-- run unit tests with xalan -->
         <antcall target="ut">
-            <param name="files" value="all.tests.except.xslt20.and.verifier"/>
+            <param name="files" value="all.tests.for.xalan"/>
             <param name="transformerFactory" value="org.apache.xalan.processor.TransformerFactoryImpl"/>
             <param name="classpath" value="test.classpath"/>
         </antcall>

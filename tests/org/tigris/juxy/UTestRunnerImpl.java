@@ -200,38 +200,41 @@ public class UTestRunnerImpl extends JuxyTestCase
 
     public void testRelativeImportWorks() throws Exception
     {
-        RunnerContext ctx = runner.newRunnerContext("tests/xml/relative-import.xsl");
-        ctx.setDocument("<source/>");
-
-        Node result = runner.applyTemplates(ctx);
-        assertNotNull(result);
-
-        assertNotNull(xpath("root").toNode(result));
+        RunnerContext ctx = runner.newRunnerContext("tests/xml/resolver/relative-import.xsl");
+      verifyImported(ctx);
     }
 
-    public void testRelativeIncludeWorks() throws Exception
-    {
-        RunnerContext ctx = runner.newRunnerContext("tests/xml/relative-include.xsl");
-        ctx.setDocument("<source/>");
+  private void verifyImported(final RunnerContext ctx) throws Exception {
+    ctx.setDocument("<source/>");
 
-        Node result = runner.applyTemplates(ctx);
-        assertNotNull(result);
+    Node result = runner.applyTemplates(ctx);
+    assertNotNull(result);
 
-        assertNotNull(xpath("root").toNode(result));
-    }
+    assertNotNull(xpath("root").toNode(result));
+  }
 
-    public void testRelativeDocumentFunctionWorks() throws Exception
-    {
-        RunnerContext ctx = runner.newRunnerContext("tests/xml/document-func.xsl");
-        ctx.setDocument("<source/>");
+  public void testRelativeIncludeWorks() throws Exception
+  {
+      RunnerContext ctx = runner.newRunnerContext("tests/xml/resolver/relative-include.xsl");
+      verifyImported(ctx);
+  }
 
-        Node result = runner.callTemplate(ctx, "copyDoc");
-        assertNotNull(result);
+  public void testRelativeDocumentFunctionWorks() throws Exception
+  {
+      RunnerContext ctx = runner.newRunnerContext("tests/xml/resolver/document-func.xsl");
+      verifyDocumentLoaded(ctx);
+  }
 
-        assertNotNull(xpath("document").toNode(result));
-    }
+  private void verifyDocumentLoaded(final RunnerContext ctx) throws Exception {
+    ctx.setDocument("<source/>");
 
-    public void testTextOnlyOutput() throws Exception {
+    Node result = runner.callTemplate(ctx, "copyDoc");
+    assertNotNull(result);
+
+    assertNotNull(xpath("document").toNode(result));
+  }
+
+  public void testTextOnlyOutput() throws Exception {
         RunnerContext ctx = runner.newRunnerContext("tests/xml/not-xml-output.xsl");
         ctx.setDocument("<source/>");
 
