@@ -38,6 +38,10 @@ public class XMLSchemaValidator implements Validator {
     try {
       JuxyURIResolver resolver = new JuxyURIResolver();
       Source schemaSrc = resolver.resolve(pathToSchema, "");
+      if (schemaSrc == null) {
+          throw new JuxyRuntimeException("Unable to locate schema by specified path: " + pathToSchema);
+      }
+
       validator = schemaFactory.newSchema(schemaSrc).newValidator();
       if (schemaErrorHandler.wereErrors()) {
         throw new JuxyRuntimeException(

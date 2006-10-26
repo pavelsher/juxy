@@ -41,8 +41,12 @@ public class JuxyURIResolver implements URIResolver {
         if (baseURI != null)
             resolvedHrefURI = resolveFromBase(baseURI, hrefURI);
 
+        if ("jar".equals(resolvedHrefURI.getScheme())) {
+            return new StreamSource(resolvedHrefURI.toString());
+        }
+
         File file;
-        if (resolvedHrefURI.isAbsolute() && resolvedHrefURI.getScheme().startsWith("file"))
+        if (resolvedHrefURI.isAbsolute() && "file".equals(resolvedHrefURI.getScheme()))
             file = new File(resolvedHrefURI);
         else
             file = new File(href).getAbsoluteFile();
@@ -56,12 +60,9 @@ public class JuxyURIResolver implements URIResolver {
         // attempt to resolve URI via classloader
         String resourceName = resolvedHrefURI.toString();
         if (resolvedHrefURI.getScheme() != null) {
-          if ("jar".equals(resolvedHrefURI.getScheme())) {
-            resourceName = getResourcePath(resourceName);
-          } else {
             resourceName = resolvedHrefURI.getSchemeSpecificPart();
-          }
         }
+
         URL found = getClass().getResource(resourceName);
         if (found != null) {
           try {

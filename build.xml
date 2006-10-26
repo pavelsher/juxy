@@ -30,9 +30,10 @@
     </path>
 
     <path id="test.classpath">
-        <pathelement path="${test.classes.dir}"/>
-        <path refid="compile-tests.classpath"/>
         <pathelement path="${tests.dir}/xml/resolver/resources.jar"/> <!-- for testing of URI resolution -->
+        <pathelement path="${test.classes.dir}"/>
+        <pathelement path="${tests.dir}/xml/resolver/resources2.jar"/> <!-- for testing of URI resolution -->
+        <path refid="compile-tests.classpath"/>
     </path>
 
     <path id="instr.classpath">
@@ -40,12 +41,13 @@
     </path>
 
     <path id="run-instr-tests.classpath">
+        <pathelement path="${tests.dir}/xml/resolver/resources.jar"/> <!-- for testing of URI resolution -->
         <pathelement location="${instr.classes.dir}/classes"/>
         <pathelement location="${test.classes.dir}"/>
+        <pathelement path="${tests.dir}/xml/resolver/resources2.jar"/> <!-- for testing of URI resolution -->
         <fileset dir="${lib.dir}" >
             <include name="*.jar"/>
         </fileset>
-        <pathelement path="${tests.dir}/xml/resolver/resources.jar"/> <!-- for testing of URI resolution -->
         <pathelement path="${tools.dir}/junit.jar"/>
         <path refid="emma.lib"/>
     </path>
