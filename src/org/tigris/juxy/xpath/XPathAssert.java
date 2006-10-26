@@ -101,6 +101,18 @@ public class XPathAssert {
     };
   }
 
+    /**
+     * Registers a namespace in the xpath expression. Returns the same XPathAssert object.
+     * @param prefix namespace prefix
+     * @param uri namespace URI
+     * @return same XPathAssert object
+     * @throws XPathExpressionException
+     */
+  public XPathAssert addNamespace(String prefix, String uri) throws XPathExpressionException {
+    xpath.addNamespace(prefix, uri);
+    return this;
+  }
+
   public void eval(Node node) throws XPathExpressionException, AssertionError {
     ArgumentAssert.notNull(node, "Node must not be null");
     evaluator.eval(node);
