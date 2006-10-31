@@ -4,12 +4,12 @@
                 version='1.0'>
 
 
-<xsl:variable name="ns1:var"/>
+  <xsl:variable name="ns1:var"/>
 
-<xsl:template name="getter">
+  <xsl:template name="getter">
     <root>
-        <xsl:value-of select="$ns1:var"/>
+      <xsl:value-of select="$ns1:var"/>
     </root>
-</xsl:template>
+  </xsl:template>
 
 </xsl:stylesheet>

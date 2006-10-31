@@ -1,99 +1,99 @@
 <project name="successful-verification" basedir="../../../">
 
-    <property name="classes.dir" location="${basedir}/classes"/>
-    <property name="lib.dir" location="${basedir}/lib"/>
+  <property name="classes.dir" location="${basedir}/classes"/>
+  <property name="lib.dir" location="${basedir}/lib"/>
 
-    <path id="juxy.task.path">
-        <pathelement path="${classes.dir}"/>
-        <fileset dir="${lib.dir}" >
-            <include name="*.jar"/>
-        </fileset>
-    </path>
-
-    <fileset dir="tests/xml/verifier" id="valid-xsl">
-        <include name="root.xsl"/>
+  <path id="juxy.task.path">
+    <pathelement path="${classes.dir}"/>
+    <fileset dir="${lib.dir}">
+      <include name="*.jar"/>
     </fileset>
+  </path>
 
-    <taskdef name="xsltverifier" classname="org.tigris.juxy.verifier.VerifierTask" classpathref="juxy.task.path"/>
+  <fileset dir="tests/xml/verifier" id="valid-xsl">
+    <include name="root.xsl"/>
+  </fileset>
 
-    <target name="verification-nofiles">
-        <xsltverifier>
-            <fileset dir=".">
-                <include name="*.nofiles"/>
-            </fileset>
-        </xsltverifier>
-    </target>
+  <taskdef name="xsltverifier" classname="org.tigris.juxy.verifier.VerifierTask" classpathref="juxy.task.path"/>
 
-    <target name="verification-invaliddir">
-        <xsltverifier dir="nodir" includes="*.xsl"/>
-    </target>
+  <target name="verification-nofiles">
+    <xsltverifier>
+      <fileset dir=".">
+        <include name="*.nofiles"/>
+      </fileset>
+    </xsltverifier>
+  </target>
 
-    <target name="verification-noattributes">
-        <xsltverifier/>
-    </target>
+  <target name="verification-invaliddir">
+    <xsltverifier dir="nodir" includes="*.xsl"/>
+  </target>
 
-    <target name="verification-dirandfileset">
-        <xsltverifier dir=".">
-            <fileset refid="valid-xsl"/>
-        </xsltverifier>
-    </target>
+  <target name="verification-noattributes">
+    <xsltverifier/>
+  </target>
 
-    <target name="successful-verification">
-        <xsltverifier dir="tests/xml/verifier" includes="root.xsl"/>
-        <xsltverifier>
-            <fileset refid="valid-xsl"/>
-        </xsltverifier>
-    </target>
+  <target name="verification-dirandfileset">
+    <xsltverifier dir=".">
+      <fileset refid="valid-xsl"/>
+    </xsltverifier>
+  </target>
 
-    <target name="failonerror">
-        <xsltverifier dir="tests/xml/verifier" includes="not-well-formed.xsl, root.xsl" failonerror="true"/>
-    </target>
+  <target name="successful-verification">
+    <xsltverifier dir="tests/xml/verifier" includes="root.xsl"/>
+    <xsltverifier>
+      <fileset refid="valid-xsl"/>
+    </xsltverifier>
+  </target>
 
-    <target name="no-failonerror">
-        <xsltverifier dir="tests/xml/verifier" includes="not-well-formed.xsl, root.xsl" failonerror="false"/>
-    </target>
+  <target name="failonerror">
+    <xsltverifier dir="tests/xml/verifier" includes="not-well-formed.xsl, root.xsl" failonerror="true"/>
+  </target>
 
-    <target name="verification-factorywithoutname">
-        <xsltverifier dir=".">
-            <factory/>
-        </xsltverifier>
-    </target>
+  <target name="no-failonerror">
+    <xsltverifier dir="tests/xml/verifier" includes="not-well-formed.xsl, root.xsl" failonerror="false"/>
+  </target>
 
-    <target name="verification-factorywithemptyname">
-        <xsltverifier dir=".">
-            <factory name=""/>
-        </xsltverifier>
-    </target>
+  <target name="verification-factorywithoutname">
+    <xsltverifier dir=".">
+      <factory/>
+    </xsltverifier>
+  </target>
 
-    <target name="verification-validfactory">
-        <xsltverifier>
-            <factory name="net.sf.saxon.TransformerFactoryImpl"/>
-            <fileset refid="valid-xsl"/>
-        </xsltverifier>
-        <xsltverifier>
-            <factory name="org.apache.xalan.processor.TransformerFactoryImpl"/>
-            <fileset refid="valid-xsl"/>
-        </xsltverifier>
-    </target>
+  <target name="verification-factorywithemptyname">
+    <xsltverifier dir=".">
+      <factory name=""/>
+    </xsltverifier>
+  </target>
 
-    <target name="verification-emptycatalog">
-        <xsltverifier>
-            <catalog/>
-            <fileset refid="valid-xsl"/>
-        </xsltverifier>
-    </target>
+  <target name="verification-validfactory">
+    <xsltverifier>
+      <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+      <fileset refid="valid-xsl"/>
+    </xsltverifier>
+    <xsltverifier>
+      <factory name="org.apache.xalan.processor.TransformerFactoryImpl"/>
+      <fileset refid="valid-xsl"/>
+    </xsltverifier>
+  </target>
 
-    <target name="verification-catalogwithemptycatalogfiles">
-        <xsltverifier>
-            <catalog catalogfiles=""/>
-            <fileset refid="valid-xsl"/>
-        </xsltverifier>
-    </target>
+  <target name="verification-emptycatalog">
+    <xsltverifier>
+      <catalog/>
+      <fileset refid="valid-xsl"/>
+    </xsltverifier>
+  </target>
 
-    <target name="verification-validcatalog">
-        <xsltverifier dir="tests/xml/verifier" includes="using-catalog.xsl">
-            <catalog catalogfiles="tests/xml/verifier/catalog1.xml,tests/xml/verifier/catalog2.xml"/>
-        </xsltverifier>
-    </target>
+  <target name="verification-catalogwithemptycatalogfiles">
+    <xsltverifier>
+      <catalog catalogfiles=""/>
+      <fileset refid="valid-xsl"/>
+    </xsltverifier>
+  </target>
+
+  <target name="verification-validcatalog">
+    <xsltverifier dir="tests/xml/verifier" includes="using-catalog.xsl">
+      <catalog catalogfiles="tests/xml/verifier/catalog1.xml,tests/xml/verifier/catalog2.xml"/>
+    </xsltverifier>
+  </target>
 
 </project>

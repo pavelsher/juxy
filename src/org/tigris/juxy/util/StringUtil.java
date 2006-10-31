@@ -1,75 +1,70 @@
 package org.tigris.juxy.util;
 
 /**
- * $Id: StringUtil.java,v 1.6 2006-10-03 14:31:01 pavelsher Exp $
- * <p/>
  * Various utility methods.
  *
  * @author Pavel Sher
  */
-public class StringUtil
-{
-    /**
-     * Method normalizes all spaces in the string including new line characters:
-     * it replaces '\r' and '\n' chars with space char, then collapses sequences
-     * of space characters into the one character and finally trims spaces.
-     * @param text the string to normalize
-     * @return normalized string
-     */
-    public static String normalizeAll(String text) {
-        return collapseSpaces(text, SPACE_AND_CARRIAGE_CHARS).trim();
+public class StringUtil {
+  /**
+   * Method normalizes all spaces in the string including new line characters:
+   * it replaces '\r' and '\n' chars with space char, then collapses sequences
+   * of space characters into the one character and finally trims spaces.
+   *
+   * @param text the string to normalize
+   * @return normalized string
+   */
+  public static String normalizeAll(String text) {
+    return collapseSpaces(text, SPACE_AND_CARRIAGE_CHARS).trim();
+  }
+
+  /**
+   * Method collapses spaces: converts series of spaces into the one space character and trims result.
+   *
+   * @param text text to collapse spaces in
+   * @return text with collapsed spaces
+   */
+  public static String normalizeSpaces(String text) {
+    return collapseSpaces(text, SPACE_CHARS).trim();
+  }
+
+  /**
+   * Collapses spaces in the text, but does not trim the resulting string.
+   *
+   * @param text
+   * @param spaceCharacters array of characters treated as spaces
+   * @return
+   */
+  public static String collapseSpaces(String text, char[] spaceCharacters) {
+    if (text == null || text.length() == 0)
+      return text;
+
+    StringBuffer result = new StringBuffer();
+    char[] textChars = text.toCharArray();
+
+    boolean wasSpace = false;
+    for (int i = 0; i < textChars.length; i++) {
+      if (!isCharacterInArray(textChars[i], spaceCharacters)) {
+        result.append(textChars[i]);
+        wasSpace = false;
+      } else if (!wasSpace) {
+        result.append(' ');
+        wasSpace = true;
+      }
     }
 
-    /**
-     * Method collapses spaces: converts series of spaces into the one space character and trims result.
-     * @param text text to collapse spaces in
-     * @return text with collapsed spaces
-     */
-    public static String normalizeSpaces(String text) {
-        return collapseSpaces(text, SPACE_CHARS).trim();
-    }
+    return result.toString();
+  }
 
-    /**
-     * Collapses spaces in the text, but does not trim the resulting string.
-     * @param text
-     * @param spaceCharacters array of characters treated as spaces
-     * @return
-     */
-    public static String collapseSpaces(String text, char[] spaceCharacters)
-    {
-        if (text == null || text.length() == 0)
-            return text;
-
-        StringBuffer result = new StringBuffer();
-        char[] textChars = text.toCharArray();
-
-        boolean wasSpace = false;
-        for (int i=0; i<textChars.length; i++)
-        {
-            if (!isCharacterInArray(textChars[i], spaceCharacters))
-            {
-                result.append(textChars[i]);
-                wasSpace = false;
-            }
-            else if (!wasSpace)
-            {
-                result.append(' ');
-                wasSpace = true;
-            }
-        }
-
-        return result.toString();
-    }
-
-    /**
-     * Method converts line feeds to Unix style.
-     * The sequences of characters are processed as follows:
-     * \rc -> \nc
-     * \r\rc -> \n\nc
-     * \r\nc -> \nc
-     * \n\rc -> \nc
-     * where 'c' is a non line feed character
-     */
+  /**
+   * Method converts line feeds to Unix style.
+   * The sequences of characters are processed as follows:
+   * \rc -> \nc
+   * \r\rc -> \n\nc
+   * \r\nc -> \nc
+   * \n\rc -> \nc
+   * where 'c' is a non line feed character
+   */
 /*
     public static String toUnixLineFeeds(String text)
     {
@@ -106,13 +101,13 @@ public class StringUtil
     }
 */
 
-    /**
-     * Trims spaces on each line of text. For example, result of the trimming of a text:
-     * <code>"a text line   \n  a line of text \n"</code> will be <code>"a text line\na line of text\n"</code>.
-     * <br>It is supposed that line feeds are in Unix style: \n.
-     * @param text text to trim
-     * @return trimmed string
-     */
+  /**
+   * Trims spaces on each line of text. For example, result of the trimming of a text:
+   * <code>"a text line   \n  a line of text \n"</code> will be <code>"a text line\na line of text\n"</code>.
+   * <br>It is supposed that line feeds are in Unix style: \n.
+   * @param text text to trim
+   * @return trimmed string
+   */
 /*
     public static String trimSpacesOnEachLine(String text)
     {
@@ -188,62 +183,57 @@ public class StringUtil
 */
 
 
-    /**
-     * That method escapes symbols '<' and '&' in source string be replacing them with '&lt;' and '&amp;' correspondingly
-     * @param source - the string being escaped
-     * @return new string with replaced chars
-     */
-    public static String escapeXMLText(String source)
-    {
-        if (source == null || source.length() == 0)
-            return source;
+  /**
+   * That method escapes symbols '<' and '&' in source string be replacing them with '&lt;' and '&amp;' correspondingly
+   *
+   * @param source - the string being escaped
+   * @return new string with replaced chars
+   */
+  public static String escapeXMLText(String source) {
+    if (source == null || source.length() == 0)
+      return source;
 
-        // TODO: make this method more performance effective
-        return replaceChar(replaceChar(source, '&', "&amp;"), '<', "&lt;");
+    // TODO: make this method more performance effective
+    return replaceChar(replaceChar(source, '&', "&amp;"), '<', "&lt;");
+  }
+
+  public static String replaceCharByEntityRef(String source, char charToReplace) {
+    return replaceChar(source, charToReplace, "&#" + (int) charToReplace + ";");
+  }
+
+  public static String escapeQuoteCharacter(String source) {
+    return replaceChar(source, '"', "&quot;");
+  }
+
+  /**
+   * Replaces all occurences of a character with specified string
+   *
+   * @param source              the string to replace within
+   * @param charToReplace       the character to replace
+   * @param stringToReplaceWith the string to replace character with
+   * @return string with all occurences of a character replaced by specified string
+   */
+  private static String replaceChar(String source, char charToReplace, String stringToReplaceWith) {
+    StringBuffer output = new StringBuffer(source.length());
+    for (int i = 0; i < source.length(); i++) {
+      if (source.charAt(i) != charToReplace)
+        output.append(source.charAt(i));
+      else
+        output.append(stringToReplaceWith);
     }
 
-    public static String replaceCharByEntityRef(String source, char charToReplace)
-    {
-        return replaceChar(source, charToReplace, "&#" + (int)charToReplace + ";");
+    return output.toString();
+  }
+
+  private static boolean isCharacterInArray(char c, char[] characters) {
+    for (int i = 0; i < characters.length; i++) {
+      if (c == characters[i])
+        return true;
     }
 
-    public static String escapeQuoteCharacter(String source) {
-        return replaceChar(source, '"', "&quot;");
-    }
+    return false;
+  }
 
-    /**
-     * Replaces all occurences of a character with specified string
-     * @param source the string to replace within
-     * @param charToReplace the character to replace
-     * @param stringToReplaceWith the string to replace character with
-     * @return string with all occurences of a character replaced by specified string
-     */
-    private static String replaceChar(String source, char charToReplace, String stringToReplaceWith)
-    {
-        StringBuffer output = new StringBuffer(source.length());
-        char[] sourceChars = source.toCharArray();
-        for (int i=0; i<sourceChars.length; i++)
-        {
-            if (sourceChars[i] != charToReplace)
-                output.append(sourceChars[i]);
-            else
-                output.append(stringToReplaceWith);
-        }
-
-        return output.toString();
-    }
-
-    private static boolean isCharacterInArray(char c, char[] characters)
-    {
-        for (int i=0; i<characters.length; i++)
-        {
-            if (c == characters[i])
-                return true;
-        }
-
-        return false;
-    }
-
-    public final static char[] SPACE_AND_CARRIAGE_CHARS = " \t\n\r\0".toCharArray();
-    public final static char[] SPACE_CHARS = " \t".toCharArray();
+  public final static char[] SPACE_AND_CARRIAGE_CHARS = " \t\n\r\0".toCharArray();
+  public final static char[] SPACE_CHARS = " \t".toCharArray();
 }

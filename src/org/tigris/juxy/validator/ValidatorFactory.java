@@ -3,8 +3,7 @@ package org.tigris.juxy.validator;
 import org.tigris.juxy.JuxyRuntimeException;
 
 /**
- * User: pavel
- * Date: 10.10.2006
+ * @author pavel
  */
 public class ValidatorFactory {
   private static Boolean JAVAX_SCHEMA_VALIDATION_AVAILABLE = null;

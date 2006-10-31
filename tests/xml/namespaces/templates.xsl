@@ -4,13 +4,13 @@
                 version='1.0'>
 
 
-<xsl:template name="ns1:named">
+  <xsl:template name="ns1:named">
     <named/>
-</xsl:template>
+  </xsl:template>
 
-<xsl:template match="source" mode="ns1:mode">
+  <xsl:template match="source" mode="ns1:mode">
     <matched/>
-</xsl:template>
+  </xsl:template>
 
 
 </xsl:stylesheet>

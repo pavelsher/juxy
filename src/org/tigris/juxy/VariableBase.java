@@ -6,84 +6,77 @@ import org.w3c.dom.Document;
 
 /**
  * <p/>
+ *
  * @author Pavel Sher
  */
-public class VariableBase
-{
-    private final String qname;
-    private final VariableValueContainer value;
+public class VariableBase {
+  private final String qname;
+  private final VariableValueContainer value;
 
-    VariableBase(String qname, String value)
-    {
-        ArgumentAssert.notEmpty(qname, "Name must not be empty");
+  VariableBase(String qname, String value) {
+    ArgumentAssert.notEmpty(qname, "Name must not be empty");
 
-        this.qname = qname.trim();
-        this.value = new VariableValueContainer(value);
-    }
+    this.qname = qname.trim();
+    this.value = new VariableValueContainer(value);
+  }
 
-    VariableBase(String qname, XPathExpr xpath)
-    {
-        ArgumentAssert.notEmpty(qname, "Name must not be empty");
+  VariableBase(String qname, XPathExpr xpath) {
+    ArgumentAssert.notEmpty(qname, "Name must not be empty");
 
-        this.qname = qname.trim();
-        this.value = new VariableValueContainer(xpath);
-    }
+    this.qname = qname.trim();
+    this.value = new VariableValueContainer(xpath);
+  }
 
-    VariableBase(String qname, Document content)
-    {
-        ArgumentAssert.notEmpty(qname, "Name must not be empty");
+  VariableBase(String qname, Document content) {
+    ArgumentAssert.notEmpty(qname, "Name must not be empty");
 
-        this.qname = qname.trim();
-        this.value = new VariableValueContainer(content);
-    }
+    this.qname = qname.trim();
+    this.value = new VariableValueContainer(content);
+  }
 
-    public boolean isVariableWithContent()
-    {
-        return value.isNotEmptyContent();
-    }
+  public boolean isVariableWithContent() {
+    return value.isNotEmptyContent();
+  }
 
-    public boolean isXPathValue() {
-        return value.isXPathValue();
-    }
+  public boolean isXPathValue() {
+    return value.isXPathValue();
+  }
 
-    public Document getContent()
-    {
-        if (isVariableWithContent())
-            return value.getContent();
+  public Document getContent() {
+    if (isVariableWithContent())
+      return value.getContent();
 
-        return null;
-    }
+    return null;
+  }
 
-    public String getXPathValue() {
-        return value.getXPathValue();
-    }
+  public String getXPathValue() {
+    return value.getXPathValue();
+  }
 
-    public String getStringValue()
-    {
-        return value.getStringValue();
-    }
+  public String getStringValue() {
+    return value.getStringValue();
+  }
 
-    public String getQname()
-    {
-        return qname;
-    }
+  public String getQname() {
+    return qname;
+  }
 
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof VariableBase)) return false;
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof VariableBase)) return false;
 
-        final VariableBase variableBase = (VariableBase) o;
+    final VariableBase variableBase = (VariableBase) o;
 
-        if (!qname.equals(variableBase.qname)) return false;
-        if (!value.equals(variableBase.value)) return false;
+    if (!qname.equals(variableBase.qname)) return false;
+    if (!value.equals(variableBase.value)) return false;
 
-        return true;
-    }
+    return true;
+  }
 
-    public int hashCode() {
-        int result;
-        result = qname.hashCode();
-        result = 29 * result + value.hashCode();
-        return result;
-    }
+  public int hashCode() {
+    int result;
+    result = qname.hashCode();
+    result = 29 * result + value.hashCode();
+    return result;
+  }
 }

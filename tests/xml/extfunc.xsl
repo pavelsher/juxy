@@ -4,29 +4,29 @@
                 xmlns:container="java:org.tigris.juxy.ValueContainer"
                 version='1.0'>
 
-<xsl:param name="tz"/>
-<xsl:param name="container"/>
+  <xsl:param name="tz"/>
+  <xsl:param name="container"/>
 
-<xsl:template name="getTimeZoneString">
+  <xsl:template name="getTimeZoneString">
     <root>
-        <xsl:value-of select="tz:toString($tz)"/>
+      <xsl:value-of select="tz:toString($tz)"/>
     </root>
-</xsl:template>
+  </xsl:template>
 
-<xsl:template name="setStringToContainer">
+  <xsl:template name="setStringToContainer">
     <xsl:param name="string" select="''"/>
 
     <xsl:value-of select="container:setString($container, $string)"/>
-</xsl:template>
+  </xsl:template>
 
-<!--
-<xsl:value-of select="tracer:log($juxy:tracer, 1, 2, 'file.xsl', 'message')"/>    
--->
+  <!--
+  <xsl:value-of select="tracer:log($juxy:tracer, 1, 2, 'file.xsl', 'message')"/>
+  -->
 
-<!--
-<xsl:template name="setNodeToContainer">
-    <xsl:value-of select="container:setNode($container, /)"/>
-</xsl:template>
--->
+  <!--
+  <xsl:template name="setNodeToContainer">
+      <xsl:value-of select="container:setNode($container, /)"/>
+  </xsl:template>
+  -->
 
 </xsl:stylesheet>

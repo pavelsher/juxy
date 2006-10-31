@@ -10,15 +10,20 @@ import java.util.Map;
 /**
  * @author Pavel Sher
  */
-public interface TemplatesBuilder
-{
-    void setImportSystemId(String systemId, URIResolver resolver);
-    void setTracingEnabled(boolean tracingEnabled);
-    void setGlobalVariables(Collection variables);
-    void setCurrentNode(XPathExpr currentNode);
-    void setInvokationStatementInfo(String name, Collection invokeParams);
-    void setInvokationStatementInfo(XPathExpr selectXpathExpr, String mode, Collection invokeParams);
-    void setNamespaces(Map namespaces);
+public interface TemplatesBuilder {
+  void setImportSystemId(String systemId, URIResolver resolver);
 
-    Templates build();
+  void setTracingEnabled(boolean tracingEnabled);
+
+  void setGlobalVariables(Collection variables);
+
+  void setCurrentNode(XPathExpr currentNode);
+
+  void setInvokationStatementInfo(String name, Collection invokeParams);
+
+  void setInvokationStatementInfo(XPathExpr selectXpathExpr, String mode, Collection invokeParams);
+
+  void setNamespaces(Map namespaces);
+
+  Templates build();
 }

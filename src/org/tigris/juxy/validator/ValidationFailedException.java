@@ -1,10 +1,9 @@
 package org.tigris.juxy.validator;
 
 /**
- * User: pavel
- * Date: 14.10.2006
+ * @author pavel
  */
-public class ValidationFailedException extends Exception {
+public class ValidationFailedException extends AssertionError {
 
   public ValidationFailedException(String message) {
     super(message);

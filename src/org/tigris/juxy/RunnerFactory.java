@@ -6,14 +6,13 @@ package org.tigris.juxy;
  *
  * @author Pavel Sher
  */
-public class RunnerFactory
-{
-    /**
-     * Creates new Runner.
-     * @return Runner object
-     */
-    public static Runner newRunner()
-    {
-        return new RunnerImpl();
-    }
+public class RunnerFactory {
+  /**
+   * Creates new Runner.
+   *
+   * @return Runner object
+   */
+  public static Runner newRunner() {
+    return new RunnerImpl();
+  }
 }

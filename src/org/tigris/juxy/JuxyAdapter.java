@@ -1,30 +1,25 @@
 package org.tigris.juxy;
 
-import junit.framework.TestCase;
-import org.tigris.juxy.util.StringUtil;
-import org.tigris.juxy.validator.ValidationFailedException;
-import org.tigris.juxy.xpath.XPathAssert;
+import org.tigris.juxy.util.*;
 import org.tigris.juxy.xpath.XPathExpr;
+import org.tigris.juxy.xpath.XPathFactory;
+import org.tigris.juxy.xpath.XPathAssert;
 import org.tigris.juxy.xpath.XPathExpressionException;
-import org.w3c.dom.Document;
+import org.tigris.juxy.validator.ValidatorFactory;
+import org.tigris.juxy.validator.ValidationFailedException;
 import org.w3c.dom.Node;
+import org.w3c.dom.Document;
 
 import javax.xml.transform.URIResolver;
 
+import java.io.ByteArrayOutputStream;
+
 /**
- * <p/>
- *
  * @author Pavel Sher
  */
-public abstract class JuxyTestCase extends TestCase {
-  private JuxyAdapter delegate = new JuxyAdapter();
-
-  protected JuxyTestCase() {
-  }
-
-  protected JuxyTestCase(String name) {
-    super(name);
-  }
+public class JuxyAdapter {
+  private Runner runner;
+  private RunnerContext context;
 
   /**
    * Creates a new RunnerContext object. RunnerContext holds all information required
@@ -34,7 +29,8 @@ public abstract class JuxyTestCase extends TestCase {
    * @return new RunnerContext object
    */
   public RunnerContext newContext(String systemId) {
-    return delegate.newContext(systemId);
+    context = getRunner().newRunnerContext(systemId);
+    return context;
   }
 
   /**
@@ -46,7 +42,8 @@ public abstract class JuxyTestCase extends TestCase {
    * @return new RunnerContext object
    */
   public RunnerContext newContext(String systemId, URIResolver resolver) {
-    return delegate.newContext(systemId, resolver);
+    context = getRunner().newRunnerContext(systemId, resolver);
+    return context;
   }
 
   /**
@@ -55,15 +52,19 @@ public abstract class JuxyTestCase extends TestCase {
    * @return current RunnerContext object
    */
   public RunnerContext context() {
-    return delegate.context();
+    if (context == null)
+      throw new IllegalStateException("Call newContext() method first");
+    return context;
   }
 
   /**
    * Sets RunnerContext object to use as the current context.
+   *
    * @param context
    */
   public void setContext(RunnerContext context) {
-    delegate.setContext(context);
+    ArgumentAssert.notNull(context, "Context must not be null");
+    this.context = context;
   }
 
   /**
@@ -74,35 +75,35 @@ public abstract class JuxyTestCase extends TestCase {
    * @throws Exception
    */
   public XPathExpr xpath(String xpathExpr) throws Exception {
-    return delegate.xpath(xpathExpr);
+    return XPathFactory.newXPath(xpathExpr);
   }
 
   /**
    * See {@link Runner#applyTemplates(RunnerContext)}
    */
   public Node applyTemplates() throws Exception {
-    return delegate.applyTemplates();
+    return getRunner().applyTemplates(getContext());
   }
 
   /**
    * See {@link Runner#applyTemplates(RunnerContext,org.tigris.juxy.xpath.XPathExpr)}
    */
   public Node applyTemplates(XPathExpr xpath) throws Exception {
-    return delegate.applyTemplates(xpath);
+    return getRunner().applyTemplates(getContext(), xpath);
   }
 
   /**
    * See {@link Runner#applyTemplates(RunnerContext,org.tigris.juxy.xpath.XPathExpr,String)}
    */
   public Node applyTemplates(XPathExpr xpath, String mode) throws Exception {
-    return delegate.applyTemplates(xpath, mode);
+    return getRunner().applyTemplates(getContext(), xpath, mode);
   }
 
   /**
    * See {@link Runner#callTemplate(RunnerContext,String)}
    */
   public Node callTemplate(String name) throws Exception {
-    return delegate.callTemplate(name);
+    return getRunner().callTemplate(getContext(), name);
   }
 
   /**
@@ -113,7 +114,7 @@ public abstract class JuxyTestCase extends TestCase {
    * @throws Exception
    */
   public void assertXMLEquals(Node expected, Node actual) throws Exception {
-    delegate.assertXMLEquals(expected, actual);
+    XMLComparator.assertEquals(expected, actual);
   }
 
   /**
@@ -124,7 +125,7 @@ public abstract class JuxyTestCase extends TestCase {
    * @throws Exception
    */
   public void assertXMLEquals(String expectedDocument, Node actual) throws Exception {
-    delegate.assertXMLEquals(expectedDocument, actual);
+    XMLComparator.assertEquals(expectedDocument, actual);
   }
 
   /**
@@ -135,17 +136,17 @@ public abstract class JuxyTestCase extends TestCase {
    * @throws Exception
    */
   public void assertXMLEquals(String expectedDocument, String actualDocument) throws Exception {
-    delegate.assertXMLEquals(expectedDocument, actualDocument);
+    XMLComparator.assertEquals(expectedDocument, actualDocument);
   }
 
   /**
-   * See {@link StringUtil#normalizeSpaces(String)}
+   * See {@link org.tigris.juxy.util.StringUtil#normalizeSpaces(String)}
    *
    * @param str string to normalize
    * @return normalized string
    */
   public String normalizeSpaces(String str) {
-    return delegate.normalizeSpaces(str);
+    return StringUtil.normalizeSpaces(str);
   }
 
   /**
@@ -155,7 +156,7 @@ public abstract class JuxyTestCase extends TestCase {
    * @return normalized string
    */
   public String normalizeAll(String str) {
-    return delegate.normalizeAll(str);
+    return StringUtil.normalizeAll(str);
   }
 
   /**
@@ -165,7 +166,8 @@ public abstract class JuxyTestCase extends TestCase {
    * @throws Exception
    */
   public void print(Node node) throws Exception {
-    delegate.print(node);
+    ArgumentAssert.notNull(node, "Node must not be null");
+    System.out.println(asString(node));
   }
 
   /**
@@ -176,7 +178,10 @@ public abstract class JuxyTestCase extends TestCase {
    * @throws Exception
    */
   public String asString(Node node) throws Exception {
-    return delegate.asString(node);
+    ArgumentAssert.notNull(node, "Node must not be null");
+    ByteArrayOutputStream bos = new ByteArrayOutputStream(100);
+    DOMUtil.printDOM(node, bos);
+    return bos.toString();
   }
 
   /**
@@ -187,21 +192,22 @@ public abstract class JuxyTestCase extends TestCase {
    * @throws Exception
    */
   public Document parse(String document) throws Exception {
-    return delegate.parse(document);
+    ArgumentAssert.notEmpty(document, "Document must not be empty");
+    return DOMUtil.parse(document);
   }
 
   /**
    * See {@link Runner#enableTracing()}.
    */
   public void enableTracing() {
-    delegate.enableTracing();
+    getRunner().enableTracing();
   }
 
   /**
    * See {@link Runner#disableTracing()}.
    */
   public void disableTracing() {
-    delegate.disableTracing();
+    getRunner().disableTracing();
   }
 
   /**
@@ -209,10 +215,9 @@ public abstract class JuxyTestCase extends TestCase {
    *
    * @param node         node to validate
    * @param pathToSchema path to W3C XML schema
-   * @throws org.tigris.juxy.validator.ValidationFailedException
    */
   public void validateWithSchema(Node node, String pathToSchema) throws ValidationFailedException {
-    delegate.validateWithSchema(node, pathToSchema);
+    ValidatorFactory.createXMLSchemaValidator(pathToSchema).validate(node);
   }
 
   /**
@@ -220,59 +225,73 @@ public abstract class JuxyTestCase extends TestCase {
    *
    * @param node       node to evaluate assertions on
    * @param assertions XPath assertions to evaluate
-   * @throws XPathExpressionException
-   * @throws AssertionError
+   * @throws org.tigris.juxy.xpath.XPathExpressionException
    */
-  public void evalAssertions(Node node, XPathAssert[] assertions) throws XPathExpressionException, AssertionError {
-    delegate.evalAssertions(node, assertions);
-  }
-
-  /**
-   * See {@link XPathAssert#XPathAssert(String)}
-   */
-  public XPathAssert xpathAssert(String xpathExpr) {
-    return delegate.xpathAssert(xpathExpr);
+  public void evalAssertions(Node node, XPathAssert[] assertions) throws XPathExpressionException {
+    ArgumentAssert.notNull(assertions, "Assertions must not be null");
+    for (int i = 0; i < assertions.length; i++) {
+      assertions[i].eval(node);
+    }
   }
 
   /**
    * See {@link XPathAssert#XPathAssert(String,int)}
    */
   public XPathAssert xpathAssert(String xpathExpr, int expectedResult) {
-    return delegate.xpathAssert(xpathExpr, expectedResult);
+    return new XPathAssert(xpathExpr, expectedResult);
+  }
+
+  /**
+   * See {@link XPathAssert#XPathAssert(String)}
+   */
+  public XPathAssert xpathAssert(String xpathExpr) {
+    return new XPathAssert(xpathExpr);
   }
 
   /**
    * See {@link XPathAssert#XPathAssert(String,boolean)}
    */
   public XPathAssert xpathAssert(String xpathExpr, boolean expectedResult) {
-    return delegate.xpathAssert(xpathExpr, expectedResult);
+    return new XPathAssert(xpathExpr, expectedResult);
   }
 
   /**
    * See {@link XPathAssert#XPathAssert(String,String)}
    */
   public XPathAssert xpathAssert(String xpathExpr, String expectedResult) {
-    return delegate.xpathAssert(xpathExpr, expectedResult);
+    return new XPathAssert(xpathExpr, expectedResult);
   }
 
   /**
    * See {@link XPathAssert#XPathAssert(String,String,boolean)}
    */
   public XPathAssert xpathAssert(String xpathExpr, String expectedResult, boolean normalize) {
-    return delegate.xpathAssert(xpathExpr, expectedResult, normalize);
+    return new XPathAssert(xpathExpr, expectedResult, normalize);
   }
 
   /**
    * See {@link org.tigris.juxy.xpath.XPathAssert#XPathAssert(String,double,double)}
    */
   public XPathAssert xpathAssert(String xpathExpr, double expectedResult, double error) {
-    return delegate.xpathAssert(xpathExpr, expectedResult, error);
+    return new XPathAssert(xpathExpr, expectedResult, error);
   }
 
   /**
    * See {@link XPathAssert#XPathAssert(String,Node)}
    */
   public XPathAssert xpathAssert(String xpathExpr, Node expectedResult) {
-    return delegate.xpathAssert(xpathExpr, expectedResult);
+    return new XPathAssert(xpathExpr, expectedResult);
+  }
+
+  private RunnerContext getContext() {
+    if (context == null)
+      throw new IllegalStateException("Call newContext method first");
+    return context;
+  }
+
+  private Runner getRunner() {
+    if (runner == null)
+      runner = RunnerFactory.newRunner();
+    return runner;
   }
 }

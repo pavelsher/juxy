@@ -11,17 +11,17 @@ import javax.xml.transform.TransformerException;
  * @author Pavel Sher
  */
 public class BuilderErrorListener implements ErrorListener {
-    private static Log logger = LogFactory.getLog(BuilderErrorListener.class);
+  private static Log logger = LogFactory.getLog(BuilderErrorListener.class);
 
-    public void error(TransformerException exception) throws TransformerException {
-        logger.error(ExceptionUtil.exceptionToString(exception, true));
-    }
+  public void error(TransformerException exception) throws TransformerException {
+    logger.error(ExceptionUtil.exceptionToString(exception, true));
+  }
 
-    public void fatalError(TransformerException exception) throws TransformerException {
-        logger.fatal(ExceptionUtil.exceptionToString(exception, true));
-    }
+  public void fatalError(TransformerException exception) throws TransformerException {
+    logger.fatal(ExceptionUtil.exceptionToString(exception, true));
+  }
 
-    public void warning(TransformerException exception) throws TransformerException {
-        logger.warn(ExceptionUtil.exceptionToString(exception, true));
-    }
+  public void warning(TransformerException exception) throws TransformerException {
+    logger.warn(ExceptionUtil.exceptionToString(exception, true));
+  }
 }

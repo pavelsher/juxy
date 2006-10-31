@@ -18,98 +18,98 @@ import java.util.StringTokenizer;
  * @author Pavel Sher
  */
 public class VerifierTask extends MatchingTask implements ErrorReporter {
-    private boolean failOnError = true;
-    private Catalog catalog;
-    private Factory factory;
+  private boolean failOnError = true;
+  private Catalog catalog;
+  private Factory factory;
 
-    public void execute() throws BuildException {
-        info("XSLT Verifier version " + Version.VERSION + " by Pavel Sher (pavelsher@tigris.org)");
-        List files = findFiles();
-        Verifier verifier = new VerifierImpl();
-        verifier.setFiles(files);
-        verifier.setErrorReporter(this);
-        if (catalog != null)
-            verifier.setURIResolver(createCatalogResolver());
-        if (factory != null)
-            verifier.setTransformerFactory(factory.getFactoryClassName());
+  public void execute() throws BuildException {
+    info("XSLT Verifier version " + Version.VERSION + " by Pavel Sher (pavelsher@tigris.org)");
+    List files = findFiles();
+    Verifier verifier = new VerifierImpl();
+    verifier.setFiles(files);
+    verifier.setErrorReporter(this);
+    if (catalog != null)
+      verifier.setURIResolver(createCatalogResolver());
+    if (factory != null)
+      verifier.setTransformerFactory(factory.getFactoryClassName());
 
-        if (!verifier.verify(failOnError) && failOnError)
-            throw new BuildException("Verification failed");
+    if (!verifier.verify(failOnError) && failOnError)
+      throw new BuildException("Verification failed");
 
-        int notVerifiedNum = verifier.getNumberOfNotVerifierFiles();
-        if (notVerifiedNum > 0)
-            info(notVerifiedNum + " stylesheet(s) were not verified due to errors");
+    int notVerifiedNum = verifier.getNumberOfNotVerifierFiles();
+    if (notVerifiedNum > 0)
+      info(notVerifiedNum + " stylesheet(s) were not verified due to errors");
+  }
+
+  private URIResolver createCatalogResolver() {
+    String catalogs = catalog.getCatalogFiles();
+    CatalogManager cm = CatalogManager.getStaticManager();
+    cm.setCatalogFiles(toResolverFileList(catalogs));
+    cm.setIgnoreMissingProperties(true);
+    //cm.setVerbosity(10);
+
+    return new CatalogResolver(cm);
+  }
+
+  private String toResolverFileList(String catalogs) {
+    StringBuffer catalogFiles = new StringBuffer(100);
+    StringTokenizer st = new StringTokenizer(catalogs, ",");
+    while (st.hasMoreTokens()) {
+      catalogFiles.append(st.nextToken().trim()).append(";");
+    }
+    return catalogFiles.toString();
+  }
+
+  private List findFiles() {
+    List files = new ArrayList(20);
+    DirectoryScanner scanner = getDirectoryScanner();
+    scanner.scan();
+    String[] filesPaths = scanner.getIncludedFiles();
+    for (int i = 0; i < filesPaths.length; i++) {
+      files.add(new File(scanner.getBasedir(), filesPaths[i]));
     }
 
-    private URIResolver createCatalogResolver() {
-        String catalogs = catalog.getCatalogFiles();
-        CatalogManager cm = CatalogManager.getStaticManager();
-        cm.setCatalogFiles(toResolverFileList(catalogs));
-        cm.setIgnoreMissingProperties(true);
-        //cm.setVerbosity(10);
+    return files;
+  }
 
-        return new CatalogResolver(cm);
-    }
+  public void setFailOnError(boolean failOnError) {
+    this.failOnError = failOnError;
+  }
 
-    private String toResolverFileList(String catalogs) {
-        StringBuffer catalogFiles = new StringBuffer(100);
-        StringTokenizer st = new StringTokenizer(catalogs, ",");
-        while (st.hasMoreTokens()) {
-            catalogFiles.append(st.nextToken().trim()).append(";");
-        }
-        return catalogFiles.toString();
-    }
+  private DirectoryScanner getDirectoryScanner() {
+    return fileset.getDirectoryScanner(getProject());
+  }
 
-    private List findFiles() {
-        List files = new ArrayList(20);
-        DirectoryScanner scanner = getDirectoryScanner();
-        scanner.scan();
-        String[] filesPaths = scanner.getIncludedFiles();
-        for(int i=0; i<filesPaths.length; i++) {
-            files.add(new File(scanner.getBasedir(), filesPaths[i]));
-        }
+  public void setDir(String dir) {
+    this.fileset.setDir(new File(getProject().getBaseDir(), dir));
+  }
 
-        return files;
-    }
+  public void addFileSet(FileSet fs) {
+    this.fileset = fs;
+  }
 
-    public void setFailOnError(boolean failOnError) {
-        this.failOnError = failOnError;
-    }
+  public void addConfiguredCatalog(Catalog catalog) {
+    if (catalog.getCatalogFiles() == null || catalog.getCatalogFiles().length() == 0)
+      throw new BuildException("Attribute catalogfiles is required for catalog");
 
-    private DirectoryScanner getDirectoryScanner() {
-        return fileset.getDirectoryScanner(getProject());
-    }
+    this.catalog = catalog;
+  }
 
-    public void setDir(String dir) {
-        this.fileset.setDir(new File(getProject().getBaseDir(), dir));
-    }
+  public void addConfiguredFactory(Factory factory) {
+    if (factory.getFactoryClassName() == null || factory.getFactoryClassName().length() == 0)
+      throw new BuildException("Attribute name is required for factory");
+    this.factory = factory;
+  }
 
-    public void addFileSet(FileSet fs) {
-        this.fileset = fs;
-    }
+  public void info(String message) {
+    log(message);
+  }
 
-    public void addConfiguredCatalog(Catalog catalog) {
-        if (catalog.getCatalogFiles() == null || catalog.getCatalogFiles().length() == 0)
-            throw new BuildException("Attribute catalogfiles is required for catalog");
+  public void error(String message) {
+    log("ERROR: " + message);
+  }
 
-        this.catalog = catalog;
-    }
-
-    public void addConfiguredFactory(Factory factory) {
-        if (factory.getFactoryClassName() == null || factory.getFactoryClassName().length() == 0)
-            throw new BuildException("Attribute name is required for factory");
-        this.factory = factory;
-    }
-
-    public void info(String message) {
-        log(message);
-    }
-
-    public void error(String message) {
-        log("ERROR: " + message);
-    }
-
-    public void warning(String message) {
-        log("WARNING: " + message);
-    }
+  public void warning(String message) {
+    log("WARNING: " + message);
+  }
 }

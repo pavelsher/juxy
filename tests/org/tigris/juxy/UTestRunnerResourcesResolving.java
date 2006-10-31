@@ -7,17 +7,15 @@ import org.w3c.dom.Node;
  * Date: 25.10.2006
  */
 public class UTestRunnerResourcesResolving extends JuxyTestCase {
-  public void testResourceResolutionFromJar() throws Exception
-  {
-      newContext("/xml/resolver/resource-import.xsl");
-      verifyImported();
-      verifyDocumentLoaded();
+  public void testResourceResolutionFromJar() throws Exception {
+    newContext("/xml/resolver/resource-import.xsl");
+    verifyImported();
+    verifyDocumentLoaded();
   }
 
-  public void testResourceResolutionFromClasses() throws Exception
-  {
-      newContext("/xml/resolver/relative-import.xsl");
-      verifyImported();
+  public void testResourceResolutionFromClasses() throws Exception {
+    newContext("/xml/resolver/relative-import.xsl");
+    verifyImported();
   }
 
   private void verifyImported() throws Exception {

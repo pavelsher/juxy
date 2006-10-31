@@ -16,43 +16,45 @@ import java.lang.reflect.Method;
  * thus avoiding the constraint that Document object must have only one child node.
  */
 public class ResultDocumentProxy implements InvocationHandler {
-    private Document adaptedDocument;
-    private DocumentFragment fragment;
+  private Document adaptedDocument;
+  private DocumentFragment fragment;
 
-    private ResultDocumentProxy(Document adaptedDocument, DocumentFragment fragment) {
-        this.adaptedDocument = adaptedDocument;
-        this.fragment = fragment;
+  private ResultDocumentProxy(Document adaptedDocument, DocumentFragment fragment) {
+    this.adaptedDocument = adaptedDocument;
+    this.fragment = fragment;
+  }
+
+  public static Object newInstance(Document adaptedDocument, DocumentFragment fragment) {
+    return java.lang.reflect.Proxy.newProxyInstance(
+        adaptedDocument.getClass().getClassLoader(),
+        new Class[]{Document.class, DocumentTraversal.class},
+        new ResultDocumentProxy(adaptedDocument, fragment));
+  }
+
+  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    //noinspection EmptyCatchBlock
+    try {
+      Method proxiedMethod = ResultDocumentProxy.class.getMethod(method.getName(), method.getParameterTypes());
+      return proxiedMethod.invoke(this, args);
+    } catch (NoSuchMethodException e) {
     }
 
-    public static Object newInstance(Document adaptedDocument, DocumentFragment fragment) {
-        return java.lang.reflect.Proxy.newProxyInstance(
-            adaptedDocument.getClass().getClassLoader(),
-            new Class[] {Document.class, DocumentTraversal.class},
-            new ResultDocumentProxy(adaptedDocument, fragment));
-        }
+    return method.invoke(adaptedDocument, args);
+  }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        try {
-            Method proxiedMethod = ResultDocumentProxy.class.getMethod(method.getName(), method.getParameterTypes());
-            return proxiedMethod.invoke(this, args);
-        } catch (NoSuchMethodException e) {}
+  public NodeList getChildNodes() {
+    return fragment.getChildNodes();
+  }
 
-        return method.invoke(adaptedDocument, args);
-    }
+  public Node getFirstChild() {
+    return fragment.getFirstChild();
+  }
 
-    public NodeList getChildNodes() {
-        return fragment.getChildNodes();
-    }
+  public Node getLastChild() {
+    return fragment.getLastChild();
+  }
 
-    public Node getFirstChild() {
-        return fragment.getFirstChild();
-    }
-
-    public Node getLastChild() {
-        return fragment.getLastChild();
-    }
-
-    public boolean hasChildNodes() {
-        return fragment.hasChildNodes();
-    }
+  public boolean hasChildNodes() {
+    return fragment.hasChildNodes();
+  }
 }

@@ -18,8 +18,7 @@ import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 
 /**
- * User: pavel
- * Date: 10.10.2006
+ * @author pavel
  */
 public class XMLSchemaValidator implements Validator {
   private static SchemaFactory schemaFactory = null;
@@ -39,20 +38,18 @@ public class XMLSchemaValidator implements Validator {
       JuxyURIResolver resolver = new JuxyURIResolver();
       Source schemaSrc = resolver.resolve(pathToSchema, "");
       if (schemaSrc == null) {
-          throw new JuxyRuntimeException("Unable to locate schema by specified path: " + pathToSchema);
+        throw new ValidationFailedException("Unable to locate schema by specified path: " + pathToSchema);
       }
 
       validator = schemaFactory.newSchema(schemaSrc).newValidator();
       if (schemaErrorHandler.wereErrors()) {
-        throw new JuxyRuntimeException(
-            exceptionMessage("Failed to compile schema", schemaErrorHandler));
+        throw new ValidationFailedException(exceptionMessage("Failed to compile schema", schemaErrorHandler));
       }
 
       errorHandler = new SchemaErrorHandler();
       validator.setErrorHandler(errorHandler);
     } catch (SAXException e) {
-      throw new JuxyRuntimeException(
-          exceptionMessage("Failed to compile schema", schemaErrorHandler));
+      throw new ValidationFailedException(exceptionMessage("Failed to compile schema", schemaErrorHandler));
     }
   }
 

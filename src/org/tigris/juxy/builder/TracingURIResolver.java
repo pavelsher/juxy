@@ -14,34 +14,35 @@ import javax.xml.transform.sax.SAXSource;
 
 /**
  * This URI resolver will return SAXSource with tracing filter applied.
+ *
  * @author Pavel Sher
  */
 public class TracingURIResolver implements URIResolver {
-    private static final Log logger = LogFactory.getLog(TracingURIResolver.class);
-    private URIResolver originalResolver;
+  private static final Log logger = LogFactory.getLog(TracingURIResolver.class);
+  private URIResolver originalResolver;
 
-    public TracingURIResolver(URIResolver originalResolver) {
-        assert originalResolver != null;
-        this.originalResolver = originalResolver;
+  public TracingURIResolver(URIResolver originalResolver) {
+    assert originalResolver != null;
+    this.originalResolver = originalResolver;
+  }
+
+  public Source resolve(String href, String base) throws TransformerException {
+    Source source = originalResolver.resolve(href, base);
+    if (source == null) return null;
+
+    if (source instanceof DOMSource) {
+      logger.warn("Tracing is not available for stylesheets passed as DOMSource object");
+      return source;
     }
 
-    public Source resolve(String href, String base) throws TransformerException {
-        Source source = originalResolver.resolve(href, base);
-        if (source == null) return null;
-        
-        if (source instanceof DOMSource) {
-            logger.warn("Tracing is not available for stylesheets passed as DOMSource object");
-            return source;
-        }
+    XMLReader parentReader = null;
+    if (source instanceof SAXSource)
+      parentReader = ((SAXSource) source).getXMLReader();
+    if (parentReader == null)
+      parentReader = SAXUtil.newXMLReader();
 
-        XMLReader parentReader = null;
-        if (source instanceof SAXSource)
-            parentReader = ((SAXSource)source).getXMLReader();
-        if (parentReader == null)
-            parentReader = SAXUtil.newXMLReader();
-
-        XMLFilter tracingFilter = new TracingFilter();
-        tracingFilter.setParent(parentReader);
+    XMLFilter tracingFilter = new TracingFilter();
+    tracingFilter.setParent(parentReader);
 
 /*
         SimpleSerializer s = new SimpleSerializer();
@@ -49,9 +50,9 @@ public class TracingURIResolver implements URIResolver {
         s.setParent(tracingFilter);
 */
 
-        SAXSource result = new SAXSource(SAXSource.sourceToInputSource(source));
-        result.setXMLReader(tracingFilter);
+    SAXSource result = new SAXSource(SAXSource.sourceToInputSource(source));
+    result.setXMLReader(tracingFilter);
 
-        return result;
-    }
+    return result;
+  }
 }

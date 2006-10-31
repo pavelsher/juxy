@@ -4,12 +4,12 @@
                 version='1.0'>
 
 
-<xsl:param name="ns1:par"/>
+  <xsl:param name="ns1:par"/>
 
-<xsl:template name="getter">
+  <xsl:template name="getter">
     <root>
-        <xsl:value-of select="$ns1:par"/>
+      <xsl:value-of select="$ns1:par"/>
     </root>
-</xsl:template>
+  </xsl:template>
 
 </xsl:stylesheet>

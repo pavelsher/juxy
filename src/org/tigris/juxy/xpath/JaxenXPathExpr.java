@@ -11,140 +11,117 @@ import java.util.List;
  * @author Pavel Sher
  */
 public class JaxenXPathExpr implements XPathExpr {
-    private String expression;
-    private DOMXPath xpath;
+  private String expression;
+  private DOMXPath xpath;
 
-    public JaxenXPathExpr(final String expression)
-    {
-        assert expression != null;
-        this.expression = expression;
+  public JaxenXPathExpr(final String expression) {
+    assert expression != null;
+    this.expression = expression;
+  }
+
+  public XPathExpr addNamespace(String prefix, String uri) throws XPathExpressionException {
+    ArgumentAssert.notNull(prefix, "Prefix must not be null");
+    ArgumentAssert.notEmpty(uri, "URI must not be empty");
+
+    try {
+      xpath().addNamespace(prefix, uri);
+    }
+    catch (JaxenException e) {
+      throw new XPathExpressionException("Error occured during namespace registraion", e);
     }
 
-    public XPathExpr addNamespace(String prefix, String uri) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(prefix, "Prefix must not be null");
-        ArgumentAssert.notEmpty(uri, "URI must not be empty");
+    return this;
+  }
 
-        try
-        {
-            xpath().addNamespace(prefix, uri);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Error occured during namespace registraion", e);
-        }
+  private DOMXPath xpath() throws XPathExpressionException {
+    if (xpath == null)
+      try {
+        xpath = new DOMXPath(expression);
+      } catch (JaxenException e) {
+        throw new XPathExpressionException("Failed to compile XPath expression: " + expression, e);
+      }
 
-        return this;
+    return xpath;
+  }
+
+  public boolean toBoolean(Node node) throws XPathExpressionException {
+    ArgumentAssert.notNull(node, "Node must not be null");
+    try {
+      return xpath().booleanValueOf(node);
     }
-
-    private DOMXPath xpath() throws XPathExpressionException {
-        if (xpath == null)
-            try {
-                xpath = new DOMXPath(expression);
-            } catch (JaxenException e) {
-                throw new XPathExpressionException("Failed to compile XPath expression: " + expression, e);
-            }
-
-        return xpath;
+    catch (JaxenException e) {
+      throw new XPathExpressionException("Failed to evaluate XPath expression", e);
     }
+  }
 
-    public boolean toBoolean(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            return xpath().booleanValueOf(node);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
+  public String toString(Node node) throws XPathExpressionException {
+    ArgumentAssert.notNull(node, "Node must not be null");
+    try {
+      return xpath().stringValueOf(node);
     }
-
-    public String toString(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            return xpath().stringValueOf(node);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
+    catch (JaxenException e) {
+      throw new XPathExpressionException("Failed to evaluate XPath expression", e);
     }
+  }
 
-    public int toInt(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            Number num = xpath().numberValueOf(node);
-            return num.intValue();
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
+  public int toInt(Node node) throws XPathExpressionException {
+    ArgumentAssert.notNull(node, "Node must not be null");
+    try {
+      Number num = xpath().numberValueOf(node);
+      return num.intValue();
     }
-
-    public double toDouble(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            Number num = xpath().numberValueOf(node);
-            return num.doubleValue();
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
+    catch (JaxenException e) {
+      throw new XPathExpressionException("Failed to evaluate XPath expression", e);
     }
+  }
 
-    public List toNodeList(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            return xpath().selectNodes(node);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
+  public double toDouble(Node node) throws XPathExpressionException {
+    ArgumentAssert.notNull(node, "Node must not be null");
+    try {
+      Number num = xpath().numberValueOf(node);
+      return num.doubleValue();
     }
-
-    public Node toNode(Node node) throws XPathExpressionException
-    {
-        ArgumentAssert.notNull(node, "Node must not be null");
-        try
-        {
-            return (Node) xpath().selectSingleNode(node);
-        }
-        catch (JaxenException e)
-        {
-            throw new XPathExpressionException("Failed to evaluate XPath expression", e);
-        }
+    catch (JaxenException e) {
+      throw new XPathExpressionException("Failed to evaluate XPath expression", e);
     }
+  }
 
-    public String getExpression()
-    {
-        return expression;
+  public List toNodeList(Node node) throws XPathExpressionException {
+    ArgumentAssert.notNull(node, "Node must not be null");
+    try {
+      return xpath().selectNodes(node);
     }
-
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof JaxenXPathExpr)) return false;
-
-        final JaxenXPathExpr jaxenXPathExpr = (JaxenXPathExpr) o;
-
-        if (!expression.equals(jaxenXPathExpr.expression)) return false;
-
-        return true;
+    catch (JaxenException e) {
+      throw new XPathExpressionException("Failed to evaluate XPath expression", e);
     }
+  }
 
-    public int hashCode() {
-        return expression.hashCode();
+  public Node toNode(Node node) throws XPathExpressionException {
+    ArgumentAssert.notNull(node, "Node must not be null");
+    try {
+      return (Node) xpath().selectSingleNode(node);
     }
+    catch (JaxenException e) {
+      throw new XPathExpressionException("Failed to evaluate XPath expression", e);
+    }
+  }
+
+  public String getExpression() {
+    return expression;
+  }
+
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof JaxenXPathExpr)) return false;
+
+    final JaxenXPathExpr jaxenXPathExpr = (JaxenXPathExpr) o;
+
+    if (!expression.equals(jaxenXPathExpr.expression)) return false;
+
+    return true;
+  }
+
+  public int hashCode() {
+    return expression.hashCode();
+  }
 }

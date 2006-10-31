@@ -163,6 +163,14 @@
     </target>
 
     <target name="test-all" depends="compile" description="Runs all tests under the Xalan and Saxon engines" >
+        <echo message="Running tests against Saxon XSLT ..."/>
+        <!-- run unit tests with saxon -->
+        <antcall target="ut">
+            <param name="files" value="all.tests.except.verifier"/>
+            <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
+            <param name="classpath" value="test.classpath"/>
+        </antcall>
+
         <echo message="Running tests against Java 1.5 XSLTC ..."/>
         <!-- run unit tests with Java 1.5 xalan XSLTC -->
         <antcall target="ut">
@@ -187,13 +195,6 @@
             <param name="classpath" value="test.classpath"/>
         </antcall>
 
-        <echo message="Running tests against Saxon XSLT ..."/>
-        <!-- run unit tests with saxon -->
-        <antcall target="ut">
-            <param name="files" value="all.tests.except.verifier"/>
-            <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
-            <param name="classpath" value="test.classpath"/>
-        </antcall>
         <!-- run unit tests for veriier task -->
         <antcall target="test-verifiertask"/>
     </target>
@@ -203,7 +204,7 @@
     </target>
 
     <target name="ut">
-        <junit printsummary="yes" haltonfailure="yes" fork="no" showoutput="false" reloading="false">
+        <junit printsummary="yes" haltonfailure="yes" fork="yes" forkmode="once" showoutput="false">
             <jvmarg line="-ea"/>
             <sysproperty key="javax.xml.transform.TransformerFactory" value="${transformerFactory}"/>
             <classpath refid="${classpath}" />

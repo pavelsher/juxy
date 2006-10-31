@@ -15,49 +15,49 @@ import java.io.File;
  * @author Pavel Sher
  */
 public class UTestURIResolver extends JuxyTestCase {
-    public void testResolver_StreamSource() throws Exception {
-        newContext("/virtual/xsl/file", new URIResolver() {
-            public Source resolve(String href, String base) {
-                return new StreamSource(new File("tests/xml/fake.xsl"));
-            }
-        });
+  public void testResolver_StreamSource() throws Exception {
+    newContext("/virtual/xsl/file", new URIResolver() {
+      public Source resolve(String href, String base) {
+        return new StreamSource(new File("tests/xml/fake.xsl"));
+      }
+    });
 
-        context().setDocument("<root/>");
+    context().setDocument("<root/>");
 
-        callTemplate("aname");
-    }
+    callTemplate("aname");
+  }
 
-    public void testResolver_DOMSource() throws Exception {
-        newContext("/virtual/xsl/file", new URIResolver() {
-            public Source resolve(String href, String base) {
-                try {
-                    Document doc = DOMUtil.parse("" +
-                            "<xsl:stylesheet version='2.0' xmlns:xsl='" + XSLTKeys.XSLT_NS + "'>" +
-                            "<xsl:template name='tpl'/>" +
-                            "</xsl:stylesheet>");
-                    return new DOMSource(doc, "/some/system/id");
-                } catch (SAXException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+  public void testResolver_DOMSource() throws Exception {
+    newContext("/virtual/xsl/file", new URIResolver() {
+      public Source resolve(String href, String base) {
+        try {
+          Document doc = DOMUtil.parse("" +
+              "<xsl:stylesheet version='2.0' xmlns:xsl='" + XSLTKeys.XSLT_NS + "'>" +
+              "<xsl:template name='tpl'/>" +
+              "</xsl:stylesheet>");
+          return new DOMSource(doc, "/some/system/id");
+        } catch (SAXException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    });
 
-        context().setDocument("<root/>");
+    context().setDocument("<root/>");
 
-        callTemplate("tpl");
-    }
+    callTemplate("tpl");
+  }
 
-    public void testResolver_SAXSource() throws Exception {
-        newContext("/virtual/xsl/file", new URIResolver() {
-            public Source resolve(String href, String base) {
-                SAXSource src = new SAXSource();
-                src.setSystemId("tests/xml/fake.xsl");
-                return src;
-            }
-        });
+  public void testResolver_SAXSource() throws Exception {
+    newContext("/virtual/xsl/file", new URIResolver() {
+      public Source resolve(String href, String base) {
+        SAXSource src = new SAXSource();
+        src.setSystemId("tests/xml/fake.xsl");
+        return src;
+      }
+    });
 
-        context().setDocument("<root/>");
+    context().setDocument("<root/>");
 
-        callTemplate("aname");
-    }
+    callTemplate("aname");
+  }
 }

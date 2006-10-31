@@ -1,6 +1,5 @@
-
-import org.apache.xml.resolver.tools.CatalogResolver;
 import org.apache.xml.resolver.CatalogManager;
+import org.apache.xml.resolver.tools.CatalogResolver;
 import org.tigris.juxy.JuxyTestCase;
 import org.w3c.dom.Node;
 
@@ -12,14 +11,14 @@ import org.w3c.dom.Node;
  * @author Pavel Sher
  */
 public class CustomResolverTestCase extends JuxyTestCase {
-    public void testSimpleTransformation() throws Exception {
-        CatalogManager cm = CatalogManager.getStaticManager();
-        cm.setCatalogFiles("samples/samples.catalog");
+  public void testSimpleTransformation() throws Exception {
+    CatalogManager cm = CatalogManager.getStaticManager();
+    cm.setCatalogFiles("samples/samples.catalog");
 
-        newContext("CustomResolverTestCase", new CatalogResolver(cm));
-        context().setDocument("<root/>");
+    newContext("CustomResolverTestCase", new CatalogResolver(cm));
+    context().setDocument("<root/>");
 
-        Node result = callTemplate("getResult");
-        xpathAssert("text()", "The result is this text.", true).eval(result);
-    }
+    Node result = callTemplate("getResult");
+    xpathAssert("text()", "The result is this text.", true).eval(result);
+  }
 }
