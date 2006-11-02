@@ -12,9 +12,10 @@ import org.w3c.dom.Node;
 import javax.xml.transform.URIResolver;
 
 /**
- * <p/>
+ * Base class for JUnit test cases.
  *
  * @author Pavel Sher
+ * @noinspection JavaDoc
  */
 public abstract class JuxyTestCase extends TestCase {
   private JuxyAdapter delegate = new JuxyAdapter();
@@ -27,51 +28,35 @@ public abstract class JuxyTestCase extends TestCase {
   }
 
   /**
-   * Creates a new RunnerContext object. RunnerContext holds all information required
-   * for calling / applying templates.
-   *
-   * @param systemId system id of the stylesheet (path to a stylesheet file)
-   * @return new RunnerContext object
+   * See {@link JuxyAdapter#newContext(String)}
    */
   public RunnerContext newContext(String systemId) {
     return delegate.newContext(systemId);
   }
 
   /**
-   * Creates a new RunnerContext object. RunnerContext holds all information required
-   * for calling / applying templates.
-   *
-   * @param systemId system id of the stylesheet
-   * @param resolver URIResolver to use for URI resolution during transformation
-   * @return new RunnerContext object
+   * See {@link JuxyAdapter#newContext(String, URIResolver)}
    */
   public RunnerContext newContext(String systemId, URIResolver resolver) {
     return delegate.newContext(systemId, resolver);
   }
 
   /**
-   * Returns current RunnerContext object.
-   *
-   * @return current RunnerContext object
+   * See {@link JuxyAdapter#context()}
    */
   public RunnerContext context() {
     return delegate.context();
   }
 
   /**
-   * Sets RunnerContext object to use as the current context.
-   * @param context
+   * See {@link JuxyAdapter#setContext(RunnerContext)}
    */
   public void setContext(RunnerContext context) {
     delegate.setContext(context);
   }
 
   /**
-   * Creates new XPathExpr object.
-   *
-   * @param xpathExpr an XPath expression
-   * @return new XPathExpr object
-   * @throws Exception
+   * See {@link JuxyAdapter#xpath(String)}
    */
   public XPathExpr xpath(String xpathExpr) throws Exception {
     return delegate.xpath(xpathExpr);
@@ -106,33 +91,21 @@ public abstract class JuxyTestCase extends TestCase {
   }
 
   /**
-   * Asserts two documents are equal. Meaningless spaces will be ignored during this assertion.
-   *
-   * @param expected XML document which is expected
-   * @param actual   document root node of actual transformation result
-   * @throws Exception
+   * See {@link JuxyAdapter#assertXMLEquals(Node, Node)}
    */
   public void assertXMLEquals(Node expected, Node actual) throws Exception {
     delegate.assertXMLEquals(expected, actual);
   }
 
   /**
-   * Asserts two documents are equal. Meaningless spaces will be ignored during this assertion.
-   *
-   * @param expectedDocument XML document which is expected
-   * @param actual           document root node of actual transformation result
-   * @throws Exception
+   * See {@link JuxyAdapter#assertXMLEquals(String, Node)}
    */
   public void assertXMLEquals(String expectedDocument, Node actual) throws Exception {
     delegate.assertXMLEquals(expectedDocument, actual);
   }
 
   /**
-   * Asserts two documents are equal. Meaningless spaces will be ignored during this assertion.
-   *
-   * @param expectedDocument XML document which is expected
-   * @param actualDocument   actual xml document
-   * @throws Exception
+   * See {@link JuxyAdapter#assertXMLEquals(String, String)}
    */
   public void assertXMLEquals(String expectedDocument, String actualDocument) throws Exception {
     delegate.assertXMLEquals(expectedDocument, actualDocument);
@@ -140,9 +113,6 @@ public abstract class JuxyTestCase extends TestCase {
 
   /**
    * See {@link StringUtil#normalizeSpaces(String)}
-   *
-   * @param str string to normalize
-   * @return normalized string
    */
   public String normalizeSpaces(String str) {
     return delegate.normalizeSpaces(str);
@@ -150,41 +120,27 @@ public abstract class JuxyTestCase extends TestCase {
 
   /**
    * See {@link StringUtil#normalizeAll(String)}
-   *
-   * @param str string to normalize
-   * @return normalized string
    */
   public String normalizeAll(String str) {
     return delegate.normalizeAll(str);
   }
 
   /**
-   * Prints fragment of the document to System.out starting from the specified node.
-   *
-   * @param node node to display
-   * @throws Exception
+   * See {@link JuxyAdapter#print(Node)}
    */
   public void print(Node node) throws Exception {
     delegate.print(node);
   }
 
   /**
-   * Serializes fragment of the document to String, starting from the specified node.
-   *
-   * @param node node to display
-   * @return xml document corresponding to the specified node
-   * @throws Exception
+   * See {@link JuxyAdapter#asString(Node)}
    */
   public String asString(Node node) throws Exception {
     return delegate.asString(node);
   }
 
   /**
-   * Parses specified string into org.w3c.dom.Document.
-   *
-   * @param document xml document
-   * @return DOM Document
-   * @throws Exception
+   * See {@link JuxyAdapter#parse(String)}
    */
   public Document parse(String document) throws Exception {
     return delegate.parse(document);
@@ -205,23 +161,14 @@ public abstract class JuxyTestCase extends TestCase {
   }
 
   /**
-   * Validates specified node using XML schema with specified path.
-   *
-   * @param node         node to validate
-   * @param pathToSchema path to W3C XML schema
-   * @throws org.tigris.juxy.validator.ValidationFailedException
+   * See {@link JuxyAdapter#validateWithSchema(Node, String)}
    */
-  public void validateWithSchema(Node node, String pathToSchema) throws ValidationFailedException {
-    delegate.validateWithSchema(node, pathToSchema);
+  public void validateWithSchema(Node node, String systemId) throws ValidationFailedException {
+    delegate.validateWithSchema(node, systemId);
   }
 
   /**
-   * Evaluates XPath assertions.
-   *
-   * @param node       node to evaluate assertions on
-   * @param assertions XPath assertions to evaluate
-   * @throws XPathExpressionException
-   * @throws AssertionError
+   * See {@link JuxyAdapter#evalAssertions(Node, XPathAssert[])}
    */
   public void evalAssertions(Node node, XPathAssert[] assertions) throws XPathExpressionException, AssertionError {
     delegate.evalAssertions(node, assertions);

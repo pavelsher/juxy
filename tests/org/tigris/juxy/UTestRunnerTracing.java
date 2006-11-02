@@ -208,6 +208,24 @@ public class UTestRunnerTracing extends JuxyTestCase {
     applyTemplates();
   }
 
+  public void testTracingProperty() {
+    try {
+      RunnerImpl runner = (RunnerImpl) RunnerFactory.newRunner();
+      runner.enableTracing();
+      assertTrue(runner.isTracingEnabled());
+      System.setProperty(JuxyProperties.XSLT_TRACING_PROPERTY, "off");
+      assertFalse(runner.isTracingEnabled());
+
+      System.getProperties().remove(JuxyProperties.XSLT_TRACING_PROPERTY);
+      runner.disableTracing();
+      assertFalse(runner.isTracingEnabled());
+      System.setProperty(JuxyProperties.XSLT_TRACING_PROPERTY, "on");
+      assertTrue(runner.isTracingEnabled());
+    } finally {
+      System.getProperties().remove(JuxyProperties.XSLT_TRACING_PROPERTY);
+    }
+  }
+
   private void setStylesheet(final String stylesheet) {
     newContext("stylesheet.xsl", new URIResolver() {
       public Source resolve(String href, String base) {

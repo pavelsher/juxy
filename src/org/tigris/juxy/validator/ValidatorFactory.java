@@ -8,7 +8,12 @@ import org.tigris.juxy.JuxyRuntimeException;
 public class ValidatorFactory {
   private static Boolean JAVAX_SCHEMA_VALIDATION_AVAILABLE = null;
 
-  public static Validator createXMLSchemaValidator(String path) {
+  /**
+   * Creates new W3C XML schema validator.
+   * @param systemId path in the file system or name of the classloader resource
+   * @return
+   */
+  public static Validator createXMLSchemaValidator(String systemId) {
     if (Boolean.FALSE.equals(JAVAX_SCHEMA_VALIDATION_AVAILABLE)) {
       throw new JuxyRuntimeException("W3C XML Schema validator is not available");
     }
@@ -23,7 +28,7 @@ public class ValidatorFactory {
     }
 
     if (Boolean.TRUE.equals(JAVAX_SCHEMA_VALIDATION_AVAILABLE)) {
-      return new XMLSchemaValidator(path);
+      return new XMLSchemaValidator(systemId);
     }
 
     throw new JuxyRuntimeException("W3C XML Schema validator is not available");

@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 
 /**
  * @author Pavel Sher
+ * @noinspection JavaDoc
  */
 public class JuxyAdapter {
   private Runner runner;
@@ -25,7 +26,8 @@ public class JuxyAdapter {
    * Creates a new RunnerContext object. RunnerContext holds all information required
    * for calling / applying templates.
    *
-   * @param systemId system id of the stylesheet (path to a stylesheet file)
+   * @param systemId system id of the stylesheet.
+   * This can be either path to a file on disk or name of the classloader resource.
    * @return new RunnerContext object
    */
   public RunnerContext newContext(String systemId) {
@@ -38,7 +40,8 @@ public class JuxyAdapter {
    * for calling / applying templates.
    *
    * @param systemId system id of the stylesheet
-   * @param resolver URIResolver to use for URI resolution during transformation
+   * @param resolver URIResolver to use for resolution of the supplied system id and
+   * included / imported stylesheets during transformation process.
    * @return new RunnerContext object
    */
   public RunnerContext newContext(String systemId, URIResolver resolver) {
@@ -214,10 +217,11 @@ public class JuxyAdapter {
    * Validates specified node using XML schema with specified path.
    *
    * @param node         node to validate
-   * @param pathToSchema path to W3C XML schema
+   * @param systemId system id of the XML schema.
+   * This can be either path to a file on disk or name of the classloader resource.
    */
-  public void validateWithSchema(Node node, String pathToSchema) throws ValidationFailedException {
-    ValidatorFactory.createXMLSchemaValidator(pathToSchema).validate(node);
+  public void validateWithSchema(Node node, String systemId) throws ValidationFailedException {
+    ValidatorFactory.createXMLSchemaValidator(systemId).validate(node);
   }
 
   /**

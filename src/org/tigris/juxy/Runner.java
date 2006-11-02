@@ -24,7 +24,8 @@ public interface Runner {
    * Creates a new RunnerContext object. RunnerContext holds all information required
    * for calling / applying templates.
    *
-   * @param systemId system id of the stylesheet (path to a stylesheet file)
+   * @param systemId system id of the stylesheet.
+   * This can be either path to a file on disk or name of the classloader resource.
    * @return new RunnerContext object
    */
   RunnerContext newRunnerContext(String systemId);
@@ -34,7 +35,8 @@ public interface Runner {
    * for calling / applying templates.
    *
    * @param systemId system id of the stylesheet
-   * @param resolver URIResolver to use for URI resolution during transformation
+   * @param resolver URIResolver to use for resolution of the supplied system id and
+   * included / imported stylesheets during transformation process.
    * @return new RunnerContext object
    */
   RunnerContext newRunnerContext(String systemId, URIResolver resolver);

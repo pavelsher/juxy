@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.12 2006-10-31 11:01:23 pavelsher Exp $
+ * $Id: RunnerImpl.java,v 1.13 2006-11-02 10:13:07 pavelsher Exp $
  * <p/>
  * This runner uses only standard features. It does not use any XSLT engine-specific extensions.
  *
@@ -125,10 +125,17 @@ class RunnerImpl implements Runner {
 
   private void setupTemplatesBuilder(RunnerContextImpl ctx) {
     templatesBuilder.setImportSystemId(ctx.getSystemId(), ctx.getResolver());
-    templatesBuilder.setTracingEnabled(tracingEnabled);
+    templatesBuilder.setTracingEnabled(isTracingEnabled());
     templatesBuilder.setCurrentNode(ctx.getCurrentNodeSelector());
     templatesBuilder.setGlobalVariables(ctx.getGlobalVariables());
     templatesBuilder.setNamespaces(ctx.getNamespaces());
+  }
+
+  public boolean isTracingEnabled() {
+    String propertyValue = System.getProperty(JuxyProperties.XSLT_TRACING_PROPERTY);
+    if ("on".equals(propertyValue)) return true;
+    if ("off".equals(propertyValue)) return false;
+    return tracingEnabled;
   }
 
   private Node transformSource(Source sourceDoc, RunnerContextImpl ctx) throws TransformerException {
@@ -144,7 +151,7 @@ class RunnerImpl implements Runner {
         transformer.setParameter(param.getTransformerQName(namespaces), param.getValue());
       }
 
-      if (tracingEnabled) {
+      if (isTracingEnabled()) {
         traceLogger = new Tracer(System.out);
         transformer.setParameter("{" + JuxyParams.NS + "}" + JuxyParams.TRACE_PARAM, traceLogger);
       }
