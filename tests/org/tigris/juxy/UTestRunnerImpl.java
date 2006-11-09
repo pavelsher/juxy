@@ -188,6 +188,7 @@ public class UTestRunnerImpl extends JuxyTestCase {
   }
 
   public void testRelativeImportWorks() throws Exception {
+    if (TestUtil.isIncorrectBaseURIForImportedStylesheets()) return;
     RunnerContext ctx = runner.newRunnerContext("tests/xml/resolver/relative-import.xsl");
     verifyImported(ctx);
   }
@@ -202,11 +203,13 @@ public class UTestRunnerImpl extends JuxyTestCase {
   }
 
   public void testRelativeIncludeWorks() throws Exception {
+    if (TestUtil.isIncorrectBaseURIForImportedStylesheets()) return;
     RunnerContext ctx = runner.newRunnerContext("tests/xml/resolver/relative-include.xsl");
     verifyImported(ctx);
   }
 
   public void testRelativeDocumentFunctionWorks() throws Exception {
+    if (TestUtil.isIncorrectBaseURIForImportedStylesheets()) return;
     RunnerContext ctx = runner.newRunnerContext("tests/xml/resolver/document-func.xsl");
     verifyDocumentLoaded(ctx);
   }

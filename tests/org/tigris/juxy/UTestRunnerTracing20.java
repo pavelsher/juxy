@@ -1,5 +1,7 @@
 package org.tigris.juxy;
 
+import junit.framework.TestSuite;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
@@ -11,6 +13,14 @@ import java.io.ByteArrayInputStream;
 public class UTestRunnerTracing20 extends JuxyTestCase {
   private static final String START_STYLESHEET_TAG = "<xsl:stylesheet version='2.0' xmlns:xsl='" + XSLTKeys.XSLT_NS + "'>\n";
   private static final String END_STYLESHEET_TAG = "</xsl:stylesheet>";
+
+  public static TestSuite suite() {
+    if (!TestUtil.isTracingSupported() || !TestUtil.isXSLT20Supported()) {
+      return new TestSuite();
+    }
+
+    return new TestSuite(UTestRunnerTracing20.class);
+  }
 
   protected void setUp() throws Exception {
     enableTracing();

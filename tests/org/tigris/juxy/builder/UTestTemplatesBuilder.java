@@ -283,7 +283,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder {
     builder.setInvokationStatementInfo(null, null, null);
     builder.build();
 
-    assertNotNull(xpath("/xsl:stylesheet/xsl:template[@match = '/']")
+    assertNotNull(xpath("/xsl:stylesheet/xsl:template[@match = '*']")
         .addNamespace("xsl", XSLTKeys.XSLT_NS)
         .toNode(builder.getCurrentStylesheetDoc()));
 
@@ -291,7 +291,7 @@ public class UTestTemplatesBuilder extends BaseTestTemplatesBuilder {
         .addNamespace("xsl", XSLTKeys.XSLT_NS)
         .toInt(builder.getCurrentStylesheetDoc()));
 
-    assertNotNull(xpath("//xsl:template[@match = '/']/xsl:apply-imports[not(@*)]")
+    assertNotNull(xpath("//xsl:template[@match = '*']/xsl:apply-imports[not(@*)]")
         .addNamespace("xsl", XSLTKeys.XSLT_NS)
         .toNode(builder.getCurrentStylesheetDoc()));
 

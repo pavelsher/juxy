@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.13 2006-11-02 10:13:07 pavelsher Exp $
+ * $Id: RunnerImpl.java,v 1.14 2006-11-09 17:28:07 pavelsher Exp $
  * <p/>
  * This runner uses only standard features. It does not use any XSLT engine-specific extensions.
  *
@@ -159,6 +159,7 @@ class RunnerImpl implements Runner {
 
     Document document = DOMUtil.newDocument();
     DocumentFragment fragment = document.createDocumentFragment();
+    document.appendChild(fragment);
     DOMResult result = new DOMResult(fragment);
     transformer.transform(sourceDoc, result);
     fragment.normalize();

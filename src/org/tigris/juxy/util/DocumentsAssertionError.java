@@ -52,7 +52,7 @@ public class DocumentsAssertionError extends AssertionError {
   }
 
   private boolean hasParentElement(Node startFrom) {
-    if (startFrom.getNodeType() == Node.DOCUMENT_NODE)
+    if (startFrom == null || startFrom.getNodeType() == Node.DOCUMENT_NODE)
       return false;
 
     return startFrom.getParentNode() != null && startFrom.getParentNode().getNodeType() == Node.ELEMENT_NODE;

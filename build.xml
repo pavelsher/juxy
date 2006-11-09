@@ -36,6 +36,20 @@
         <path refid="compile-tests.classpath"/>
     </path>
 
+    <path id="oracle.xdk.test.classpath">
+        <pathelement path="${test.classes.dir}"/>
+        <pathelement path="${classes.dir}"/>
+        <pathelement path="${lib.dir}/xmlparserv2.jar"/>
+        <fileset dir="${lib.dir}" >
+          <include name="*.jar"/>
+          <exclude name="xerces*.jar"/>
+          <exclude name="xalan*.jar"/>
+          <exclude name="saxon*.jar"/>
+        </fileset>
+        <pathelement path="${tools.dir}/junit.jar"/>
+        <pathelement path="${tools.dir}/ant-testutil.jar"/>
+    </path>
+
     <path id="instr.classpath">
         <pathelement path="${classes.dir}"/>
     </path>
@@ -111,6 +125,7 @@
         <include name="org/**/UTest*.java" />
         <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
+<!--
 
     <fileset id="all.tests.for.xalan" dir="${tests.dir}">
         <include name="org/**/UTest*.java" />
@@ -142,6 +157,25 @@
         <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
 
+  <fileset id="all.tests.for.oracle.xdk" dir="${tests.dir}">
+      <include name="org/**/UTest*.java" />
+      <exclude name="org/**/UTest*20.java" />
+      <exclude name="org/**/UTestExternalFunctions.java" />
+      <exclude name="org/**/UTestRunnerTracing.java" />
+      <exclude name="org/**/UTestRunnerResourcesResolving.java" />
+      <exclude name="org/**/UTestTracingFilter.java" />
+      -->
+<!--<exclude name="org/**/UTestURIResolver.java" />-->
+<!--
+      -->
+<!--<exclude name="org/**/UTestVerifierImpl.java" />-->
+<!--
+      -->
+<!--<exclude name="org/**/UTestVerifierTask.java" />-->
+<!--
+  </fileset>
+-->
+
     <fileset id="verifier.task.tests" dir="${tests.dir}">
         <include name="org/**/UTestVerifierTask.java" />
     </fileset>
@@ -157,46 +191,50 @@
     <target name="test-verifiertask">
         <antcall target="ut">
             <param name="files" value="verifier.task.tests"/>
-            <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
+            <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"/>
             <param name="classpath" value="verifiertask.test.classpath"/>
         </antcall>
     </target>
 
     <target name="test-all" depends="compile" description="Runs all tests under the Xalan and Saxon engines" >
-        <echo message="Running tests against Saxon XSLT ..."/>
-        <!-- run unit tests with saxon -->
-        <antcall target="ut">
-            <param name="files" value="all.tests.except.verifier"/>
-            <param name="transformerFactory" value="net.sf.saxon.TransformerFactoryImpl"/>
-            <param name="classpath" value="test.classpath"/>
-        </antcall>
 
-        <echo message="Running tests against Java 1.5 XSLTC ..."/>
-        <!-- run unit tests with Java 1.5 xalan XSLTC -->
-        <antcall target="ut">
-            <param name="files" value="all.tests.for.java.xsltc"/>
-            <param name="transformerFactory" value="com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl"/>
-            <param name="classpath" value="test.classpath"/>
-        </antcall>
+      <echo message="Running tests with Oracle XDK ..."/>
+      <antcall target="ut">
+          <param name="files" value="all.tests.except.verifier"/>
+          <param name="jvmargs" value="-Djavax.xml.parsers.DocumentBuilderFactory=oracle.xml.jaxp.JXDocumentBuilderFactory -Djavax.xml.parsers.SAXParserFactory=oracle.xml.jaxp.JXSAXParserFactory -Dorg.xml.sax.driver=oracle.xml.jaxp.JXSAXParser   -Djavax.xml.transform.TransformerFactory=oracle.xml.jaxp.JXSAXTransformerFactory"/>
+          <param name="classpath" value="test.classpath"/>
+      </antcall>
 
-        <echo message="Running tests against Xalan XSLTC ..."/>
-        <!-- run unit tests with xalan XSLTC -->
-        <antcall target="ut">
-            <param name="files" value="all.tests.for.xalan.xsltc"/>
-            <param name="transformerFactory" value="org.apache.xalan.xsltc.trax.TransformerFactoryImpl"/>
-            <param name="classpath" value="test.classpath"/>
-        </antcall>
+      <echo message="Running tests with Saxon XSLT ..."/>
+      <antcall target="ut">
+          <param name="files" value="all.tests.except.verifier"/>
+          <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"/>
+          <param name="classpath" value="test.classpath"/>
+      </antcall>
 
-        <echo message="Running tests against Xalan XSLT ..."/>
-        <!-- run unit tests with xalan -->
-        <antcall target="ut">
-            <param name="files" value="all.tests.for.xalan"/>
-            <param name="transformerFactory" value="org.apache.xalan.processor.TransformerFactoryImpl"/>
-            <param name="classpath" value="test.classpath"/>
-        </antcall>
+      <echo message="Running tests with Java 1.5 XSLTC ..."/>
+      <antcall target="ut">
+          <param name="files" value="all.tests.except.verifier"/>
+          <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl"/>
+          <param name="classpath" value="test.classpath"/>
+      </antcall>
 
-        <!-- run unit tests for veriier task -->
-        <antcall target="test-verifiertask"/>
+      <echo message="Running tests with Xalan XSLTC ..."/>
+      <antcall target="ut">
+          <param name="files" value="all.tests.except.verifier"/>
+          <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=org.apache.xalan.xsltc.trax.TransformerFactoryImpl"/>
+          <param name="classpath" value="test.classpath"/>
+      </antcall>
+
+      <echo message="Running tests with Xalan XSLT ..."/>
+      <antcall target="ut">
+          <param name="files" value="all.tests.except.verifier"/>
+          <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=org.apache.xalan.processor.TransformerFactoryImpl"/>
+          <param name="classpath" value="test.classpath"/>
+      </antcall>
+
+      <!-- run unit tests for veriier task -->
+      <antcall target="test-verifiertask"/>
     </target>
 
     <target name="verify-samples" description="Runs samples" >
@@ -205,8 +243,7 @@
 
     <target name="ut">
         <junit printsummary="yes" haltonfailure="yes" fork="yes" forkmode="once" showoutput="false">
-            <jvmarg line="-ea"/>
-            <sysproperty key="javax.xml.transform.TransformerFactory" value="${transformerFactory}"/>
+            <jvmarg line="-ea ${jvmargs}"/>
             <classpath refid="${classpath}" />
             <formatter type="plain" usefile="false"/>
             <batchtest fork="no">
@@ -239,6 +276,7 @@
             <fileset dir="${lib.dir}">
                 <include name="*.jar"/>
                 <exclude name="saxon*.jar"/>
+                <exclude name="xmlparserv2.jar"/>
             </fileset>
         </copy>
         <copy todir="${build.dir}">
@@ -262,8 +300,8 @@
             </manifest>
 
             <fileset dir="${classes.dir}" includes="org/**/verifier/**"/>
-            <fileset dir="${classes.dir}" includes="org/tigris/juxy/util/SAXUtil.class, org/tigris/juxy/util/FileURIResolver.class, org/tigris/juxy/util/ExceptionUtil.class"/>
-            <fileset dir="${classes.dir}" includes="org/tigris/juxy/XSLTKeys.class, org/tigris/juxy/JuxyRuntimeException.class"/>
+            <fileset dir="${classes.dir}" includes="org/tigris/juxy/util/SAXUtil.class, org/tigris/juxy/util/JuxyURIResolver.class, org/tigris/juxy/util/ExceptionUtil.class"/>
+            <fileset dir="${classes.dir}" includes="org/tigris/juxy/XSLTKeys.class, org/tigris/juxy/Version.class"/>
             <fileset dir="${basedir}" includes="juxy_ant.properties"/>
         </jar>
 

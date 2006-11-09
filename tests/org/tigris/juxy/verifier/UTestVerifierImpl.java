@@ -10,6 +10,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.tigris.juxy.TestUtil;
+
 /**
  */
 public class UTestVerifierImpl extends TestCase {
@@ -38,7 +40,7 @@ public class UTestVerifierImpl extends TestCase {
     verifier.setFiles(files(new String[]{"imported.xsl", "resolver.xsl"}));
     verifier.setURIResolver(new URIResolver() {
       public Source resolve(String href, String base) {
-        if ("some:uri".equals(href))
+        if ("http://uri.com".equals(href))
           return new StreamSource(new File("tests/xml/verifier/imported.xsl").toURI().toString());
 
         return null;
@@ -57,7 +59,13 @@ public class UTestVerifierImpl extends TestCase {
     });
     assertFalse(verifier.verify(false));
     assertEquals(0, verifier.getNumberOfVerifiedFiles());
-    assertTrue(reporter.errors()[0].endsWith("an exception"));
+
+    // Oracle XDK && Xalan XSLTC do not report errors if URI
+    // resolver throws exception
+    if (!TestUtil.isJavaXalanXSLTC() && !TestUtil.isXalanXSLTC()) {
+      assertTrue(reporter.errors()[0].contains("an exception"));
+    }
+
     assertEquals(1, verifier.getNumberOfNotVerifierFiles());
   }
 

@@ -5,12 +5,20 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.util.TimeZone;
 
+import junit.framework.TestSuite;
+
 /**
- * $Id: UTestExternalFunctions.java,v 1.3 2006-10-31 11:01:22 pavelsher Exp $
- *
  * @author Pavel Sher
  */
 public class UTestExternalFunctions extends JuxyTestCase {
+  public static TestSuite suite() {
+    if (!TestUtil.isExternalJavaFunctionsSupported()) {
+      return new TestSuite();
+    }
+
+    return new TestSuite(UTestExternalFunctions.class);
+  }
+
   protected void setUp() throws Exception {
     newContext(new File("tests/xml/extfunc.xsl").toURI().toString());
   }

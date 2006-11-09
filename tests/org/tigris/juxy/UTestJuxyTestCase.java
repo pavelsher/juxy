@@ -42,6 +42,10 @@ public class UTestJuxyTestCase extends JuxyTestCase {
 
     result = applyTemplates(xpath("root"), "mode");
     assertXMLEquals("<result>text [with mode]</result>", result);
+
+    ctx.setDocument("<commentParent><!-- comment --></commentParent>");
+    result = applyTemplates();
+    assertXMLEquals("<result>comment</result>", result);
   }
 
   public void testPrintAndParse() throws Exception {

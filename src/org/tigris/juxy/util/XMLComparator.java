@@ -88,7 +88,7 @@ public class XMLComparator {
   }
 
   private static Node skipDocumentIfNeeded(Node startFrom) {
-    while (true) {
+    while (true && startFrom != null) {
       switch (startFrom.getNodeType()) {
         case Node.DOCUMENT_NODE:
         case Node.DOCUMENT_FRAGMENT_NODE:
@@ -98,6 +98,8 @@ public class XMLComparator {
           return startFrom;
       }
     }
+
+    return startFrom;
   }
 
   private static void checkAttributes(Element enode, Element anode, TreeWalker expTw, TreeWalker actualTw) {

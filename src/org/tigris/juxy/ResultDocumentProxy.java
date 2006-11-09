@@ -5,6 +5,8 @@ import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.TreeWalker;
+import org.w3c.dom.traversal.NodeFilter;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -56,5 +58,11 @@ public class ResultDocumentProxy implements InvocationHandler {
 
   public boolean hasChildNodes() {
     return fragment.hasChildNodes();
+  }
+
+  public TreeWalker createTreeWalker(Node node, int i, NodeFilter filter, boolean b) throws org.w3c.dom.DOMException {
+    // if passed node is Document node then we will substituite it with actual document
+    Node startNode = node instanceof Document ? adaptedDocument : node;
+    return ((DocumentTraversal)adaptedDocument).createTreeWalker(startNode, i, filter, b);
   }
 }

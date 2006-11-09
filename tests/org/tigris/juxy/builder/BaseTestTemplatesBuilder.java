@@ -12,6 +12,13 @@ public abstract class BaseTestTemplatesBuilder extends TestCase {
   protected TemplatesBuilderImpl builder = null;
   private static TransformerFactory trFactory = TransformerFactory.newInstance();
 
+  protected BaseTestTemplatesBuilder() {
+  }
+
+  protected BaseTestTemplatesBuilder(String name) {
+    super(name);
+  }
+
   public void setUp() {
     builder = new TemplatesBuilderImpl(trFactory);
   }

@@ -4,8 +4,10 @@ import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+
 /**
- * $Id: UTestXMLComparator.java,v 1.4 2006-10-31 11:01:24 pavelsher Exp $
+ * $Id: UTestXMLComparator.java,v 1.5 2006-11-09 17:28:07 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -35,17 +37,20 @@ public class UTestXMLComparator extends TestCase {
             "   <!ELEMENT sect EMPTY>" +
             "]>" +
             "<sect/>"));
+
+    String system = new File("tests/xml/sect.dtd").toURI().toString();
+
     XMLComparator.assertEquals("" +
-        "<!DOCTYPE sect PUBLIC 'urn1' 'tests/xml/sect.dtd'>" +
+        "<!DOCTYPE sect PUBLIC 'urn1' '" + system + "'>" +
         "<sect/>",
         DOMUtil.parse("" +
-            "<!DOCTYPE sect PUBLIC 'urn1' 'tests/xml/sect.dtd'>" +
+            "<!DOCTYPE sect PUBLIC 'urn1' '" + system + "'>" +
             "<sect/>"));
     XMLComparator.assertEquals("" +
-        "<!DOCTYPE sect SYSTEM 'tests/xml/sect.dtd'>" +
+        "<!DOCTYPE sect SYSTEM '" + system + "'>" +
         "<sect/>",
         DOMUtil.parse("" +
-            "<!DOCTYPE sect SYSTEM 'tests/xml/sect.dtd'>" +
+            "<!DOCTYPE sect SYSTEM '" + system + "'>" +
             "<sect/>"));
     XMLComparator.assertEquals("" +
         "<!DOCTYPE sect [" +
@@ -146,12 +151,14 @@ public class UTestXMLComparator extends TestCase {
       System.out.println(e.getMessage());
     }
 
+    String system = new File("tests/xml/sect.dtd").toURI().toString();
+
     try {
       XMLComparator.assertEquals("" +
-          "<!DOCTYPE sect PUBLIC 'urn1' 'tests/xml/sect.dtd'>" +
+          "<!DOCTYPE sect PUBLIC 'urn1' '" + system + "'>" +
           "<sect/>",
           DOMUtil.parse("" +
-              "<!DOCTYPE sect PUBLIC 'urn2' 'tests/xml/sect.dtd'>" +
+              "<!DOCTYPE sect PUBLIC 'urn2' '" + system + "'>" +
               "<sect/>"));
       fail("An exception expected");
     } catch (DocumentsAssertionError e) {
@@ -160,10 +167,10 @@ public class UTestXMLComparator extends TestCase {
 
     try {
       XMLComparator.assertEquals("" +
-          "<!DOCTYPE sect SYSTEM 'tests/xml/sect.dtd'>" +
+          "<!DOCTYPE sect SYSTEM '" + system + "'>" +
           "<sect/>",
           DOMUtil.parse("" +
-              "<!DOCTYPE sect PUBLIC 'urn2' 'tests/xml/sect.dtd'>" +
+              "<!DOCTYPE sect PUBLIC 'urn2' '" + system + "'>" +
               "<sect/>"));
       fail("An exception expected");
     } catch (DocumentsAssertionError e) {

@@ -1,6 +1,7 @@
 package org.tigris.juxy.builder;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.tigris.juxy.TestUtil;
 import org.tigris.juxy.Tracer;
 import org.tigris.juxy.XSLTKeys;
@@ -17,10 +18,10 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.12 2006-10-31 11:01:22 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.13 2006-11-09 17:28:06 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -34,6 +35,18 @@ public class UTestTracingFilter extends TestCase {
   private static final String END_STYLESHEET_TAG = "</xsl:stylesheet>";
 
   private String filteredStylesheet;
+
+  public UTestTracingFilter(String name) {
+    super(name);
+  }
+
+  public static TestSuite suite() {
+    if (!TestUtil.isTracingSupported()) {
+      return new TestSuite();
+    }
+
+    return new TestSuite(UTestTracingFilter.class);
+  }
 
   protected void tearDown() throws Exception {
     System.out.println(filteredStylesheet);
@@ -372,9 +385,26 @@ public class UTestTracingFilter extends TestCase {
         "   </xsl:template>" +
         END_STYLESHEET_TAG;
     filter(originalStylesheet);
+
+/*
+    if (TestUtil.isOracleXDK()) {
+      // Oracle XML parser can create two xmlns attributes for same uri and prefix
+      assertFilteredEquals("" +
+          AUGMENTED_STYLESHEET_TAG +
+          "   <xsl:template name='tpl' xmlns:tracer='tracer.uri' xmlns:juxy='juxy.uri'>" +
+          makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
+          makeValueOf("<tracer:debug xmlns:tracer=\"tracer.uri\" xmlns:tracer=\"tracer.uri\">", 3, 2) +
+          "       <tracer:debug xmlns:tracer='tracer.uri'/>\n" +
+          makeValueOf("<juxy:debug xmlns:juxy=\"juxy.uri\" xmlns:juxy=\"juxy.uri\">", 4, 2) +
+          "       <juxy:debug xmlns:juxy='juxy.uri'/>\n" +
+          "   </xsl:template>" +
+          END_STYLESHEET_TAG);
+    } else {
+    }
+*/
     assertFilteredEquals("" +
         AUGMENTED_STYLESHEET_TAG +
-        "   <xsl:template name='tpl'>" +
+        "   <xsl:template name='tpl' xmlns:tracer='tracer.uri' xmlns:juxy='juxy.uri'>" +
         makeValueOf("<xsl:template name=\"tpl\">", 2, 1) +
         makeValueOf("<tracer:debug xmlns:tracer=\"tracer.uri\">", 3, 2) +
         "       <tracer:debug xmlns:tracer='tracer.uri'/>\n" +
@@ -388,7 +418,7 @@ public class UTestTracingFilter extends TestCase {
     XMLComparator.assertEquals(expectedStylesheet, filteredStylesheet);
   }
 
-  private String makeValueOf(String statement, int line, int col) throws MalformedURLException {
+  private String makeValueOf(String statement, int line, int col) throws IOException {
     String escapedStatement = StringUtil.escapeQuoteCharacter(
         StringUtil.escapeXMLText(StringUtil.replaceCharByEntityRef(statement, '\'')));
     return "<xsl:value-of select=\"tracer:trace($juxy:tracer, " + line + ", " + col + ", '" + getSystemId() + "', '" + escapedStatement + "')\" " + JUXY_XMLNS + " " + TRACER_XMLNS + "/>";
@@ -396,7 +426,8 @@ public class UTestTracingFilter extends TestCase {
 
   private void filter(String originalStylesheet) throws Exception {
     XMLReader reader = SAXUtil.newXMLReader();
-    InputSource src = TestUtil.makeInputSource("stylesheet.xsl", originalStylesheet);
+    String systemId = new File("stylesheet.xsl").getCanonicalFile().toURI().toString();
+    InputSource src = TestUtil.makeInputSource(systemId, originalStylesheet);
     SAXSerializer s = new SAXSerializer();
     ByteArrayOutputStream bos = new ByteArrayOutputStream(50);
     s.setOutputStream(bos);
@@ -410,15 +441,7 @@ public class UTestTracingFilter extends TestCase {
     filteredStylesheet = bos.toString();
   }
 
-  private String getSystemId() throws MalformedURLException {
-    String absPath = new File("stylesheet.xsl").getAbsolutePath().replace('\\', '/');
-    if (!absPath.startsWith("/"))
-      return "file:///" + escapeSpaces(absPath);
-
-    return "file://" + escapeSpaces(absPath);
-  }
-
-  private String escapeSpaces(String path) {
-    return path.replace(" ", "%20");
+  private String getSystemId() throws IOException {
+    return new File("stylesheet.xsl").getCanonicalFile().toURI().toString(); /*replace('\\', '/');*/
   }
 }

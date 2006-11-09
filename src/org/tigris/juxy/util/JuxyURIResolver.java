@@ -8,6 +8,8 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -65,7 +67,7 @@ public class JuxyURIResolver implements URIResolver {
     if (file != null && file.exists()) {
       String systemId = file.toURI().toString();
       logger.debug("Resolved URI: " + systemId);
-      return new StreamSource(file.toURI().toString());
+      return new StreamSource(systemId);
     }
 
     // attempt to resolve URI via classloader
@@ -118,5 +120,16 @@ public class JuxyURIResolver implements URIResolver {
     }
 
     return baseURI.resolve(hrefURI);
+  }
+
+  private String toSystemId(File f) {
+    String fpath=f.getAbsolutePath();
+    if (File.separatorChar != '/') {
+        fpath = fpath.replace(File.separatorChar, '/');
+    }
+    if( fpath.startsWith("/"))
+      return "file://" + fpath;
+    else
+      return "file:///" + fpath;
   }
 }

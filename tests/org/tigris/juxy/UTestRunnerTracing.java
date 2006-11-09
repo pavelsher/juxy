@@ -1,5 +1,7 @@
 package org.tigris.juxy;
 
+import junit.framework.TestSuite;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
@@ -11,6 +13,15 @@ import java.io.ByteArrayInputStream;
 public class UTestRunnerTracing extends JuxyTestCase {
   private static final String START_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' xmlns:xsl='" + XSLTKeys.XSLT_NS + "'>\n";
   private static final String END_STYLESHEET_TAG = "</xsl:stylesheet>";
+
+  public static TestSuite suite() {
+    if (!TestUtil.isTracingSupported()) {
+      return new TestSuite();
+    }
+
+    return new TestSuite(UTestRunnerTracing.class);
+  }
+  
 
   protected void setUp() throws Exception {
     enableTracing();
@@ -93,7 +104,7 @@ public class UTestRunnerTracing extends JuxyTestCase {
 
   public void testApplyTemplates() throws Exception {
     setStylesheet("" +
-        "<xsl:template match='/'>\n" +
+        "<xsl:template match='*'>\n" +
         "   <xsl:apply-templates/>" +
         "</xsl:template>");
     context().setDocument("<root/>");
@@ -102,7 +113,7 @@ public class UTestRunnerTracing extends JuxyTestCase {
 
   public void testApplyImports() throws Exception {
     setStylesheet("" +
-        "<xsl:template match='/'>\n" +
+        "<xsl:template match='*'>\n" +
         "   <xsl:apply-imports/>" +
         "</xsl:template>");
     context().setDocument("<root/>");

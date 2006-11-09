@@ -1,0 +1,605 @@
+<html>
+<head>
+ <title>Juxy - XSLT unit testing from Java</title>
+
+<style type="text/css">
+.toc {
+    padding: 10px 10px 10px 10px;
+}
+
+.toc_level1 {
+    padding: 3px 3px 3px 3px;
+}
+
+.toc_level2 {
+    text-indent: 30px;
+    padding: 3px 3px 3px 3px;
+}
+
+
+.code_block {
+    padding: 5px 5px 5px 5px;
+    font-family: monospace;
+    border: 1px solid #8fbc8f;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 80%;
+    background-color: #f5f5dc;
+}
+
+.code {
+    font-family: monospace;
+    color: #000000;
+}
+
+.code_comment {
+    color: #606060;
+    font-style: italic;
+}
+
+.code_constants {
+    color: #228b22;
+}
+
+.output_block {
+    padding: 5px 5px 5px 5px;
+    font-family: monospace;
+    border: 1px solid #8fbc8f;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 70%;
+    background-color: #f5f5dc;
+}
+
+.output {
+    font-family: monospace;
+}
+
+.note {
+    font-size: 9pt;
+    width: 80%;
+    border: 1px solid #e9967a;
+    padding: 5px 5px 5px 5px;
+    background-color: #ffebcd;
+}
+
+.ant_attributes {
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+    width: 80%;
+    border: 1px #a1b68d solid;
+}
+
+.th {
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    text-align: left;
+    border: 1px #a1b68d solid;
+    padding: 4px 4px 4px 4px;
+    background-color: #c1e6ad;
+}
+
+.td {
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+    text-align: left;
+    border: 1px #a1b68d solid;
+    padding: 4px 4px 4px 4px;
+}
+
+/*a {
+    color: #556b2f;
+}
+
+a:hover {
+    text-decoration: none;
+} */
+</style>
+
+</head>
+<body>
+
+<script language="Javascript">
+    function generateToc() {
+        var tocDiv = document.getElementById("toc");
+        var divContent = document.getElementById("juxy_content");
+        var num = 0;
+        var subNum = 0;
+        for (i=0; i<divContent.childNodes.length; i++) {
+            var child = divContent.childNodes[i];
+            var level = -1;
+            if (child.tagName == 'H2')
+                level = 1;
+            else if (child.tagName == 'H3')
+                level = 2;
+
+            if (level > 0) {
+                if (level == 1) {
+                    num++;
+                    subNum = 0;
+                }
+                if (level > 1)
+                    subNum++;
+                var anchor = divContent.childNodes[i-1];
+                if (anchor) {
+                    var div = document.createElement("div");
+                    div.className = "toc_level" + level;
+                    tocDiv.appendChild(div);
+                    var a = document.createElement("a");
+                    a.href = '#' + anchor.name;
+                    var headerText = num + (subNum > 0 ? '.' + subNum : '') + '. ' + child.innerHTML
+                    a.innerHTML = headerText;
+                    child.innerHTML = headerText;
+                    div.appendChild(a);
+                }
+            }
+        }
+    }
+</script>
+
+<p>
+    Juxy is a library for unit testing XSLT stylesheets from Java. It is best suited for the projects where
+    both Java and XSLT are used simultaneously.
+</p>
+
+<p>Juxy features include:</p>
+<ul>
+    <li>Ability to invoke individual xsl templates and pass them any parameters (you can either call or
+        apply templates with and without modes).</li>
+    <li>Ability to setup stylesheet parameters and global variables.</li>
+    <li>Ability to setup current node before transformation.</li>
+    <li>Integration with JUnit (Juxy provides its own TestCase class simplifying testing with JUnit,
+        however, JUnit is not required for writing tests, you can use any testing framework that you like).</li>
+    <li>Transparent support for document fragments returned as transformation result (result of the called
+        template can have more than one root node, Juxy will process such cases transparently for you).</li>
+    <li>Easy result verification with sophisticated XML assertion mechanism.</li>
+    <li>Easy validation using W3C XML Schema or a number of XPath assertions (you can use either Jaxen or JAXP XPath
+        engine, Juxy will detect their presence automatically).</li>
+    <li>Ability to trace execution of the stylesheet instructions.</li>
+    <li>Support for custom URIResolver.</li>
+    <li>Ant task for batch verification of XSLT stylesheets.</li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h2>Table Of Contents</h2>
+
+<div id="toc" class="toc"></div>
+
+<p>&nbsp;</p>
+
+<div id="juxy_content">
+
+<a name="c20"></a><h2>Examples</h2>
+
+<p>
+    You can use Juxy alone, in conjunction with JUnit, or with any other testing framework that you like.
+    To become familiar with Juxy, in the first example, we will show how to use Juxy without JUnit.
+</p>
+<p>
+    We will assume here, that there is a stylesheet with a template taking a list of xml tags and transforming it
+    to a comma separated list of strings. For example, let it be a transformation of something like:
+</p>
+<pre class="output_block">
+    &lt;list>
+        &lt;item>item 1&lt;/item>
+        &lt;item>item 2&lt;/item>
+        ...
+        &lt;item>item n&lt;/item>
+    &lt;/list>
+</pre>
+<p>
+    to the string: <span class="output">item 1, item 2, ... item n</span>.
+</p>
+
+<pre class="code_block">
+    <span class="code_comment">/* First of all we must obtain a Runner instance. Runner is a class that
+       actually invokes transformation and returns the result. */</span>
+    <span class="code">Runner runner = RunnerFactory.newRunner();</span>
+    <span class="code_comment">/* To setup what and how to transform we must create RunnerContext
+       object, which is obtained from the Runner instance. We should
+       provide RunnerContext with stylesheet system id (i.e. with a path
+       to the stylesheet we are going to test). */</span>
+    <span class="code">RunnerContext context = runner.newRunnerContext("<span class="code_constants">stylesheet.xsl</span>");</span>
+    <span class="code_comment">/* Next we set input document into the RunnerContext. */</span>
+    <span class="code">context.setDocument("" +
+        "<span class="code_constants">&lt;list></span>" +
+        "	<span class="code_constants">&lt;item>item 1&lt;/item></span>" +
+        "	<span class="code_constants">&lt;item>item 2&lt;/item></span>" +
+        "	<span class="code_constants">&lt;item>item 3&lt;/item></span>" +
+        "<span class="code_constants">&lt;/list></span>");</span>
+    <span class="code_comment">/* Now we are ready to start transformation. We run it by invoking
+       method applyTemplates() which works similar to the XSLT
+       instruction: &lt;xsl:apply-templates/>.
+       Result of the transformation is returned as a DOM Node object.
+       In fact this is a DOM Document object, which in this case will
+       contain only one TextNode node. */</span>
+    <span class="code">Node result = runner.applyTemplates();</span>
+    <span class="code_comment">/* To retrieve text from the returned DOM Node we can create
+       XPath expression. We should use XPathFactory for that. */</span>
+    <span class="code">XPathExpr xpath = XPathFactory.newXPath("<span class="code_constants">text()</span>");</span>
+    <span class="code_comment">/* Now we are ready to evaluate the expression. */</span>
+    <span class="code">String resultText = xpath.toString(result);</span>
+</pre>
+
+<p class="note">
+    Note: DOM Document in our case actually contains not well formed XML document,
+    which consists of one text node only. Usually it is impossible to create such a document,
+    however Juxy applies a simple workaround for that: internally Juxy holds transformation results
+    in a DocumentFragment node, but from the <span class="code">Runner</span>
+    you will receive a proxy object, which will behave like a Document node containing all the
+    child nodes of the DocumentFragment node.
+</p>
+
+<p>
+    With JUnit it is possible to write more compact tests. For that you should extend your test cases from
+    <span class="code">JuxyTestCase</span> class. Take a look how the same test looks with JUnit:
+</p>
+
+<pre class="code_block">
+<span class="code_comment">/* We should extend our test case from JuxyTestCase. */</span>
+<span class="code">public class SampleTestCase extends JuxyTestCase {</span>
+
+    <span class="code">public void testListTransformation() {</span>
+        <span class="code_comment">/* We should not store context in the local variable, it will be stored
+           automatically within the test case itself. */</span>
+        <span class="code">newContext("<span class="code_constants">stylesheet.xsl</span>");</span>
+        <span class="code_comment">/* To obtain current RunnerContext we can call the context() method. */</span>
+        <span class="code">context().setDocument("" +
+            "<span class="code_constants">&lt;list></span>" +
+            "	<span class="code_constants">&lt;item>item 1&lt;/item></span>" +
+            "	<span class="code_constants">&lt;item>item 2&lt;/item></span>" +
+            "	<span class="code_constants">&lt;item>item 3&lt;/item></span>" +
+            "<span class="code_constants">&lt;/list></span>");</span>
+        <span class="code_comment">/* We do not need to know about Runner here. We can simply invoke applyTemplates()
+           method. Runner will be instantiated automatically within JuxyTestCase. */</span>
+        <span class="code">Node result = applyTemplates();</span>
+        <span class="code_comment">/* With JuxyTestCase verification of the result is much simpler. */</span>
+        <span class="code">xpathAssert("<span class="code_constants">text()</span>", "<span class="code_constants">item 1, item 2, item 3</span>").eval(result);</span>
+    }
+}
+</pre>
+
+<p>
+    More samples are available in the Juxy <a href="http://juxy.tigris.org/source/browse/juxy/samples/">samples</a> directory.
+</p>
+
+<a name="c30"></a><h3>How does it work?</h3>
+
+<p>
+    Juxy works by dynamically creating XSLT stylesheet. From that stylesheet the tested stylesheet is imported via
+    <span class="code">&lt;xsl:import/></span> instruction, thus all its templates and variables automatically get lower priority, so we can
+    easily redefine them.
+</p>
+<p>
+    Any variables and parameters specified in the <span class="code">RunnerContext</span> will be placed in the generated stylesheet. If current
+    node was specified, then corresponding <span class="code">&lt;xsl:for-each/></span> is added to that stylesheet.
+</p>
+<p>
+    Thus when call or apply templates method is invoked, Juxy generates new XSLT stylesheet (it will be generated
+    as DOM Document), places there specified variables and parameters, and inserts template matching root node ("/").
+    In this template the required <span class="code">&lt;xsl:call-template/></span> or <span class="code">&lt;xsl:apply-templates/></span> instructions are placed.
+    If current node was specified then <span class="code">&lt;xsl:for-each/></span> instruction will be added as their parent. To avoid endless
+    loop Juxy will not insert apply-templates instruction if current node was set to "/".
+</p>
+<p>
+    Because Juxy does not use any XSLT processor specific features it should work with any XSLT processor supporting
+    JAXP/TRaX API. For now it is known to work with <a href="http://xml.apache.org/xalan-j/">Apache Xalan</a> and
+    <a href="http://saxon.sourceforge.net/">Saxon</a> (both Saxon 6.5.X and Saxon 8.X are supported). XSLT 2.0
+    templates are also supported.
+</p>
+
+<p>&nbsp;</p>
+
+<a name="c40"></a><h2>Other features</h2>
+
+<a name="c50"></a><h3>Other ways to start transformation</h3>
+
+<p>
+    In the examples above we invoked the transformation by calling method <span class="code">Runner.applyTemplates()</span>.
+    But it is also possible to get the results of the transformation produced by individual templates.
+    You can apply individual templates by specifying XPath expression and mode, or you can call
+    templates by their names. Refer to the <span class="code">Runner</span>'s Javadoc for more details.
+</p>
+<p>
+    Often template requires current node to be set up. By default, it is a root node of the input document,
+    but you can set your own current node using method <span class="code">RunnerContext.setCurrentNode(XPathExpr)</span>.
+    <span class="code">RunnerContext</span> also allows you to setup global transformation parameters,
+    global variables, parameters for the template and namespaces.
+</p>
+
+<a name="c60"></a><h3>Assertions</h3>
+
+<p>
+    With XPath you can apply different assertions on the transformation result. However, in most cases it
+    is easier to compare XML fragments. You can do this with <span class="code">XMLComparator.assertXMLEquals(String, Node)</span>
+    method, for example: <span class="code">XMLComparator.assertXMLEquals("&lt;p>expected text&lt;/p>", result)</span>.
+</p>
+<p>
+    The <span class="code">assertXMLEquals</span> method will compare expected document and the result node by node.
+    In case of any differences you will get an output similar to:
+</p>
+<pre class="output_block">
+Documents differ, expected document:
+&lt;p>expected text&lt;/p>
+
+Actual document:
+&lt;p>actual text&lt;/p>
+</pre>
+<p>
+    If you are using <span class="code">JuxyTestCase</span>, this method is available directly from this class.
+    <span class="code">JuxyTestCase</span> also provides a couple of methods allowing to normalize text, i.e.
+    to collapse spaces and remove trailing spaces. They are useful if spaces between words are insignificant for you.
+</p>
+
+<a name="c70"></a><h3>Tracing</h3>
+
+<p>
+    In some situations it is hard to understand why transformation does not work as you expected.
+    For that purposes Juxy provides you with an ability to trace execution of the XSLT instructions.
+    You can enable or disable tracing by calling methods <span class="code">JuxyTestCase.enableTracing</span> and
+    <span class="code">JuxyTestCase.disableTracing</span> correspondingly (or you can call these methods from
+    the <span class="code">Runner</span> instance). The tracing output looks like:
+</p>
+<pre class="output_block">
+Tracing of the stylesheet file://some/path/stylesheet.xsl started
+2:  &lt;xsl:template match="/">
+3:      &lt;xsl:for-each select="//*">
+4:          &lt;xsl:value-of select=".">
+3:      &lt;xsl:for-each select="//*">
+4:          &lt;xsl:value-of select=".">
+</pre>
+<p>
+    In the tracing output you can see both, the line numbers and corresponding XSLT instructions.
+    Juxy does not use any specific API for this feature. There are limitations, and the most essential
+    is that for now only instructions within templates and template instructions itself are traced.
+    Global variables, parameters and keys are not traced.
+</p>
+<p>
+  Starting from version 0.8.1 you can enable or disable tracing without modification of your tests.
+  You can do this via <span class="code">xslt.tracing</span> system property.
+  Set value of this property to <span class="code">on</span> to enable tracing and to
+  <span class="code">off</span> to disable it. If this property is set it has a higher
+  priority then methods <span class="code">enableTracing</span> and <span class="code">disableTracing</span>.
+</p>
+
+<a name="c80"></a><h3>XSLT Verification</h3>
+
+<p>
+    Juxy package contains Ant task which allows you to perform syntax verification of a number of
+    stylesheets at once. This task tries to create JAXP Transformer object for every stylesheet and
+    reports all the errors and warnings found.
+</p>
+
+<p>
+    Juxy verifier task checks only parent stylesheets, i.e. the stylesheets which are not included or imported
+    from any other stylesheets, because included stylesheets can use global variables and parameters
+    defined in the parent and cannot be compiled without parent. Juxy will automatically filter out all imported and
+    included stylesheets from the specified file set.
+</p>
+
+<p>An example of task usage:</p>
+
+<pre class="code_block">
+&lt;path id="juxy_ant.task.path">
+    &lt;pathelement path="xalan.jar"/>
+    &lt;pathelement path="juxy_ant.jar"/>
+&lt;/path>
+
+&lt;target name="verify-xsl">
+    &lt;taskdef resource="juxy_ant.properties"
+             classpathref="juxy_ant.task.path"/>
+
+    &lt;verifier>
+        &lt;fileset dir="xsl">
+            &lt;include name="**/*.xsl"/>
+        &lt;/fileset>
+    &lt;/verifier>
+&lt;/target>
+</pre>
+
+<p>Task supports the following attributes:</p>
+<table class="ant_attributes" cellpadding="0" cellspacing="0">
+<tr>
+    <th class="th">Attribute</th>
+    <th class="th">Description</th>
+    <th class="th">Required</th>
+</tr>
+<tr>
+    <td class="td">dir</td>
+    <td class="td">Directory where to search for xsl files</td>
+    <td class="td">No, if nested <span class="code">&lt;fileset></span> specified.</td>
+</tr>
+<tr>
+    <td class="td">includes</td>
+    <td class="td">Comma- or space-separated list of files (may be specified using wildcard patterns) that must be included.</td>
+    <td class="td">No</td>
+</tr>
+<tr>
+    <td class="td">excludes</td>
+    <td class="td">Comma- or space-separated list of files (may be specified using wildcard patterns) that must be excluded.</td>
+    <td class="td">No</td>
+</tr>
+<tr>
+    <td class="td">failonerror</td>
+    <td class="td">Whether to fail on first error or not. True by default.</td>
+    <td class="td">No</td>
+</tr>
+</table>
+
+<p>
+    The following nested elements are allowed:
+</p>
+<ul>
+    <li>standard Ant <span class="code">&lt;fileset/></span></li>
+    <li><span class="code">&lt;catalog/></span> this element if appeared turns on XML catalogs resolution.</li>
+</ul>
+<p>
+    The <span class="code">&lt;catalog/></span> element has the following attributes:
+</p>
+
+<table class="ant_attributes" cellpadding="0" cellspacing="0">
+<tr>
+    <th class="th">Attribute</th>
+    <th class="th">Description</th>
+    <th class="th">Required</th>
+</tr>
+<tr>
+    <td class="td">catalogfiles</td>
+    <td class="td">Comma separated paths to the catalog files.</td>
+    <td class="td">Yes</td>
+</tr>
+</table>
+
+<a name="c85"></a><h3>Smart URI resolution</h3>
+<p>
+  URI resolver is needed to calculate paths to imported and included stylesheets.
+  Default URI resolver used in Juxy performs lookup of a stylesheet in the file system
+  as well as in the classloader resources. This behaviour is transparent for you however
+  if for some reason it does not work in your situation you can always use your own URI
+  resolver.
+</p>
+
+<a name="c90"></a><h3>Logging</h3>
+
+<p>
+    Juxy produces log messages that might be useful for discovering problems.
+    For logging purposes Juxy uses Jakarta commons-logging API, so commons-logging jars
+    must be in the classpath.
+</p>
+
+<p>&nbsp;</p>
+<a name="c100"></a><h2>Requirements</h2>
+
+<p>
+    Juxy requires Java 1.4 and will not work with earlier versions. A number of required libraries depends on a version of Java you are using.
+</p>
+
+<p>
+    For Java 1.4 the following libraries are required:
+</p>
+<ul>
+    <li>juxy.jar</li>
+    <li><a href="http://jakarta.apache.org/commons/logging/">commons-logging</a></li>
+    <li><a href="http://jaxen.codehaus.org/">Jaxen</a></li>
+    <li><a href="http://xml.apache.org/xerces2-j/">Xerces 2</a></li>
+    <li>JAXP compliant XSLT engine</li>
+</ul>
+
+<p>
+    For Java 1.5 you should have:
+</p>
+<ul>
+    <li>juxy.jar</li>
+    <li><a href="http://jakarta.apache.org/commons/logging/">commons-logging</a></li>
+    <li>JAXP compliant XSLT engine</li>
+</ul>
+<p>
+    A couple of words about XML parser, XPath and XSLT engine.
+</p>
+<p>
+    Juxy was tested with <a href="http://xml.apache.org/xerces2-j/">Xerces 2</a> XML parser which is included now into the Java 1.5.
+    Juxy does not depend on any Xerces specific functionality, so it should work with other
+    JAXP compliant XML parsers, which support SAX 2 Core, DOM Level 2 Core and Traversal and Range.
+</p>
+<p>
+    For XPath expressions Juxy supports both <a href="http://jaxen.codehaus.org/">Jaxen</a> and <a href="http://xml.apache.org/xerces2-j/javadocs/api/javax/xml/xpath/package-summary.html">JAXP XPath</a> (which appeared in Java 1.5).
+    Juxy will automatically detect presence of the supported engine, so if you are going to run tests
+    under the Java 1.5 Jaxen is no longer required.
+</p>
+<p>
+    As for XSLT engine, Juxy should work with any JAXP compliant XSLT processor which supports XSLT 1.0 specification
+    and JAXP DOMResult. Both <a href="http://xml.apache.org/xalan-j/">Xalan</a> and <a href="http://saxon.sourceforge.net/">Saxon</a>
+    (6.5.X and 8.X versions) were tested and work fine with Juxy. Since version 0.7.2 Juxy also supports XSLT processor bundled with Java 1.5,
+    however I would not recommend you to use it because of several bugs in this XSLT processor.
+</p>
+
+<p>
+    The following libraries are required for Ant verifier task:
+</p>
+<ul>
+    <li>juxy_ant.jar</li>
+    <li>JAXP compliant XSLT engine</li>
+    <li><a href="http://xml.apache.org/commons/">XML commons resolver</a> (optional)</li>
+</ul>
+<p>
+    XML commons resolver.jar is required if you are going to use XML catalogs URI resolution.
+    juxy.jar is not required for Ant task.
+</p>
+
+<p>&nbsp;</p>
+<a name="c110"></a><h2>Download package</h2>
+<p>
+    Juxy is distributed under the terms of the Apache License 2.0.
+</p>
+
+<p>
+    The latest version of Juxy is 0.8. You can download it <a href="http://juxy.tigris.org/servlets/ProjectDocumentList?folderID=5095&expandFolder=5095&folderID=7539">here</a>.
+    The package includes:
+</p>
+<ul>
+    <li>API javadoc</li>
+    <li>juxy.jar</li>
+    <li>juxy_ant.jar</li>
+    <li>juxy_src.jar</li>
+    <li>samples</li>
+    <li>required libraries to run samples</li>
+</ul>
+
+
+<p>&nbsp;</p>
+<a name="c120"></a><h2>Whom to contact?</h2>
+
+<p>
+    My name is Pavel Sher, and I am the author of this project and its sole developer.
+    I will be glad to hear your suggestions and opinions about Juxy. Please send them
+    to the <a href="http://juxy.tigris.org/servlets/ProjectMailingListList">users</a> mailing list or to my email: pavelsher[ at ]tigris.org.
+</p>
+
+<p>
+    If you found a bug, you can report it into the <a href="http://juxy.tigris.org/servlets/ProjectMailingListList">issues</a> mailing list or to me directly.
+</p>
+
+<p>&nbsp;</p>
+<a name="c130"></a><h2>Related projects</h2>
+<p>
+    Here are the projects I do know about:
+</p>
+<ul>
+    <li><a href="http://www.jenitennison.com/xslt/utilities/unit-testing/">A set of XSLT stylesheets to simplify XSLT Unit Testing</a></li>
+    <li><a href="http://xsltunit.org/">XSLTunit</a></li>
+    <li><a href="http://xmlunit.sourceforge.net/">XMLUnit</a> - JUnit and NUnit testing for XML</li>
+    <li><a href="http://utf-x.sourceforge.net/">UTF-X</a> - Unit Testing Framework - XSLT</li>
+</ul>
+
+<p>&nbsp;</p>
+
+<script language="JavaScript">
+generateToc();
+</script>
+
+
+<!-- Start of StatCounter Code -->
+<script type="text/javascript" language="javascript">
+var sc_project=966035;
+var sc_invisible=1;
+var sc_partition=3;
+var sc_security="273aa87c";
+var sc_remove_link=1;
+</script>
+
+<script type="text/javascript" language="javascript" src="http://www.statcounter.com/counter/counter.js"></script><noscript><img  src="http://c4.statcounter.com/counter.php?sc_project=966035&amp;java=0&amp;security=273aa87c&amp;invisible=1" alt="free webpage hit counter" border="0"> </noscript>
+<!-- End of StatCounter Code -->
+
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-337567-1";
+urchinTracker();
+</script>
+
+</div>
+
+</body>
+</html>

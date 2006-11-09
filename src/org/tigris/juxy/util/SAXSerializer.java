@@ -3,6 +3,7 @@ package org.tigris.juxy.util;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLFilterImpl;
+import org.tigris.juxy.XMLConstants;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -44,13 +45,13 @@ public class SAXSerializer extends XMLFilterImpl {
   }
 
   public void startPrefixMapping(String prefix, String uri) throws SAXException {
-    super.startPrefixMapping(prefix, uri);
+//    super.startPrefixMapping(prefix, uri);
     namespaces.put(uri, prefix);
     currentNamespaces.add(uri);
   }
 
   public void endPrefixMapping(String prefix) throws SAXException {
-    super.endPrefixMapping(prefix);
+//    super.endPrefixMapping(prefix);
   }
 
   public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
@@ -60,35 +61,56 @@ public class SAXSerializer extends XMLFilterImpl {
       String name = getElementName(localName, qName);
 
       getWriter().print("<" + name);
-      printXMLNSAttributes();
 
       if (atts.getLength() > 0)
         getWriter().print(" ");
+
       for (int i = 0; i < atts.getLength(); i++) {
+        // skip all xmlns attributes
+        if (XMLConstants.XMLNS_PREFIX_URI.equals(atts.getURI(i))) continue;
         String aname = atts.getQName(i);
         String avalue = encode(atts.getValue(i), true);
         getWriter().print(aname + "=\"" + avalue + "\"");
         if (i + 1 < atts.getLength())
           getWriter().print(" ");
       }
+
+      printXMLNSAttributes(atts);
+
       elemContents.push(new Integer(0));
       getWriter().flush();
     }
   }
 
-  private void printXMLNSAttributes() {
+  private void printXMLNSAttributes(Attributes atts) {
+    Map ns = new HashMap();
+    for (int i = 0; i < atts.getLength(); i++) {
+      if (!XMLConstants.XMLNS_PREFIX_URI.equals(atts.getURI(i))) continue;
+      ns.put(atts.getQName(i), atts.getValue(i));
+    }
+
     Iterator nsIt = currentNamespaces.iterator();
     while (nsIt.hasNext()) {
       String uri = (String) nsIt.next();
-      String prefix = (String) namespaces.get(uri);
+      if (ns.containsValue(uri)) continue;
 
-      String result = " xmlns";
+      String prefix = (String) namespaces.get(uri);
+      String attrName = "xmlns";
       if (prefix != null && prefix.length() > 0)
-        result += ":" + prefix;
-      result += "=\"" + uri + "\"";
-      getWriter().write(result);
-      nsIt.remove();
+        attrName += ":" + prefix;
+      if (ns.containsKey(attrName)) continue;
+      ns.put(attrName, uri);
     }
+
+    Iterator it = ns.entrySet().iterator();
+    while(it.hasNext()) {
+      Map.Entry entry = (Map.Entry) it.next();
+      String attrName = (String) entry.getKey();
+      String attrValue = (String) entry.getValue();
+      getWriter().write(" " + attrName + "=\"" + attrValue + "\"");
+    }
+
+    currentNamespaces.clear();
   }
 
   private String encode(String str, boolean encodeQuote) {

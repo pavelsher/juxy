@@ -6,6 +6,7 @@ import org.tigris.juxy.*;
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.util.JuxyURIResolver;
 import org.tigris.juxy.util.SAXUtil;
+import org.tigris.juxy.util.XSLTEngineSupport;
 import org.tigris.juxy.xpath.XPathExpr;
 import org.tigris.juxy.xpath.XPathFactory;
 import org.w3c.dom.Document;
@@ -45,6 +46,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
   private Templates currentTemplates = null;
   private Document currentStylesheetDoc = null;
   private boolean tracingEnabled = false;
+  private XSLTEngineSupport engineSupport;
 
   private TransformerFactory transformerFactory = null;
   private static final Log logger = LogFactory.getLog(TemplatesBuilderImpl.class);
@@ -56,6 +58,8 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
     this.transformerFactory.setErrorListener(new BuilderErrorListener());
 
     this.rootNode = XPathFactory.newXPath("/");
+
+    engineSupport = new XSLTEngineSupport(transformerFactory);
   }
 
   public void setImportSystemId(String systemId, URIResolver resolver) {
@@ -143,6 +147,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
       Element rootEl = createSkeleton(version);
       createGlobalVariables(rootEl);
       createInvokationStatement(rootEl);
+      //DOMUtil.logDocument("juxy-stylesheet.xsl", rootEl);
       updateCurrentTemplates(rootEl.getOwnerDocument());
       currentStylesheetDoc = rootEl.getOwnerDocument();
     }
@@ -214,25 +219,25 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
     assert resolver != null;
 
     try {
-      boolean buggyXSLT = transformerFactory.getClass().getName().
-          equals("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl") &&
-          System.getProperty("java.vm.version").startsWith("1.5.");
-
-      if (!buggyXSLT) {
-        transformerFactory.setURIResolver(tracingEnabled ? new TracingURIResolver(resolver) : resolver);
+      boolean enableTracing = false;
+      if (tracingEnabled && !engineSupport.isTracingSupported()) {
+        logger.warn("Tracing is not supported with this type of XSLT transformer: " + transformerFactory.getClass().getName());
       } else {
-        if (tracingEnabled) {
-          logger.warn("Tracing is not supported for XSLT transformer bundled with Java 1.5.");
-        }
+        enableTracing = tracingEnabled;
+      }
+
+      if (engineSupport.isCustomURIResolverSupported()) {
+        transformerFactory.setURIResolver(enableTracing ? new TracingURIResolver(resolver) : resolver);
+      } else {
         if (!(resolver instanceof JuxyURIResolver)) {
-          logger.warn("Custom URI resolver is not supported for XSLT transformer bundled with Java 1.5.");
+          logger.warn("Due to a bug in Java 1.5 XSLT engine custom URI resolver is not supported.");
         }
       }
 
       DOMSource source = new DOMSource(stylesheet);
       // Setting system id to be in the current directory (we are using some file for that,
       // but it does not matter whether this file exists or not).
-      // This system id is required to be able to resolve paths to
+      // This system id is required to resolve paths to
       // imported and included stylesheets
       source.setSystemId(new File("juxy-stylesheet.xsl").getCanonicalFile().toURI().toString());
       currentTemplates = transformerFactory.newTemplates(source);
@@ -264,11 +269,14 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
   private void createAppliedTemplateCall(Element stylesheetEl) {
     if (!rootNode.equals(invokationStatementInfo.getTemplateSelectXPath()) ||
         invokationStatementInfo.getTemplateMode() != null) {
+
       if (invokationStatementInfo.getTemplateSelectXPath() == null &&
           invokationStatementInfo.getTemplateMode() == null &&
           (currentNode == null || currentNode.equals(rootNode))) {
         Element applyImportsEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:apply-imports");
-        createCallingStatementParent(stylesheetEl).appendChild(applyImportsEl);
+        Element templateEl = createCallingStatementParent(stylesheetEl);
+        templateEl.setAttribute("match", "*");
+        templateEl.appendChild(applyImportsEl);
         createInvokationParams(applyImportsEl, invokationStatementInfo.getTemplateInvokeParams());
         return;
       }
@@ -361,7 +369,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
 
     if (tracingEnabled) {
       Element traceParamEl = stylesheetDoc.createElementNS(XSLTKeys.XSLT_NS, "xsl:param");
-      traceParamEl.setAttributeNS(XMLNS_NS, "xmlns:" + JuxyParams.PREFIX, JuxyParams.NS);
+      traceParamEl.setAttributeNS(XMLConstants.XMLNS_PREFIX_URI, "xmlns:" + JuxyParams.PREFIX, JuxyParams.NS);
       traceParamEl.setAttribute("name", JuxyParams.PREFIX + ":" + JuxyParams.TRACE_PARAM);
       stylesheetEl.appendChild(traceParamEl);
     }
@@ -376,7 +384,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
       String uri = (String) ns.getKey();
       String prefix = (String) ns.getValue();
       String qname = prefix != null && prefix.length() > 0 ? "xmlns:" + prefix : "xmlns";
-      stylesheetEl.setAttributeNS(XMLNS_NS, qname, uri);
+      stylesheetEl.setAttributeNS(XMLConstants.XMLNS_PREFIX_URI, qname, uri);
     }
   }
 
@@ -475,5 +483,4 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
   }
 
   private XPathExpr rootNode = null;
-  static final String XMLNS_NS = "http://www.w3.org/2000/xmlns/";
 }

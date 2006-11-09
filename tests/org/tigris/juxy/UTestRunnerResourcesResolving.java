@@ -1,16 +1,26 @@
 package org.tigris.juxy;
 
 import org.w3c.dom.Node;
+import junit.framework.TestSuite;
 
-/**
- * User: pavel
- * Date: 25.10.2006
- */
 public class UTestRunnerResourcesResolving extends JuxyTestCase {
+  public static TestSuite suite() {
+    if (!TestUtil.isCustomURIResolverSupported() || TestUtil.isIncorrectBaseURIForImportedStylesheets()) {
+      return new TestSuite();
+    }
+
+    return new TestSuite(UTestRunnerResourcesResolving.class);
+  }
+
   public void testResourceResolutionFromJar() throws Exception {
     newContext("/xml/resolver/resource-import.xsl");
     verifyImported();
-    verifyDocumentLoaded();
+
+    // for some reason Xalan does not call URI resolver
+    // when it loads xml document from XSLT function document()
+    if (TestUtil.isURIResolverUsedByDocumentFunction()) {
+      verifyDocumentLoaded();
+    }
   }
 
   public void testResourceResolutionFromClasses() throws Exception {

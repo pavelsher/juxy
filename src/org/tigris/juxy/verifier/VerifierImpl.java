@@ -48,7 +48,11 @@ public class VerifierImpl implements Verifier {
     while (it.hasNext()) {
       File f = (File) it.next();
       if (f.exists() && f.isFile())
-        urisToVerify.add(f.toURI().normalize());
+        try {
+          urisToVerify.add(f.getCanonicalFile().toURI().normalize());
+        } catch (IOException e) {
+          info("File " + f.getAbsolutePath() + " won't be verified: " + e.toString());
+        }
     }
   }
 
