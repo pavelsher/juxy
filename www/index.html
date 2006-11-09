@@ -360,16 +360,16 @@ Tracing of the stylesheet file://some/path/stylesheet.xsl started
 <a name="c80"></a><h3>XSLT Verification</h3>
 
 <p>
-    Starting from version 0.7 Juxy package contains Ant task which allows syntax verification of a number of
-    stylesheets at once. This task tries to create JAXP Transformer object for every stylesheet and
-    reports all the found errors and warnings.
+    Starting from version 0.7 Juxy package contains Ant task which performs syntax verification of a number of
+    stylesheets at once. This task tries to compile every stylesheet (by creating JAXP Transformer object) and
+    reports all errors and warnings.
 </p>
 
 <p>
-    Juxy verifier task checks only parent stylesheets, i.e. the stylesheets which are not included or imported
+    Juxy verifier task checks parent stylesheets only, i.e. the stylesheets which are not included or imported
     from any other stylesheets, because included stylesheets can use global variables and parameters
-    defined in the parent and cannot be compiled without parent. Juxy will automatically filter out all imported and 
-    included stylesheets from the specified file set.
+    defined in the parent and might not be compiled without parent. Juxy will automatically filter out all
+    imported and included stylesheets from the specified file set.
 </p>
 
 <p>An example of task usage:</p>
