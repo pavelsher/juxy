@@ -125,56 +125,6 @@
         <include name="org/**/UTest*.java" />
         <exclude name="org/**/UTestVerifierTask.java" />
     </fileset>
-<!--
-
-    <fileset id="all.tests.for.xalan" dir="${tests.dir}">
-        <include name="org/**/UTest*.java" />
-        <exclude name="org/**/UTest*20.java" />
-        <exclude name="org/**/UTestVerifierTask.java" />
-        <exclude name="org/**/UTestRunnerResourcesResolving.java" />
-    </fileset>
-
-    <fileset id="all.tests.for.java.xsltc" dir="${tests.dir}">
-        <include name="org/**/UTest*.java" />
-        <exclude name="org/**/UTest*20.java" />
-        <exclude name="org/**/UTestExternalFunctions.java" />
-        <exclude name="org/**/UTestRunnerTracing.java" />
-        <exclude name="org/**/UTestRunnerResourcesResolving.java" />
-        <exclude name="org/**/UTestTracingFilter.java" />
-        <exclude name="org/**/UTestURIResolver.java" />
-        <exclude name="org/**/UTestVerifierImpl.java" />
-        <exclude name="org/**/UTestVerifierTask.java" />
-    </fileset>
-
-    <fileset id="all.tests.for.xalan.xsltc" dir="${tests.dir}">
-        <include name="org/**/UTest*.java" />
-        <exclude name="org/**/UTest*20.java" />
-        <exclude name="org/**/UTestExternalFunctions.java" />
-        <exclude name="org/**/UTestRunnerTracing.java" />
-        <exclude name="org/**/UTestRunnerResourcesResolving.java" />
-        <exclude name="org/**/UTestTracingFilter.java" />
-        <exclude name="org/**/UTestVerifierImpl.java" />
-        <exclude name="org/**/UTestVerifierTask.java" />
-    </fileset>
-
-  <fileset id="all.tests.for.oracle.xdk" dir="${tests.dir}">
-      <include name="org/**/UTest*.java" />
-      <exclude name="org/**/UTest*20.java" />
-      <exclude name="org/**/UTestExternalFunctions.java" />
-      <exclude name="org/**/UTestRunnerTracing.java" />
-      <exclude name="org/**/UTestRunnerResourcesResolving.java" />
-      <exclude name="org/**/UTestTracingFilter.java" />
-      -->
-<!--<exclude name="org/**/UTestURIResolver.java" />-->
-<!--
-      -->
-<!--<exclude name="org/**/UTestVerifierImpl.java" />-->
-<!--
-      -->
-<!--<exclude name="org/**/UTestVerifierTask.java" />-->
-<!--
-  </fileset>
--->
 
     <fileset id="verifier.task.tests" dir="${tests.dir}">
         <include name="org/**/UTestVerifierTask.java" />
@@ -237,10 +187,6 @@
       <antcall target="test-verifiertask"/>
     </target>
 
-    <target name="verify-samples" description="Runs samples" >
-        <ant dir="${basedir}" antfile="samples-build.xml" target="run-samples" inheritall="false" inheritrefs="false" />
-    </target>
-
     <target name="ut">
         <junit printsummary="yes" haltonfailure="yes" fork="yes" forkmode="once" showoutput="false">
             <jvmarg line="-ea ${jvmargs}"/>
@@ -254,12 +200,11 @@
 
     <target name="build" description="Creates Juxy build" >
         <property file="${basedir}/build.properties"/>
-        <copy file="${src.dir}/org/tigris/juxy/Version.tpl" tofile="${src.dir}/org/tigris/juxy/Version.java"/>
+        <copy file="${src.dir}/org/tigris/juxy/Version.tpl" tofile="${src.dir}/org/tigris/juxy/Version.java" overwrite="true"/>
         <replace file="${src.dir}/org/tigris/juxy/Version.java" token="@@version" value="${version}"/>
 
         <antcall target="clean"/>
         <antcall target="test-all"/>
-        <antcall target="verify-samples"/>
 
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${build.dir}/lib"/>
@@ -301,9 +246,11 @@
 
             <fileset dir="${classes.dir}" includes="org/**/verifier/**"/>
             <fileset dir="${classes.dir}" includes="org/tigris/juxy/util/SAXUtil.class, org/tigris/juxy/util/JuxyURIResolver.class, org/tigris/juxy/util/ExceptionUtil.class"/>
-            <fileset dir="${classes.dir}" includes="org/tigris/juxy/XSLTKeys.class, org/tigris/juxy/Version.class"/>
+            <fileset dir="${classes.dir}" includes="org/tigris/juxy/XSLTKeys.class, org/tigris/juxy/Version.class, org/tigris/juxy/JuxyRuntimeException.class"/>
             <fileset dir="${basedir}" includes="juxy_ant.properties"/>
         </jar>
+
+        <ant dir="${build.dir}" antfile="build.xml" target="run-samples" inheritall="false" inheritrefs="false" />
 
         <jar destfile="${build.dir}/juxy_src.jar">
             <manifest>

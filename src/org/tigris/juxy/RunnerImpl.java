@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * $Id: RunnerImpl.java,v 1.14 2006-11-09 17:28:07 pavelsher Exp $
+ * $Id: RunnerImpl.java,v 1.15 2006-11-09 18:59:07 pavelsher Exp $
  * <p/>
  * This runner uses only standard features. It does not use any XSLT engine-specific extensions.
  *
@@ -141,7 +141,6 @@ class RunnerImpl implements Runner {
   private Node transformSource(Source sourceDoc, RunnerContextImpl ctx) throws TransformerException {
     Transformer transformer = getTransformer();
     transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-    Tracer traceLogger = null;
 
     if (ctx.getGlobalParams() != null) {
       Map namespaces = ctx.getNamespaces();
@@ -152,20 +151,24 @@ class RunnerImpl implements Runner {
       }
 
       if (isTracingEnabled()) {
-        traceLogger = new Tracer(System.out);
-        transformer.setParameter("{" + JuxyParams.NS + "}" + JuxyParams.TRACE_PARAM, traceLogger);
+        Tracer.startTracing(System.out);
       }
     }
 
-    Document document = DOMUtil.newDocument();
-    DocumentFragment fragment = document.createDocumentFragment();
-    document.appendChild(fragment);
-    DOMResult result = new DOMResult(fragment);
-    transformer.transform(sourceDoc, result);
-    fragment.normalize();
-
-    if (traceLogger != null)
-      traceLogger.stopTracing();
+    Document document;
+    DocumentFragment fragment;
+    try {
+      document = DOMUtil.newDocument();
+      fragment = document.createDocumentFragment();
+      document.appendChild(fragment);
+      DOMResult result = new DOMResult(fragment);
+      transformer.transform(sourceDoc, result);
+      fragment.normalize();
+    } finally {
+      if (isTracingEnabled()) {
+        Tracer.stopTracing();
+      }
+    }
 
     DOMUtil.logDocument("Transformation result:", fragment);
 

@@ -8,18 +8,19 @@ import java.io.PrintStream;
  * @author Pavel Sher
  */
 public class Tracer {
-  private String currentSystemid;
-  private int lastLine;
-  private StringBuffer buf;
-  private PrintStream traceOs;
+  private static String currentSystemid;
+  private static int lastLine;
+  private static StringBuffer buf;
+  private static PrintStream traceOs;
 
-  public Tracer(PrintStream traceOs) {
-    this.traceOs = traceOs;
+  public static void startTracing(PrintStream os) {
+    traceOs = os;
     buf = new StringBuffer(20);
     lastLine = -1;
+    currentSystemid = null;
   }
 
-  public void trace(int line, int level, String systemId, String statement) {
+  public static void trace(int line, int level, String systemId, String statement) {
     boolean sameSystemId = systemId.equals(currentSystemid);
     if (!sameSystemId) {
       traceOs.println("Tracing of the stylesheet " + systemId + " started");
@@ -42,15 +43,16 @@ public class Tracer {
   /**
    * Should be called when transformation is completed
    */
-  public void stopTracing() {
+  public static void stopTracing() {
     traceOs.println();
+    buf.delete(0, buf.length());
   }
 
-  private String unescapeMessage(String message) {
+  private static String unescapeMessage(String message) {
     return message.replaceAll("&#39;", "'");
   }
 
-  private String messageAndLocation(int line, int level, String message) {
+  private static String messageAndLocation(int line, int level, String message) {
     buf.delete(0, buf.length());
     buf.append(line);
     buf.append(":\t");

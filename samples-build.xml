@@ -18,6 +18,13 @@
         <pathelement path="${classes.dir}"/>
     </path>
 
+    <path id="juxy_ant.task.path">
+        <fileset dir="${lib.dir}" >
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${basedir}/juxy_ant.jar"/>
+    </path>
+
     <target name="init">
         <mkdir dir="${classes.dir}"/>
     </target>
@@ -43,6 +50,17 @@
     </target>
 
     <target name="run-samples" depends="compile" description="Runs all samples" >
+        <taskdef resource="juxy_ant.properties" classpathref="juxy_ant.task.path"/>
+
+        <verifier>
+            <fileset dir="${basedir}/samples/xsl">
+                <include name="**/*.xsl"/>
+            </fileset>
+        </verifier>
+
+        <echo message=""/>
+        <echo message="Starting samples..."/>
+
         <junit printsummary="yes" haltonfailure="yes" fork="yes" showoutput="yes">
             <jvmarg line="-ea -Djavax.xml.transform.TransformerFactory=org.apache.xalan.processor.TransformerFactoryImpl"/>
             <classpath refid="run.classpath" />

@@ -227,7 +227,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
       }
 
       if (engineSupport.isCustomURIResolverSupported()) {
-        transformerFactory.setURIResolver(enableTracing ? new TracingURIResolver(resolver) : resolver);
+        transformerFactory.setURIResolver(enableTracing ? new TracingURIResolver(resolver, engineSupport) : resolver);
       } else {
         if (!(resolver instanceof JuxyURIResolver)) {
           logger.warn("Due to a bug in Java 1.5 XSLT engine custom URI resolver is not supported.");
@@ -275,7 +275,7 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
           (currentNode == null || currentNode.equals(rootNode))) {
         Element applyImportsEl = stylesheetEl.getOwnerDocument().createElementNS(XSLTKeys.XSLT_NS, "xsl:apply-imports");
         Element templateEl = createCallingStatementParent(stylesheetEl);
-        templateEl.setAttribute("match", "*");
+//        templateEl.setAttribute("match", "/");
         templateEl.appendChild(applyImportsEl);
         createInvokationParams(applyImportsEl, invokationStatementInfo.getTemplateInvokeParams());
         return;
@@ -366,13 +366,6 @@ public class TemplatesBuilderImpl implements TemplatesBuilder {
     registerNamespaces(stylesheetEl);
 
     createImport(stylesheetEl);
-
-    if (tracingEnabled) {
-      Element traceParamEl = stylesheetDoc.createElementNS(XSLTKeys.XSLT_NS, "xsl:param");
-      traceParamEl.setAttributeNS(XMLConstants.XMLNS_PREFIX_URI, "xmlns:" + JuxyParams.PREFIX, JuxyParams.NS);
-      traceParamEl.setAttribute("name", JuxyParams.PREFIX + ":" + JuxyParams.TRACE_PARAM);
-      stylesheetEl.appendChild(traceParamEl);
-    }
 
     return stylesheetEl;
   }

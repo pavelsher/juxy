@@ -3,6 +3,7 @@ package org.tigris.juxy.builder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.tigris.juxy.util.SAXUtil;
+import org.tigris.juxy.util.XSLTEngineSupport;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
@@ -20,10 +21,12 @@ import javax.xml.transform.sax.SAXSource;
 public class TracingURIResolver implements URIResolver {
   private static final Log logger = LogFactory.getLog(TracingURIResolver.class);
   private URIResolver originalResolver;
+  private XSLTEngineSupport engineSupport;
 
-  public TracingURIResolver(URIResolver originalResolver) {
+  public TracingURIResolver(URIResolver originalResolver, XSLTEngineSupport engineSupport) {
     assert originalResolver != null;
     this.originalResolver = originalResolver;
+    this.engineSupport = engineSupport;
   }
 
   public Source resolve(String href, String base) throws TransformerException {
@@ -41,7 +44,7 @@ public class TracingURIResolver implements URIResolver {
     if (parentReader == null)
       parentReader = SAXUtil.newXMLReader();
 
-    XMLFilter tracingFilter = new TracingFilter();
+    XMLFilter tracingFilter = new TracingFilter(engineSupport);
     tracingFilter.setParent(parentReader);
 
 /*

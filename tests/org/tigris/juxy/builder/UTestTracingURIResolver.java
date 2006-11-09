@@ -3,6 +3,7 @@ package org.tigris.juxy.builder;
 import junit.framework.TestCase;
 import org.tigris.juxy.util.DOMUtil;
 import org.tigris.juxy.util.SAXUtil;
+import org.tigris.juxy.util.XSLTEngineSupport;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -15,17 +16,24 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 /**
- * $Id: UTestTracingURIResolver.java,v 1.2 2006-10-31 11:01:22 pavelsher Exp $
+ * $Id: UTestTracingURIResolver.java,v 1.3 2006-11-09 18:59:07 pavelsher Exp $
  *
  * @author Pavel Sher
  */
 public class UTestTracingURIResolver extends TestCase {
+  private XSLTEngineSupport engineSupport;
+
+  protected void setUp() throws Exception {
+    super.setUp();
+    engineSupport = new XSLTEngineSupport();
+  }
+
   public void testOriginalResolverReturnedNull() throws TransformerException {
     TracingURIResolver resolver = new TracingURIResolver(new URIResolver() {
       public Source resolve(String href, String base) {
         return null;
       }
-    });
+    }, engineSupport);
 
     assertNull(resolver.resolve("href", "base"));
   }
@@ -40,7 +48,7 @@ public class UTestTracingURIResolver extends TestCase {
           throw new TransformerException(e);
         }
       }
-    });
+    }, engineSupport);
 
     Source src = resolver.resolve("href", "base");
     assertTrue(src instanceof DOMSource);
@@ -54,7 +62,7 @@ public class UTestTracingURIResolver extends TestCase {
         src.setSystemId("stylesheet.xsl");
         return src;
       }
-    });
+    }, engineSupport);
 
     Source src = resolver.resolve("href", "base");
     assertTrue(src instanceof SAXSource);
@@ -74,7 +82,7 @@ public class UTestTracingURIResolver extends TestCase {
         src.setXMLReader(origReader);
         return src;
       }
-    });
+    }, engineSupport);
 
     Source src = resolver.resolve("href", "base");
     assertTrue(src instanceof SAXSource);
@@ -92,7 +100,7 @@ public class UTestTracingURIResolver extends TestCase {
         src.setSystemId("stylesheet.xsl");
         return src;
       }
-    });
+    }, engineSupport);
 
     Source src = resolver.resolve("href", "base");
     assertTrue(src instanceof SAXSource);

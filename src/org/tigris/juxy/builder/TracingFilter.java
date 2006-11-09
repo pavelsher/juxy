@@ -2,9 +2,10 @@ package org.tigris.juxy.builder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.tigris.juxy.Tracer;
 import org.tigris.juxy.XSLTKeys;
+import org.tigris.juxy.Tracer;
 import org.tigris.juxy.util.StringUtil;
+import org.tigris.juxy.util.XSLTEngineSupport;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -23,6 +24,11 @@ public class TracingFilter extends XMLFilterImpl {
   private Map namespaces = new HashMap();
   private boolean withinTemplateElement = false;
   private static int MAX_TEXT_LEN = 51;
+  private XSLTEngineSupport engineSupport;
+
+  public TracingFilter(final XSLTEngineSupport engineSupport) {
+    this.engineSupport = engineSupport;
+  }
 
   public void startDocument() throws SAXException {
     logger.debug("Start augmenting stylesheet with tracing code: " + locator.getSystemId() + " ...");
@@ -253,18 +259,16 @@ public class TracingFilter extends XMLFilterImpl {
     List events = new ArrayList(6);
     AttributesImpl a = new AttributesImpl();
     a.addAttribute("", "select", "select", "CDATA",
-        "tracer:trace($" + JuxyParams.PREFIX + ":" + JuxyParams.TRACE_PARAM + ", " +
+        JuxyParams.TRACER_EXTENSION_NAME + ":trace(" +
             line + ", " +
             level + ", '" +
             escapeSingleQuot(systemId) + "', '" +
             escapeSingleQuot(tracingText) + "')");
 
-    events.add(new StartPrefixMappingEvent(JuxyParams.PREFIX, JuxyParams.NS));
-    events.add(new StartPrefixMappingEvent(JuxyParams.TRACE_PARAM, "java:" + Tracer.class.getName()));
+    events.add(new StartPrefixMappingEvent(JuxyParams.TRACER_EXTENSION_NAME, engineSupport.getJavaExtensionNamespace(Tracer.class)));
     events.add(new StartElementEvent(XSLTKeys.XSLT_NS, "value-of", "xsl:value-of", a));
     events.add(new EndElementEvent(XSLTKeys.XSLT_NS, "value-of", "xsl:value-of"));
-    events.add(new EndPrefixMappingEvent(JuxyParams.PREFIX));
-    events.add(new EndPrefixMappingEvent(JuxyParams.TRACE_PARAM));
+    events.add(new EndPrefixMappingEvent(JuxyParams.TRACER_EXTENSION_NAME));
     return events;
   }
 

@@ -8,6 +8,10 @@ import javax.xml.transform.TransformerFactory;
 public class XSLTEngineSupport {
   private TransformerFactory factory;
 
+  public XSLTEngineSupport() {
+    this.factory = TransformerFactory.newInstance();
+  }
+
   public XSLTEngineSupport(final TransformerFactory factory) {
     this.factory = factory;
   }
@@ -21,7 +25,7 @@ public class XSLTEngineSupport {
     return isSaxon8();
   }
 
-  private boolean isSaxon8() {
+  public boolean isSaxon8() {
     return "net.sf.saxon.TransformerFactoryImpl".equals(
         factory.getClass().getName());
   }
@@ -36,7 +40,7 @@ public class XSLTEngineSupport {
   }
 
   public boolean isTracingSupported() {
-    return !isJavaXalanXSLTC() && !isXalanXSLTC() && !isOracleXDK();
+    return !isJavaXalanXSLTC() && !isOracleXDK();
   }
 
   public boolean isXalanXSLTC() {
@@ -49,7 +53,10 @@ public class XSLTEngineSupport {
         factory.getClass().getName());
   }
 
-  public boolean isExternalJavaFunctionsSupported() {
-    return !isJavaXalanXSLTC() && !isXalanXSLTC() && !isOracleXDK();
+  public String getJavaExtensionNamespace(Class clazz) {
+    if (isXalanXSLTC()) return "http://xml.apache.org/xalan/xsltc/java/" + clazz.getName();
+    if (isXalanXSLT()) return "http://xml.apache.org/xslt/java/" + clazz.getName();
+    if (isOracleXDK()) return "http://www.oracle.com/XSL/Transform/java/" + clazz.getName();
+    return "java:" + clazz.getName();
   }
 }

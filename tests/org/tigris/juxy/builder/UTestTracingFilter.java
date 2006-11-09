@@ -3,12 +3,9 @@ package org.tigris.juxy.builder;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.tigris.juxy.TestUtil;
-import org.tigris.juxy.Tracer;
 import org.tigris.juxy.XSLTKeys;
-import org.tigris.juxy.util.SAXSerializer;
-import org.tigris.juxy.util.SAXUtil;
-import org.tigris.juxy.util.StringUtil;
-import org.tigris.juxy.util.XMLComparator;
+import org.tigris.juxy.Tracer;
+import org.tigris.juxy.util.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -21,20 +18,18 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * $Id: UTestTracingFilter.java,v 1.13 2006-11-09 17:28:06 pavelsher Exp $
+ * $Id: UTestTracingFilter.java,v 1.14 2006-11-09 18:59:07 pavelsher Exp $
  *
  * @author Pavel Sher
  */
 public class UTestTracingFilter extends TestCase {
-  private static final String JUXY_XMLNS = "xmlns:juxy='" + JuxyParams.NS + "'";
-  private static final String TRACER_XMLNS = "xmlns:tracer='java:" + Tracer.class.getName() + "'";
   private static final String XSLT_XMLNS = "xmlns:xsl='" + XSLTKeys.XSLT_NS + "'";
-  private static final String JUXY_TRACER_PARAM_TAG = "<xsl:param name='juxy:tracer' xmlns:juxy='http://juxy.tigris.org/'/>";
-  private static final String AUGMENTED_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' " + XSLT_XMLNS + ">" + JUXY_TRACER_PARAM_TAG;
-  private static final String START_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' " + XSLT_XMLNS + ">\n" + JUXY_TRACER_PARAM_TAG;
+  private static final String AUGMENTED_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' " + XSLT_XMLNS + ">";
+  private static final String START_STYLESHEET_TAG = "<xsl:stylesheet version='1.0' " + XSLT_XMLNS + ">\n";
   private static final String END_STYLESHEET_TAG = "</xsl:stylesheet>";
 
   private String filteredStylesheet;
+  private XSLTEngineSupport engineSupport;
 
   public UTestTracingFilter(String name) {
     super(name);
@@ -46,6 +41,12 @@ public class UTestTracingFilter extends TestCase {
     }
 
     return new TestSuite(UTestTracingFilter.class);
+  }
+
+
+  protected void setUp() throws Exception {
+    super.setUp();
+    engineSupport = new XSLTEngineSupport();
   }
 
   protected void tearDown() throws Exception {
@@ -421,7 +422,11 @@ public class UTestTracingFilter extends TestCase {
   private String makeValueOf(String statement, int line, int col) throws IOException {
     String escapedStatement = StringUtil.escapeQuoteCharacter(
         StringUtil.escapeXMLText(StringUtil.replaceCharByEntityRef(statement, '\'')));
-    return "<xsl:value-of select=\"tracer:trace($juxy:tracer, " + line + ", " + col + ", '" + getSystemId() + "', '" + escapedStatement + "')\" " + JUXY_XMLNS + " " + TRACER_XMLNS + "/>";
+    return "<xsl:value-of select=\"Tracer:trace(" + line + ", " + col + ", '" + getSystemId() + "', '" + escapedStatement + "')\" " + tracerNS() + "/>";
+  }
+
+  private String tracerNS() {
+    return "xmlns:Tracer='" + engineSupport.getJavaExtensionNamespace(Tracer.class) + "'";
   }
 
   private void filter(String originalStylesheet) throws Exception {
@@ -432,7 +437,7 @@ public class UTestTracingFilter extends TestCase {
     ByteArrayOutputStream bos = new ByteArrayOutputStream(50);
     s.setOutputStream(bos);
 
-    TracingFilter filter = new TracingFilter();
+    TracingFilter filter = new TracingFilter(engineSupport);
     filter.setParent(reader);
     s.setParent(filter);
 
