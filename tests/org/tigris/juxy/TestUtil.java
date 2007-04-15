@@ -1,9 +1,8 @@
 package org.tigris.juxy;
 
-import org.xml.sax.InputSource;
 import org.tigris.juxy.util.XSLTEngineSupport;
+import org.xml.sax.InputSource;
 
-import javax.xml.transform.TransformerFactory;
 import java.io.ByteArrayInputStream;
 
 /**
