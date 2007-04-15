@@ -4,7 +4,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildFileTest;
 
 /**
- * $Id: UTestVerifierTask.java,v 1.8 2006-10-31 11:01:23 pavelsher Exp $
+ * $Id: UTestVerifierTask.java,v 1.9 2007-04-15 20:01:25 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -29,9 +29,11 @@ public class UTestVerifierTask extends BuildFileTest {
     expectBuildException("verification-noattributes", "");
   }
 
+/*
   public void testDirAndFilesetSpecified() {
     expectBuildException("verification-dirandfileset", "");
   }
+*/
 
   public void testVerificationSuccessful() {
     expectLogContaining("successful-verification", "1 stylesheet(s) were selected for verification");

@@ -32,11 +32,13 @@
     <xsltverifier/>
   </target>
 
+<!--
   <target name="verification-dirandfileset">
-    <xsltverifier dir=".">
+    <xsltverifier dir="${basedir}">
       <fileset refid="valid-xsl"/>
     </xsltverifier>
   </target>
+-->
 
   <target name="successful-verification">
     <xsltverifier dir="tests/xml/verifier" includes="root.xsl"/>

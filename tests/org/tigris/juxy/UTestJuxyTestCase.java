@@ -31,6 +31,11 @@ public class UTestJuxyTestCase extends JuxyTestCase {
   }
 
   public void testApplyTemplates() throws Exception {
+    if (TestUtil.isOracleXDK()) {
+      System.out.println(getName() + " skipped under Oracle XDK");
+      return;
+    }
+
     RunnerContext ctx = newContext("tests/xml/templates.xsl");
     ctx.setDocument("<root>text</root>");
 
