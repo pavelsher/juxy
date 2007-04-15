@@ -189,7 +189,7 @@
 
     <target name="ut">
         <junit printsummary="yes" haltonfailure="yes" fork="yes" forkmode="once" showoutput="false">
-            <jvmarg line="-ea ${jvmargs}"/>
+            <jvmarg line="-ea -XX:MaxPermSize=99m ${jvmargs}"/>
             <classpath refid="${classpath}" />
             <formatter type="plain" usefile="false"/>
             <batchtest fork="no">
