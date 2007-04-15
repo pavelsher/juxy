@@ -4,8 +4,6 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.BuildFileTest;
 
 /**
- * $Id: UTestVerifierTask.java,v 1.9 2007-04-15 20:01:25 pavelsher Exp $
- *
  * @author Pavel Sher
  */
 public class UTestVerifierTask extends BuildFileTest {

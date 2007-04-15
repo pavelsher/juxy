@@ -133,6 +133,7 @@
     <path id="verifiertask.test.classpath">
         <fileset dir="${lib.dir}">
             <include name="saxon*.jar"/>
+            <include name="xerces*.jar"/>
         </fileset>
         <pathelement path="${test.classes.dir}"/>
         <pathelement path="${tools.dir}/ant-testutil.jar"/>
@@ -188,11 +189,11 @@
     </target>
 
     <target name="ut">
-        <junit printsummary="yes" haltonfailure="yes" fork="yes" forkmode="once" showoutput="false">
-            <jvmarg line="-ea -XX:MaxPermSize=128m ${jvmargs}"/>
+        <junit printsummary="yes" haltonfailure="no" fork="yes" forkmode="once" showoutput="false">
+            <jvmarg line="-ea ${jvmargs}"/>
             <classpath refid="${classpath}" />
             <formatter type="plain" usefile="false"/>
-            <batchtest fork="no">
+            <batchtest fork="yes">
                 <fileset refid="${files}"/>
             </batchtest>
         </junit>
