@@ -21,6 +21,10 @@ public class UTestJuxyURIResolver extends TestCase {
     resolver = new JuxyURIResolver();
   }
 
+  private URI fileToURI(String path) throws IOException {
+    return new File(path).getCanonicalFile().toURI();
+  }
+
   public void testResolveNonExistentFile() throws TransformerException {
     assertNull(resolver.resolve(null, null));
     assertNull(resolver.resolve("unknown_file.xml", null));
@@ -29,25 +33,25 @@ public class UTestJuxyURIResolver extends TestCase {
   public void testRelativeResolveToExistingFile() throws Exception {
     Source src = resolver.resolve("tests/xml/document.xml", null);
     assertNotNull(src);
-    assertEquals(new File("tests/xml/document.xml").toURI(), new URI(src.getSystemId()));
+    assertEquals(fileToURI("tests/xml/document.xml"), new URI(src.getSystemId()));
   }
 
   public void testRelativeResolveWithNotEmptyBase() throws Exception {
     Source src = resolver.resolve("tests/xml/document.xml", System.getProperty("user.dir"));
     assertNotNull(src);
-    assertEquals(new File("tests/xml/document.xml").toURI(), new URI(src.getSystemId()));
+    assertEquals(fileToURI("tests/xml/document.xml"), new URI(src.getSystemId()));
   }
 
   public void testAbsoluteResolveWithNotEmptyBase() throws Exception {
     Source src = resolver.resolve(new File("tests/xml/document.xml").getAbsolutePath(), System.getProperty("user.dir"));
     assertNotNull(src);
-    assertEquals(new File("tests/xml/document.xml").toURI(), new URI(src.getSystemId()));
+    assertEquals(fileToURI("tests/xml/document.xml"), new URI(src.getSystemId()));
   }
 
   public void testAbsoluteResolveWithEmptyBase() throws Exception {
     Source src = resolver.resolve(new File("tests/xml/document.xml").getAbsoluteFile().toURI().toString(), "");
     assertNotNull(src);
-    assertEquals(new File("tests/xml/document.xml").toURI(), new URI(src.getSystemId()));
+    assertEquals(fileToURI("tests/xml/document.xml"), new URI(src.getSystemId()));
   }
 
   public void testResourceResolving_NotWithinJar() throws TransformerException, URISyntaxException {
