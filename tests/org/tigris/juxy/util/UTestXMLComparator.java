@@ -1,13 +1,18 @@
 package org.tigris.juxy.util;
 
 import junit.framework.TestCase;
+import org.tigris.juxy.Runner;
+import org.tigris.juxy.RunnerContext;
+import org.tigris.juxy.RunnerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import javax.xml.transform.TransformerException;
 import java.io.File;
 
 /**
- * $Id: UTestXMLComparator.java,v 1.5 2006-11-09 17:28:07 pavelsher Exp $
+ * $Id: UTestXMLComparator.java,v 1.6 2007-10-30 09:10:59 pavelsher Exp $
  *
  * @author Pavel Sher
  */
@@ -238,5 +243,25 @@ public class UTestXMLComparator extends TestCase {
     Document actual = DOMUtil.parse("<parent><child1/><child2/></parent>");
     XMLComparator.assertEquals("<child1/>", actual.getDocumentElement().getFirstChild());
     XMLComparator.assertEquals("<child2/>", actual.getDocumentElement().getLastChild());
+  }
+
+  public void testStripEmptyTextNodes() throws SAXException, TransformerException {
+    String input = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" +
+        "<XMLMsg>\n" +
+        "    <Body_Msg>\n" +
+        "        <Bodys>\n" +
+        "            <Body>\n" +
+        "            </Body>\n" +
+        "        </Bodys>\n" +
+        "    </Body_Msg>\n" +
+        "</XMLMsg>";
+
+    String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Test/>";
+
+    Runner runner = RunnerFactory.newRunner();
+    RunnerContext context = runner.newRunnerContext("tests/xml/indent.xsl");
+    context.setDocument(input);
+    Node actual = runner.applyTemplates(context);
+    XMLComparator.assertEquals(expected, actual);
   }
 }

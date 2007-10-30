@@ -65,4 +65,8 @@ public class ResultDocumentProxy implements InvocationHandler {
     Node startNode = node instanceof Document ? adaptedDocument : node;
     return ((DocumentTraversal)adaptedDocument).createTreeWalker(startNode, i, filter, b);
   }
+
+  public void normalize() {
+    fragment.normalize();
+  }
 }

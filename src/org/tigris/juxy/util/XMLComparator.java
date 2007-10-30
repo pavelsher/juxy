@@ -37,6 +37,7 @@ public class XMLComparator {
     TreeWalker expTw = ((DocumentTraversal) expectedDoc).createTreeWalker(expectedDoc, NodeFilter.SHOW_ALL, new ComparatorNodeFilter(), true);
     Document actualDoc = actual.getNodeType() == Node.DOCUMENT_NODE ? (Document) actual : actual.getOwnerDocument();
     TreeWalker actualTw = ((DocumentTraversal) actualDoc).createTreeWalker(actualDoc, NodeFilter.SHOW_ALL, new ComparatorNodeFilter(), true);
+
     Node enode = skipDocumentIfNeeded(expected);
     Node anode = skipDocumentIfNeeded(actual);
     if (enode == null && anode == null) return;
@@ -93,6 +94,11 @@ public class XMLComparator {
         case Node.DOCUMENT_NODE:
         case Node.DOCUMENT_FRAGMENT_NODE:
           startFrom = startFrom.getFirstChild();
+          break;
+        case Node.TEXT_NODE:
+          if (startFrom.getNodeValue().trim().length() == 0) {
+            startFrom = startFrom.getNextSibling();
+          }
           break;
         default:
           return startFrom;
