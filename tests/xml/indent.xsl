@@ -4,7 +4,7 @@
     <xsl:template match="/">
             <xsl:apply-templates select="XMLMsg/Body_Msg/Bodys"/>
     </xsl:template>
-    <xsl:template match="/XMLMsg/Body_Msg/Bodys/Body">
+    <xsl:template match="Body">
             <Test/>
     </xsl:template>
 </xsl:stylesheet>
