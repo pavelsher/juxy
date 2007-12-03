@@ -31,7 +31,6 @@ public class UTestRunnerTracing extends JuxyTestCase {
     setStylesheet("<xsl:variable name='var1'/>");
     context().setDocument("<root/>");
     applyTemplates();
-    throw new Exception("Failure");
   }
 
   public void testNamedTemplate() throws Exception {
