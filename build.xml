@@ -140,49 +140,44 @@
     </path>
 
     <target name="test-verifiertask">
+      <ut files="verifier.task.tests"
+          jvmargs="-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"
+          classpath="verifiertask.test.classpath"/>
+<!--
         <antcall target="ut">
             <param name="files" value="verifier.task.tests"/>
             <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"/>
             <param name="classpath" value="verifiertask.test.classpath"/>
         </antcall>
+-->
     </target>
 
     <target name="test-all" depends="compile" description="Runs all tests under the Xalan and Saxon engines" >
 
       <echo message="Running tests with Oracle XDK ..."/>
-      <antcall target="ut">
-          <param name="files" value="all.tests.except.verifier"/>
-          <param name="jvmargs" value="-Djavax.xml.parsers.DocumentBuilderFactory=oracle.xml.jaxp.JXDocumentBuilderFactory -Djavax.xml.parsers.SAXParserFactory=oracle.xml.jaxp.JXSAXParserFactory -Dorg.xml.sax.driver=oracle.xml.jaxp.JXSAXParser   -Djavax.xml.transform.TransformerFactory=oracle.xml.jaxp.JXSAXTransformerFactory"/>
-          <param name="classpath" value="test.classpath"/>
-      </antcall>
- 
+      <ut files="all.tests.except.verifier"
+          jvmargs="-Djavax.xml.parsers.DocumentBuilderFactory=oracle.xml.jaxp.JXDocumentBuilderFactory -Djavax.xml.parsers.SAXParserFactory=oracle.xml.jaxp.JXSAXParserFactory -Dorg.xml.sax.driver=oracle.xml.jaxp.JXSAXParser   -Djavax.xml.transform.TransformerFactory=oracle.xml.jaxp.JXSAXTransformerFactory"
+          classpath="test.classpath"/>
+
       <echo message="Running tests with Saxon XSLT ..."/>
-      <antcall target="ut">
-          <param name="files" value="all.tests.except.verifier"/>
-          <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"/>
-          <param name="classpath" value="test.classpath"/>
-      </antcall>
+      <ut files="all.tests.except.verifier"
+          jvmargs="-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"
+          classpath="test.classpath"/>
 
       <echo message="Running tests with Java 1.5 XSLTC ..."/>
-      <antcall target="ut">
-          <param name="files" value="all.tests.except.verifier"/>
-          <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl"/>
-          <param name="classpath" value="test.classpath"/>
-      </antcall>
+      <ut files="all.tests.except.verifier"
+          jvmargs="-Djavax.xml.transform.TransformerFactory=com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl"
+          classpath="test.classpath"/>
 
       <echo message="Running tests with Xalan XSLTC ..."/>
-      <antcall target="ut">
-          <param name="files" value="all.tests.except.verifier"/>
-          <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=org.apache.xalan.xsltc.trax.TransformerFactoryImpl"/>
-          <param name="classpath" value="test.classpath"/>
-      </antcall>
+      <ut files="all.tests.except.verifier"
+          jvmargs="-Djavax.xml.transform.TransformerFactory=org.apache.xalan.xsltc.trax.TransformerFactoryImpl"
+          classpath="test.classpath"/>
 
       <echo message="Running tests with Xalan XSLT ..."/>
-      <antcall target="ut">
-          <param name="files" value="all.tests.except.verifier"/>
-          <param name="jvmargs" value="-Djavax.xml.transform.TransformerFactory=org.apache.xalan.processor.TransformerFactoryImpl"/>
-          <param name="classpath" value="test.classpath"/>
-      </antcall>
+      <ut files="all.tests.except.verifier"
+          jvmargs="-Djavax.xml.transform.TransformerFactory=org.apache.xalan.processor.TransformerFactoryImpl"
+          classpath="test.classpath"/>
 
       <!-- run unit tests for veriier task -->
       <antcall target="test-verifiertask"/>
@@ -356,4 +351,19 @@
         <antcall target="coverage-report"/>
     </target>
 
+    <macrodef name="ut">
+      <attribute name="files" default="all.tests.except.verifier"/>
+      <attribute name="jvmargs"/>
+      <attribute name="classpath" default="test.classpath"/>
+      <sequential>
+        <junit printsummary="yes" haltonfailure="no" fork="yes" forkmode="once" showoutput="false">
+          <jvmarg line="-ea @{jvmargs}"/>
+          <classpath refid="@{classpath}" />
+          <formatter type="plain" usefile="false"/>
+          <batchtest fork="yes">
+            <fileset refid="@{files}"/>
+          </batchtest>
+        </junit>
+      </sequential>
+    </macrodef>
 </project>
