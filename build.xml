@@ -229,7 +229,6 @@
             <fileset dir="${basedir}">
                 <include name="samples/**"/>
                 <include name="License.txt"/>
-                <include name="CatalogManager.properties"/>
                 <include name="samples.catalog"/>
             </fileset>
         </copy>
