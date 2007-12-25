@@ -149,7 +149,7 @@ public class VerifierImpl implements Verifier {
           verified = true;
       } catch (TransformerConfigurationException e) {
         e.printStackTrace();
-        reportTransformerErrors(new TransformerException[] {e});
+        //reportTransformerErrors(new TransformerException[] {e});
       } finally {
         if (errorListener.hasErrors()) {
           reportTransformerErrors(errorListener.getTransformErrors());
