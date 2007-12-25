@@ -36,7 +36,7 @@ public class VerifierTask extends MatchingTask implements ErrorReporter {
     if (!verifier.verify(failOnError) && failOnError)
       throw new BuildException("Verification failed");
 
-    int notVerifiedNum = verifier.getNumberOfNotVerifierFiles();
+    int notVerifiedNum = verifier.getNumberOfNotVerifiedFiles();
     if (notVerifiedNum > 0)
       info(notVerifiedNum + " stylesheet(s) were not verified due to errors");
   }

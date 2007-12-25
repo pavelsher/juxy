@@ -56,5 +56,5 @@ public interface Verifier {
    *
    * @return number of files that were not verified due to verification errors
    */
-  int getNumberOfNotVerifierFiles();
+  int getNumberOfNotVerifiedFiles();
 }

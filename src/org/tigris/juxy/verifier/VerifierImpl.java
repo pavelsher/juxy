@@ -123,7 +123,7 @@ public class VerifierImpl implements Verifier {
     return numberOfVerifiedFiles;
   }
 
-  public int getNumberOfNotVerifierFiles() {
+  public int getNumberOfNotVerifiedFiles() {
     return numberOfNotVerifiedFiles;
   }
 
@@ -148,7 +148,8 @@ public class VerifierImpl implements Verifier {
         if (!errorListener.hasErrors())
           verified = true;
       } catch (TransformerConfigurationException e) {
-        // do nothing here
+        e.printStackTrace();
+        reportTransformerErrors(new TransformerException[] {e});
       } finally {
         if (errorListener.hasErrors()) {
           reportTransformerErrors(errorListener.getTransformErrors());

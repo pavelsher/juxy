@@ -66,7 +66,7 @@ public class UTestVerifierImpl extends TestCase {
       assertTrue(reporter.errors()[0].contains("an exception"));
     }
 
-    assertEquals(1, verifier.getNumberOfNotVerifierFiles());
+    assertEquals(1, verifier.getNumberOfNotVerifiedFiles());
   }
 
   public void testNotExistentFileIgnored() {
