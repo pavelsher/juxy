@@ -8,8 +8,6 @@ import org.w3c.dom.Node;
 public class NamespaceTestCase extends JuxyTestCase {
   protected void setUp() throws Exception {
     newContext("samples/xsl/namespace.xsl");
-    context().registerNamespace("oldns", "http://juxy.tigris.org/0.9");
-    context().registerNamespace("newns", "http://juxy.tigris.org/1.0");
   }
 
   public void testElementsConverted() throws Exception {
