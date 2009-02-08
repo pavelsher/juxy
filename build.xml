@@ -3,6 +3,7 @@
 
     <property name="src.dir" location="${basedir}/src"/>
     <property name="tests.dir" location="${basedir}/tests"/>
+    <property name="xmltests.dir" location="${basedir}/xmlTest"/>
     <property name="classes.dir" location="${basedir}/classes"/>
     <property name="test.classes.dir" location="${basedir}/test-classes"/>
     <property name="lib.dir" location="${basedir}/lib"/>
@@ -117,7 +118,25 @@
         </copy>
     </target>
 
-    <target name="compile" depends="init, compile-src, compile-tests" />
+    <target name="compile-x2j" depends="init">
+      <xslt basedir="${xmltests.dir}" destdir="${build.dir}/java"
+	    style="${xmltests.dir}/x2j.xsl">
+	<mapper type="regexp" from="^([A-Z][A-Za-z0-9]*).xml" to="\1.java"/>
+      </xslt>
+    </target>
+
+    <target name="compile-xmltests" depends="init, compile-x2j">
+        <depend srcdir="${build.dir}/java" destdir="${test.classes.dir}" cache="${depcache.dir}" closure="no"/>
+
+        <javac  srcdir="${build.dir}/java" destdir="${test.classes.dir}"
+                includes="*"
+                classpathref="compile.classpath"
+                debug="true"
+                source="1.4"
+          />
+    </target>
+
+    <target name="compile" depends="init, compile-src, compile-tests, compile-xmltests" />
 
     <target name="remake" depends="clean, test-all" description="Remakes all source codes and runs all tests"/>
 
@@ -182,6 +201,36 @@
       <!-- run unit tests for veriier task -->
       <antcall target="test-verifiertask"/>
     </target>
+
+    <target name="test-xml" depends="compile-xmltests" description="Runs all XML tests" >
+        <echo message=""/>
+        <echo message="Starting XML tests..."/>
+
+	<path id="run.classpath">
+	  <path refid="compile.classpath"/>
+	  <pathelement path="${test.classes.dir}"/>
+	</path>
+
+	<mkdir dir="${build.dir}/reports"/>
+        <junit printsummary="yes" haltonfailure="yes" fork="yes"
+	       showoutput="yes">
+            <jvmarg value="-ea"/>
+	    <jvmarg value="-Djavax.xml.transform.TransformerFactory=net.sf.saxon.TransformerFactoryImpl"/>
+            <classpath refid="run.classpath" />
+            <formatter type="xml"/>
+            <batchtest fork="yes" todir="${build.dir}/reports">
+                <fileset dir="${build.dir}/java">
+                    <include name="*.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+	<junitreport todir="${build.dir}/reports">
+	  <fileset dir="${build.dir}/reports">
+            <include name="TEST-*.xml"/>
+	  </fileset>
+	  <report format="frames" todir="${build.dir}/reports/html"/>
+	</junitreport>
+   </target>
 
     <target name="ut">
         <junit printsummary="yes" haltonfailure="no" fork="yes" forkmode="once" showoutput="false">

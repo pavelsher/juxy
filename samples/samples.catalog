@@ -1,5 +1,6 @@
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
 
     <uri name="CustomResolverTestCase" uri="xsl/customresolver.xsl"/>
+    <uri name="CustomResolverTestCase1" uri="xsl/customresolver.xsl"/>
 
 </catalog>
