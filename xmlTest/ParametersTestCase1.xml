@@ -1,0 +1,57 @@
+<testcase name="ParametersTestCase1">
+  <stylesheet href="samples/xsl/parameters.xsl"/>
+
+  <test name="TemplateParameter_SimpleValue">
+    <document><root/></document>
+    <call-template name="template-parameter">
+      <with-param name="param1">value1</with-param>
+    </call-template>
+    <assert-equals>
+      <expected>value1</expected>
+    </assert-equals>
+  </test>
+
+  <test name="TemplateParameter_DocumentValue">
+    <document><root/></document>
+    <call-template name="template-parameter">
+      <with-param name="param1"><doc>some text</doc></with-param>
+    </call-template>
+    <assert-equals>
+      <expected>some text</expected>
+    </assert-equals>
+  </test>
+
+  <test name="TemplateParameter_XPathValue">
+    <document>
+      <root>
+        <node1>node1</node1>
+        <node2>node2</node2>
+      </root>
+    </document>
+    <call-template name="template-parameter">
+      <with-param name="param1" select="/root/node2"/>
+    </call-template>
+    <assert-equals>
+      <expected>node2</expected>
+    </assert-equals>
+  </test>
+
+  <test name="GlobalVariableRedefinition">
+    <document><root/></document>
+    <variable name="globalVar">another value</variable>
+    <call-template name="template-global-variable"/>
+    <assert-equals>
+      <expected>another value</expected>
+    </assert-equals>
+  </test>
+
+  <test name="GlobalParameterRedefinition">
+    <document><root/></document>
+    <param name="globalParam">some value</param>
+    <call-template name="template-global-parameter"/>
+    <assert-equals>
+      <expected>some value</expected>
+    </assert-equals>
+  </test>
+
+</testcase>

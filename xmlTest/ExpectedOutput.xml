@@ -1,0 +1,12 @@
+<testcase name="ExpectedOutput">
+
+  <test name="ExpectedOutput">
+    <stylesheet href="samples/xsl/art2article.xsl"/>
+    <document href="tests/xml/art.xml"/>
+    <apply-templates/>
+    <assert-equals>
+      <expected href="tests/xml/article.xml"/>
+    </assert-equals>
+  </test>
+
+</testcase>

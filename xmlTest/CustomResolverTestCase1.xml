@@ -1,0 +1,12 @@
+<testcase name="CustomResolverTestCase1">
+  <stylesheet catalog="samples/samples.catalog"><root/></stylesheet>
+
+  <test name="SimpleTransformation">
+    <call-template name="getResult"/>
+    <assert-equals>
+      <expected>The result is this text.</expected>
+      <actual normalize="yes" select="text()"/>
+    </assert-equals>
+  </test>
+
+</testcase>

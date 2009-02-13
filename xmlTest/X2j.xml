@@ -1,0 +1,11 @@
+<testcase name="X2j">
+
+  <test name="Stylesheet">
+    <stylesheet href="xmlTest/x2j.xsl"/>
+    <document><stylesheet href="href"><root/></stylesheet></document>
+    <assert-error>
+      <apply-templates/>
+    </assert-error>
+  </test>
+
+</testcase>

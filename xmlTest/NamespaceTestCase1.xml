@@ -1,0 +1,30 @@
+<testcase name="NamespaceTestCase1">
+  <stylesheet href="samples/xsl/namespace.xsl"/>
+
+  <test name="ElementsConverted">
+    <document>
+      <element xmlns='http://juxy.tigris.org/0.9' attribute='value'>
+</element>
+    </document>
+    <apply-templates/>
+    <assert-equals>
+      <expected>
+	<element xmlns='http://juxy.tigris.org/1.0' attribute='value'/>
+      </expected>
+    </assert-equals>
+  </test>
+
+  <test name="TextAndOtherNodesAreCopied">
+    <document>
+      <element xmlns='http://juxy.tigris.org/0.9'>text<!-- comment --><child/></element>
+    </document>
+    <apply-templates/>
+    <assert-equals>
+      <expected>
+	<element xmlns='http://juxy.tigris.org/1.0'>text<!-- comment --><child/></element>
+      </expected>
+    </assert-equals>
+  </test>
+
+
+</testcase>

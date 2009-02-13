@@ -1,0 +1,37 @@
+<testcase name="ListTestCase1">
+  <stylesheet href="tests/xsl/list.xsl"/>
+
+  <test name="EmptyList">
+    <document select="/list"><list/></document>
+    <call-template name="makeList"/>
+    <assert-equals>
+      <expected select="false()"/>
+      <actual select="text()"/>
+    </assert-equals>
+  </test>
+
+  <test name="OneElementInTheList">
+    <document select="/list"><list><item>one item</item></list></document>
+    <call-template name="makeList"/>
+    <assert-equals>
+      <expected>one item</expected>
+    </assert-equals>
+  </test>
+
+  <test name="MoreThanOneElementInTheList">
+    <document select="/list"><list><item>first item</item><item>second item</item><item>third item</item></list></document>
+    <call-template name="makeList"/>
+    <assert-equals>
+      <expected>first item, second item, third item</expected>
+    </assert-equals>
+  </test>
+
+  <test name="MoreThanOneElementInTheList_ApplyTemplates">
+    <document select="/list"><list><item>first item</item><item>second item</item><item>third item</item></list></document>
+    <apply-templates select="/list"/>
+    <assert-equals>
+      <expected>first item, second item, third item</expected>
+    </assert-equals>
+  </test>
+
+</testcase>

@@ -1,0 +1,37 @@
+<testcase name="UTestJuxyTestCase1">
+
+  <test name="CallTemplate">
+    <stylesheet href="tests/xml/templates.xsl"/>
+    <document><root/></document>
+    <call-template name="getRoot"/>
+    <assert-equals>
+      <expected><result><root/></result></expected>
+    </assert-equals>
+  </test>
+
+  <test name="ApplyTemplates">
+    <stylesheet href="tests/xml/templates.xsl"/>
+    <document><root>text</root></document>
+    <apply-templates/>
+    <assert-equals>
+      <expected><result>text</result></expected>
+    </assert-equals>
+
+    <apply-templates select="/"/>
+    <assert-equals>
+      <expected><result>text</result></expected>
+    </assert-equals>
+
+    <apply-templates select="root" mode="mode"/>
+    <assert-equals>
+      <expected><result>text [with mode]</result></expected>
+    </assert-equals>
+
+    <document><commentParent><!-- comment --></commentParent></document>
+    <apply-templates/>
+    <assert-equals>
+      <expected><result>comment</result></expected>
+    </assert-equals>
+  </test>
+
+</testcase>

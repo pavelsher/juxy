@@ -1,0 +1,72 @@
+# Schema for XML for Juxy tests
+# Author: Tony Graham
+# Copyright 2008 Menteith Consulting Ltd
+default namespace = ""
+
+start =
+  element testcase {
+    attribute name { xsd:NCName },
+    stylesheet?,
+    element test {
+      attribute name { xsd:NCName },
+      stylesheet?,
+      (element document {
+        attribute select { text }?,
+        (attribute href { text } |
+         anyelements)
+      }
+      | element param {
+         attribute name { xsd:NCName },
+         text
+      }
+      | element variable {
+         attribute name { xsd:NCName },
+         text
+      }
+      | apply-templates
+      | call-template
+      | element assert-error {
+          (apply-templates
+	  |call-template)
+      }
+       | element assert-equals {
+          element expected {
+            attribute normalize { "yes" | "no" }?,
+            attribute select { text }?,
+            (attribute href { text } |
+             (text | anyelements))
+          },
+          element actual {
+            attribute normalize { "yes" | "no" }?,
+            attribute select { text }?,
+            (attribute href { text } |
+             (text | anyelements))?
+          }?
+        })+
+    }+
+  }
+stylesheet =
+  element stylesheet {
+    attribute catalog { text }?,
+    (attribute href { text } |
+    anyelements)
+  }
+apply-templates =
+  element apply-templates {
+     attribute mode { text }?,
+     attribute select { text }?
+  }
+call-template =
+  element call-template {
+    attribute name { xsd:NCName },
+    element with-param {
+      attribute name { xsd:NCName },
+      attribute select { text }?,
+      (text
+       | anyelements)+
+    }?
+  }
+anyelements = element * { anything }*
+anything =
+  ( element * { anything } | attribute * { text } | text )*
+
