@@ -461,6 +461,21 @@ Tracing of the stylesheet file://some/path/stylesheet.xsl started
 </p>
 
 <p>&nbsp;</p>
+
+<a name="c95"></a><h3>XML Format</h3>
+
+<p>Juxy (in CVS) supports an XML format for tests.  For example:</p>
+
+<pre>&lt;test name="MoreThanOneElementInTheList_ApplyTemplates"&gt;
+  &lt;document select="/list"&gt;&lt;list&gt;&lt;item&gt;first item&lt;/item&gt;&lt;item&gt;second item&lt;/item&gt;
+&lt;item&gt;third item&lt;/item&gt;&lt;/list&gt;&lt;/document&gt;
+  &lt;apply-templates select="/list"/&gt;
+  &lt;assert-equals&gt;
+    &lt;expected&gt;first item, second item, third item&lt;/expected&gt;
+  &lt;/assert-equals&gt;
+&lt;/test&gt;</pre>
+
+<p>&nbsp;</p>
 <a name="c100"></a><h2>Requirements</h2>
 
 <p>
