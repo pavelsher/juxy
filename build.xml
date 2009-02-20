@@ -415,4 +415,14 @@
         </junit>
       </sequential>
     </macrodef>
+
+    <target name="svn-tag">
+      <exec
+	  executable="svn">
+	<arg value="cp"/>
+        <arg value="-m'Tagging Juxy ${version}.'"/>
+        <arg value="http://juxy.tigris.org/svn/juxy/trunk"/>
+        <arg value="http://juxy.tigris.org/svn/juxy/tags/${version}"/>
+      </exec>
+    </target>
 </project>
